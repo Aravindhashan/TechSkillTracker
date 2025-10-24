@@ -8,63 +8,148 @@ from datetime import datetime
 # Import custom modules
 from modules.data_loader import load_job_data
 from modules.data_cleaner import clean_job_data, validate_data, get_data_summary
-from modules.ml_forecast import forecast_skill_demand, create_forecast_chart, get_forecast_insights
+from modules.ml_forecast import forecast_skill_demand, get_forecast_insights
 from modules.salary_predictor import train_salary_model, predict_salary, get_salary_distribution, get_salary_insights
 from modules.recommendation_engine import recommend_skills, recommend_for_job_role, get_skill_pairs, get_learning_path
 
 # Page configuration
 st.set_page_config(
-    page_title="Tech Skill Tracker - BI Dashboard",
-    page_icon="📊",
+    page_title="Tech Skill Tracker - Business Intelligence",
     layout="wide",
     initial_sidebar_state="expanded"
 )
 
-# Custom CSS
+# Custom CSS for professional look
 st.markdown("""
 <style>
     .main-header {
-        font-size: 2.5rem;
-        font-weight: bold;
-        color: #1f77b4;
+        font-size: 2.2rem;
+        font-weight: 600;
+        color: #2c3e50;
         text-align: center;
-        padding: 1rem 0;
+        padding: 1.5rem 0;
+        border-bottom: 3px solid #3498db;
+        margin-bottom: 2rem;
     }
-    .metric-card {
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        padding: 1.5rem;
-        border-radius: 10px;
-        color: white;
+    .subheader-text {
+        font-size: 1rem;
+        color: #7f8c8d;
         text-align: center;
-        margin: 0.5rem 0;
+        margin-top: -1rem;
+        margin-bottom: 2rem;
     }
-    .metric-value {
-        font-size: 2rem;
-        font-weight: bold;
-    }
-    .metric-label {
-        font-size: 0.9rem;
-        opacity: 0.9;
+    .stPlotlyChart {
+        background-color: white;
+        border-radius: 8px;
+        padding: 10px;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
     }
 </style>
 """, unsafe_allow_html=True)
+
+
+def create_professional_forecast_chart(forecast_df, skill_name):
+    """Create clean, professional forecast visualization"""
+    fig = go.Figure()
+    
+    # Historical data
+    historical = forecast_df[forecast_df['Actual'].notna()]
+    if not historical.empty:
+        fig.add_trace(go.Scatter(
+            x=historical['Date'],
+            y=historical['Actual'],
+            mode='lines+markers',
+            name='Historical Data',
+            line=dict(color='#3498db', width=3),
+            marker=dict(size=8, symbol='circle'),
+            hovertemplate='<b>Date:</b> %{x|%Y-%m}<br><b>Jobs:</b> %{y}<extra></extra>'
+        ))
+    
+    # Forecast data
+    forecast = forecast_df[forecast_df['Forecast'].notna() & forecast_df['Actual'].isna()]
+    if not forecast.empty:
+        fig.add_trace(go.Scatter(
+            x=forecast['Date'],
+            y=forecast['Forecast'],
+            mode='lines+markers',
+            name='Predicted Demand',
+            line=dict(color='#e74c3c', width=3, dash='dash'),
+            marker=dict(size=8, symbol='diamond'),
+            hovertemplate='<b>Date:</b> %{x|%Y-%m}<br><b>Forecast:</b> %{y:.0f}<extra></extra>'
+        ))
+    
+    # Confidence interval (if available)
+    if 'Upper_Bound' in forecast_df.columns and forecast_df['Upper_Bound'].notna().any():
+        forecast_with_bounds = forecast_df[forecast_df['Upper_Bound'].notna()]
+        fig.add_trace(go.Scatter(
+            x=forecast_with_bounds['Date'],
+            y=forecast_with_bounds['Upper_Bound'],
+            mode='lines',
+            name='Upper Confidence',
+            line=dict(width=0),
+            showlegend=False,
+            hoverinfo='skip'
+        ))
+        fig.add_trace(go.Scatter(
+            x=forecast_with_bounds['Date'],
+            y=forecast_with_bounds['Lower_Bound'],
+            mode='lines',
+            name='Confidence Interval',
+            line=dict(width=0),
+            fillcolor='rgba(231, 76, 60, 0.15)',
+            fill='tonexty',
+            hovertemplate='<b>Range:</b> %{y:.0f}<extra></extra>'
+        ))
+    
+    fig.update_layout(
+        title=dict(
+            text=f'Demand Forecast Analysis: {skill_name}',
+            font=dict(size=18, color='#2c3e50', family='Arial')
+        ),
+        xaxis=dict(
+            title='Time Period',
+            showgrid=True,
+            gridcolor='#ecf0f1',
+            title_font=dict(size=14, color='#34495e')
+        ),
+        yaxis=dict(
+            title='Number of Job Openings',
+            showgrid=True,
+            gridcolor='#ecf0f1',
+            title_font=dict(size=14, color='#34495e')
+        ),
+        hovermode='x unified',
+        height=500,
+        plot_bgcolor='white',
+        paper_bgcolor='white',
+        legend=dict(
+            orientation="h",
+            yanchor="bottom",
+            y=1.02,
+            xanchor="right",
+            x=1,
+            font=dict(size=11)
+        ),
+        margin=dict(t=80, b=60, l=60, r=40)
+    )
+    
+    return fig
 
 
 def main():
     """Main application function"""
     
     # Header
-    st.markdown('<div class="main-header">📊 Tech Skill Tracker - BI Dashboard</div>', unsafe_allow_html=True)
-    st.markdown("### Data-Driven Insights for the Indian Tech Job Market")
-    st.markdown("---")
+    st.markdown('<div class="main-header">Tech Skill Tracker - Business Intelligence</div>', unsafe_allow_html=True)
+    st.markdown('<div class="subheader-text">Comprehensive Analytics for the Indian Tech Job Market</div>', unsafe_allow_html=True)
     
     # Load and clean data
     with st.spinner("Loading data..."):
         df_raw, files_count = load_job_data("data")
         
         if df_raw.empty:
-            st.error("❌ No data found! Please add CSV files to the `/data` folder.")
-            st.info("**Required columns:** Job Title, Tech Skill, Company, Location, Salary (in LPA), Experience Required (in years), Date Posted")
+            st.error("No data found. Please add CSV files to the data folder.")
+            st.info("Required columns: Job Title, Tech Skill, Company, Location, Salary (in LPA), Experience Required (in years), Date Posted")
             st.stop()
         
         # Clean data
@@ -73,19 +158,19 @@ def main():
         # Validate
         is_valid, message = validate_data(df)
         if not is_valid:
-            st.error(f"❌ Data validation failed: {message}")
+            st.error(f"Data validation failed: {message}")
             st.stop()
         
-        st.success(f"✅ Loaded and cleaned data from {files_count} file(s) - {len(df)} records ready for analysis")
+        st.success(f"Data loaded successfully: {len(df)} records from {files_count} file(s)")
     
     # Train ML models (cached)
-    with st.spinner("Training ML models..."):
+    with st.spinner("Initializing machine learning models..."):
         salary_model, le_skill, le_location, model_status = train_salary_model(df)
         if "successfully" in model_status:
-            st.success(f"🤖 {model_status}")
+            st.success(model_status)
     
     # Sidebar filters
-    st.sidebar.header("🎛️ Filters")
+    st.sidebar.header("Filter Options")
     
     # Date range filter
     min_date = df['Date Posted'].min().date()
@@ -100,7 +185,7 @@ def main():
     # Skill filter
     all_skills = sorted(df['Tech Skill'].unique())
     selected_skills = st.sidebar.multiselect(
-        "Tech Skills",
+        "Technology Skills",
         options=all_skills,
         default=all_skills
     )
@@ -108,7 +193,7 @@ def main():
     # Location filter
     all_locations = sorted(df['Location'].unique())
     selected_locations = st.sidebar.multiselect(
-        "Locations",
+        "Job Locations",
         options=all_locations,
         default=all_locations
     )
@@ -117,7 +202,7 @@ def main():
     min_exp = int(df['Experience Required (in years)'].min())
     max_exp = int(df['Experience Required (in years)'].max())
     exp_range = st.sidebar.slider(
-        "Experience (years)",
+        "Experience Range (years)",
         min_value=min_exp,
         max_value=max_exp,
         value=(min_exp, max_exp)
@@ -137,19 +222,19 @@ def main():
         df_filtered = df
     
     if df_filtered.empty:
-        st.warning("⚠️ No data matches your filters. Please adjust your selection.")
+        st.warning("No data matches the selected filters. Please adjust your criteria.")
         st.stop()
     
     # Navigation tabs
     tab1, tab2, tab3, tab4, tab5 = st.tabs([
-        "📈 Overview",
-        "📊 Visualization",
-        "🔮 Forecast",
-        "💰 Salary Insights",
-        "🎯 Recommendations"
+        "Market Overview",
+        "Data Visualization",
+        "Demand Forecasting",
+        "Salary Analysis",
+        "Skill Recommendations"
     ])
     
-    # TAB 1: OVERVIEW
+    # TAB 1: MARKET OVERVIEW
     with tab1:
         st.header("Market Overview")
         
@@ -157,13 +242,13 @@ def main():
         col1, col2, col3, col4 = st.columns(4)
         
         with col1:
-            st.metric("Total Jobs", f"{len(df_filtered):,}")
+            st.metric("Total Job Openings", f"{len(df_filtered):,}")
         with col2:
-            st.metric("Unique Skills", f"{df_filtered['Tech Skill'].nunique():,}")
+            st.metric("Unique Technologies", f"{df_filtered['Tech Skill'].nunique():,}")
         with col3:
-            st.metric("Companies", f"{df_filtered['Company'].nunique():,}")
+            st.metric("Companies Hiring", f"{df_filtered['Company'].nunique():,}")
         with col4:
-            st.metric("Avg Salary", f"₹{df_filtered['Salary (in LPA)'].mean():.1f}L")
+            st.metric("Average Salary", f"₹{df_filtered['Salary (in LPA)'].mean():.1f}L")
         
         st.markdown("---")
         
@@ -177,12 +262,19 @@ def main():
                 x=top_skills.values,
                 y=top_skills.index,
                 orientation='h',
-                labels={'x': 'Job Count', 'y': 'Skill'},
+                labels={'x': 'Number of Openings', 'y': 'Technology'},
                 color=top_skills.values,
-                color_continuous_scale='blues'
+                color_continuous_scale='Blues'
             )
-            fig.update_layout(showlegend=False, height=400)
-            st.plotly_chart(fig, use_container_width=True)
+            fig.update_layout(
+                showlegend=False,
+                height=450,
+                plot_bgcolor='white',
+                yaxis={'categoryorder': 'total ascending'},
+                font=dict(size=11)
+            )
+            fig.update_traces(marker_line_color='rgb(8,48,107)', marker_line_width=1.5)
+            st.plotly_chart(fig, use_container_width=True, config={'displayModeBar': False})
         
         with col2:
             st.subheader("Job Distribution by Location")
@@ -190,32 +282,38 @@ def main():
             fig = px.pie(
                 values=location_counts.values,
                 names=location_counts.index,
-                hole=0.4
+                hole=0.4,
+                color_discrete_sequence=px.colors.sequential.Blues_r
             )
-            fig.update_traces(textposition='inside', textinfo='percent+label')
-            fig.update_layout(height=400)
-            st.plotly_chart(fig, use_container_width=True)
+            fig.update_traces(
+                textposition='inside',
+                textinfo='percent+label',
+                textfont_size=11,
+                marker=dict(line=dict(color='white', width=2))
+            )
+            fig.update_layout(height=450, plot_bgcolor='white', paper_bgcolor='white')
+            st.plotly_chart(fig, use_container_width=True, config={'displayModeBar': False})
         
         # Data summary
-        st.subheader("Dataset Summary")
+        st.subheader("Dataset Statistics")
         summary = get_data_summary(df_filtered)
         cols = st.columns(3)
         for idx, (key, value) in enumerate(summary.items()):
             with cols[idx % 3]:
                 st.info(f"**{key}:** {value}")
     
-    # TAB 2: VISUALIZATION
+    # TAB 2: DATA VISUALIZATION
     with tab2:
-        st.header("Interactive Visualizations")
+        st.header("Interactive Data Visualizations")
         
         viz_tab1, viz_tab2, viz_tab3 = st.tabs([
-            "Skill Trends",
-            "Salary Analysis",
-            "Skill Co-occurrence"
+            "Demand Trends",
+            "Salary Distribution",
+            "Skill Relationships"
         ])
         
         with viz_tab1:
-            st.subheader("Skill Demand Trends Over Time")
+            st.subheader("Technology Demand Trends Over Time")
             
             # Get top 5 skills
             top_5_skills = df_filtered['Tech Skill'].value_counts().head(5).index.tolist()
@@ -240,10 +338,19 @@ def main():
                     y='Count',
                     color='Skill',
                     markers=True,
-                    title="Top 5 Skills - Monthly Demand Trends"
+                    title="Monthly Job Posting Trends for Top 5 Skills"
                 )
-                fig.update_layout(height=500, hovermode='x unified')
-                st.plotly_chart(fig, use_container_width=True)
+                fig.update_layout(
+                    height=500,
+                    hovermode='x unified',
+                    plot_bgcolor='white',
+                    paper_bgcolor='white',
+                    xaxis=dict(showgrid=True, gridcolor='#ecf0f1'),
+                    yaxis=dict(showgrid=True, gridcolor='#ecf0f1'),
+                    font=dict(size=11)
+                )
+                fig.update_traces(line=dict(width=3), marker=dict(size=8))
+                st.plotly_chart(fig, use_container_width=True, config={'displayModeBar': False})
         
         with viz_tab2:
             st.subheader("Salary Distribution Analysis")
@@ -259,12 +366,19 @@ def main():
                     salary_by_skill,
                     x='Tech Skill',
                     y='Salary (in LPA)',
-                    title="Salary Distribution by Top 10 Skills",
-                    color='Tech Skill'
+                    title="Salary Distribution by Technology",
+                    color='Tech Skill',
+                    color_discrete_sequence=px.colors.qualitative.Set2
                 )
-                fig.update_layout(showlegend=False, height=400)
+                fig.update_layout(
+                    showlegend=False,
+                    height=400,
+                    plot_bgcolor='white',
+                    xaxis=dict(title_font=dict(size=12)),
+                    yaxis=dict(title_font=dict(size=12))
+                )
                 fig.update_xaxes(tickangle=45)
-                st.plotly_chart(fig, use_container_width=True)
+                st.plotly_chart(fig, use_container_width=True, config={'displayModeBar': False})
             
             with col2:
                 # Salary by experience
@@ -272,155 +386,179 @@ def main():
                     df_filtered,
                     x='Experience Required (in years)',
                     y='Salary (in LPA)',
-                    color='Tech Skill',
-                    title="Salary vs Experience",
-                    opacity=0.6,
-                    size_max=10
+                    color='Location',
+                    title="Salary vs Experience Correlation",
+                    opacity=0.7,
+                    size_max=8
                 )
-                fig.update_layout(height=400)
-                st.plotly_chart(fig, use_container_width=True)
+                fig.update_layout(
+                    height=400,
+                    plot_bgcolor='white',
+                    xaxis=dict(title_font=dict(size=12)),
+                    yaxis=dict(title_font=dict(size=12))
+                )
+                st.plotly_chart(fig, use_container_width=True, config={'displayModeBar': False})
         
         with viz_tab3:
             st.subheader("Skill Co-occurrence Analysis")
-            st.write("Skills that frequently appear together in job postings")
+            st.write("Technologies that frequently appear together in job requirements")
             
             skill_pairs = get_skill_pairs(df_filtered, min_cooccurrence=2)
             
             if skill_pairs:
                 pairs_df = pd.DataFrame([
-                    {'Skill Pair': f"{pair[0]} + {pair[1]}", 'Co-occurrences': count}
+                    {'Skill Combination': f"{pair[0]} + {pair[1]}", 'Frequency': count}
                     for pair, count in skill_pairs[:15]
                 ])
                 
                 fig = px.bar(
                     pairs_df,
-                    x='Co-occurrences',
-                    y='Skill Pair',
+                    x='Frequency',
+                    y='Skill Combination',
                     orientation='h',
-                    title="Top 15 Skill Combinations",
-                    color='Co-occurrences',
-                    color_continuous_scale='viridis'
+                    title="Most Common Skill Combinations in Job Postings",
+                    color='Frequency',
+                    color_continuous_scale='Viridis'
                 )
-                fig.update_layout(height=500, yaxis={'categoryorder': 'total ascending'})
-                st.plotly_chart(fig, use_container_width=True)
+                fig.update_layout(
+                    height=500,
+                    yaxis={'categoryorder': 'total ascending'},
+                    plot_bgcolor='white',
+                    font=dict(size=11)
+                )
+                fig.update_traces(marker_line_color='rgb(8,48,107)', marker_line_width=1)
+                st.plotly_chart(fig, use_container_width=True, config={'displayModeBar': False})
             else:
-                st.info("Not enough data to show skill co-occurrences")
+                st.info("Insufficient data to display skill co-occurrences with current filters.")
     
-    # TAB 3: FORECAST
+    # TAB 3: DEMAND FORECASTING
     with tab3:
         st.header("Demand Forecasting")
-        st.write("Predict future demand for tech skills using machine learning")
+        st.write("Predict future market demand for technology skills using time-series analysis")
         
         col1, col2 = st.columns([2, 1])
         
         with col1:
             selected_skill_forecast = st.selectbox(
-                "Select Skill to Forecast",
+                "Select Technology for Forecast",
                 options=sorted(df_filtered['Tech Skill'].unique()),
                 key="forecast_skill"
             )
         
         with col2:
-            months_ahead = st.slider("Months to Forecast", 3, 12, 6)
+            months_ahead = st.slider("Forecast Period (months)", 3, 12, 6)
         
         if st.button("Generate Forecast", type="primary"):
-            with st.spinner("Running forecast model..."):
+            with st.spinner("Running predictive model..."):
                 forecast_df, status = forecast_skill_demand(df, selected_skill_forecast, months_ahead)
                 
                 if forecast_df is not None:
-                    # Show chart
-                    fig = create_forecast_chart(forecast_df, selected_skill_forecast)
-                    st.plotly_chart(fig, use_container_width=True)
+                    # Show professional chart
+                    fig = create_professional_forecast_chart(forecast_df, selected_skill_forecast)
+                    st.plotly_chart(fig, use_container_width=True, config={'displayModeBar': False})
                     
                     # Show insights
                     insights = get_forecast_insights(forecast_df, selected_skill_forecast)
                     if insights:
                         st.subheader("Forecast Insights")
                         for insight in insights:
-                            st.markdown(insight)
+                            # Remove emojis from insights
+                            clean_insight = insight.replace('📈', '').replace('📉', '').replace('📊', '').replace('💼', '')
+                            st.markdown(clean_insight)
                 else:
-                    st.warning(f"⚠️ {status}")
+                    st.warning(f"Unable to generate forecast: {status}")
         
-        # Top growing skills
+        # Top skills summary
         st.markdown("---")
-        st.subheader("Quick Insights: Most In-Demand Skills")
+        st.subheader("Current Market Leaders")
         
         top_skills_current = df_filtered['Tech Skill'].value_counts().head(5)
         cols = st.columns(5)
         for idx, (skill, count) in enumerate(top_skills_current.items()):
             with cols[idx]:
-                st.metric(skill, f"{count} jobs")
+                st.metric(skill, f"{count} openings")
     
-    # TAB 4: SALARY INSIGHTS
+    # TAB 4: SALARY ANALYSIS
     with tab4:
-        st.header("Salary Prediction & Insights")
+        st.header("Salary Analysis & Prediction")
         
-        st.subheader("🔮 Salary Predictor")
-        st.write("Estimate salary based on skill, location, and experience")
+        st.subheader("Salary Estimator")
+        st.write("Enter your profile details to estimate potential salary range")
         
         col1, col2, col3 = st.columns(3)
         
         with col1:
             pred_skill = st.selectbox(
-                "Tech Skill",
+                "Technology Skill",
                 options=sorted(df['Tech Skill'].unique()),
                 key="pred_skill"
             )
         
         with col2:
             pred_location = st.selectbox(
-                "Location",
+                "Work Location",
                 options=sorted(df['Location'].unique()),
                 key="pred_location"
             )
         
         with col3:
             pred_experience = st.number_input(
-                "Experience (years)",
+                "Years of Experience",
                 min_value=0,
                 max_value=30,
                 value=3,
                 key="pred_exp"
             )
         
-        if st.button("Predict Salary", type="primary"):
+        if st.button("Estimate Salary", type="primary"):
             if salary_model:
+                # Count records used for prediction
+                training_records = df[
+                    (df['Tech Skill'] == pred_skill) &
+                    (df['Location'] == pred_location)
+                ]
+                record_count = len(training_records)
+                
                 predicted_salary, status = predict_salary(
                     salary_model, le_skill, le_location,
                     pred_skill, pred_location, pred_experience
                 )
                 
                 if predicted_salary:
-                    st.success(f"### Predicted Salary: ₹{predicted_salary:.2f} LPA")
+                    st.success(f"### Estimated Salary: ₹{predicted_salary:.1f} LPA")
+                    st.info(f"This estimation is based on analysis of {record_count} similar job postings for {pred_skill} professionals in {pred_location}. The predicted salary is calculated using machine learning analysis of market data including experience level, location, and skill requirements.")
                     
                     # Show market comparison
                     dist = get_salary_distribution(df, pred_skill, pred_location)
                     if dist:
+                        st.markdown("**Market Salary Range for Comparison:**")
                         col1, col2, col3 = st.columns(3)
                         with col1:
-                            st.metric("Market Min", f"₹{dist['min']:.1f}L")
+                            st.metric("Minimum", f"₹{dist['min']:.1f}L")
                         with col2:
-                            st.metric("Market Median", f"₹{dist['median']:.1f}L")
+                            st.metric("Median", f"₹{dist['median']:.1f}L")
                         with col3:
-                            st.metric("Market Max", f"₹{dist['max']:.1f}L")
+                            st.metric("Maximum", f"₹{dist['max']:.1f}L")
                 else:
-                    st.error(f"❌ {status}")
+                    st.error(f"Unable to predict: {status}")
             else:
-                st.error("Model not available")
+                st.error("Prediction model is not available.")
         
         # Salary insights
         st.markdown("---")
-        st.subheader("💡 Salary Insights by Skill")
+        st.subheader("Market Salary Insights")
         
         insight_skill = st.selectbox(
-            "Select Skill for Insights",
+            "Select Technology for Analysis",
             options=sorted(df['Tech Skill'].unique()),
             key="insight_skill"
         )
         
         insights = get_salary_insights(df, insight_skill)
         for insight in insights:
-            st.markdown(insight)
+            # Remove emojis from insights
+            clean_insight = insight.replace('💰', '').replace('📊', '').replace('💼', '').replace('📈', '').replace('📍', '')
+            st.markdown(clean_insight)
         
         # Salary distribution chart
         skill_data = df[df['Tech Skill'] == insight_skill]
@@ -429,28 +567,33 @@ def main():
                 skill_data,
                 x='Salary (in LPA)',
                 nbins=20,
-                title=f"Salary Distribution for {insight_skill}",
-                color_discrete_sequence=['#636EFA']
+                title=f"Salary Distribution: {insight_skill}",
+                color_discrete_sequence=['#3498db']
             )
-            fig.update_layout(height=300)
-            st.plotly_chart(fig, use_container_width=True)
+            fig.update_layout(
+                height=320,
+                plot_bgcolor='white',
+                xaxis=dict(title='Salary (LPA)', showgrid=True, gridcolor='#ecf0f1'),
+                yaxis=dict(title='Frequency', showgrid=True, gridcolor='#ecf0f1')
+            )
+            st.plotly_chart(fig, use_container_width=True, config={'displayModeBar': False})
     
-    # TAB 5: RECOMMENDATIONS
+    # TAB 5: SKILL RECOMMENDATIONS
     with tab5:
         st.header("Skill Recommendations")
         
         rec_tab1, rec_tab2, rec_tab3 = st.tabs([
             "Complementary Skills",
-            "Skills for Job Role",
-            "Learning Path"
+            "Job Role Analysis",
+            "Learning Roadmap"
         ])
         
         with rec_tab1:
-            st.subheader("🔗 Find Complementary Skills")
-            st.write("Discover skills that often appear together in job postings")
+            st.subheader("Find Complementary Skills")
+            st.write("Discover technologies that commonly pair with your current expertise")
             
             current_skill = st.selectbox(
-                "Your Current Skill",
+                "Select Your Current Skill",
                 options=sorted(df['Tech Skill'].unique()),
                 key="current_skill"
             )
@@ -459,10 +602,10 @@ def main():
                 recs, status = recommend_skills(df, current_skill, top_n=10)
                 
                 if recs:
-                    st.success(f"✅ Top complementary skills for **{current_skill}**:")
+                    st.success(f"Recommended complementary skills for {current_skill}:")
                     
                     for idx, rec in enumerate(recs, 1):
-                        with st.expander(f"{idx}. {rec['skill']} - {rec['co_occurrence_score']} co-occurrences"):
+                        with st.expander(f"{idx}. {rec['skill']} ({rec['co_occurrence_score']} co-occurrences)"):
                             col1, col2 = st.columns(2)
                             with col1:
                                 st.metric("Average Salary", f"₹{rec['avg_salary']:.1f}L")
@@ -472,8 +615,8 @@ def main():
                     st.warning(status)
         
         with rec_tab2:
-            st.subheader("🎯 Skills Required for Job Role")
-            st.write("Find out which skills are most common for your dream job")
+            st.subheader("Job Role Skill Requirements")
+            st.write("Analyze the most common skills required for specific job roles")
             
             dream_job = st.text_input(
                 "Enter Job Role",
@@ -481,11 +624,11 @@ def main():
                 key="dream_job"
             )
             
-            if dream_job and st.button("Find Skills", key="rec_btn2"):
+            if dream_job and st.button("Analyze Skills", key="rec_btn2"):
                 recs, status = recommend_for_job_role(df, dream_job, top_n=10)
                 
                 if recs:
-                    st.success(f"✅ Top skills for **{dream_job}**:")
+                    st.success(f"Most common skills for {dream_job} positions:")
                     
                     # Create dataframe for visualization
                     rec_df = pd.DataFrame(recs)
@@ -495,30 +638,34 @@ def main():
                         x='frequency',
                         y='skill',
                         orientation='h',
-                        title=f"Most Common Skills for {dream_job}",
-                        labels={'frequency': 'Number of Jobs', 'skill': 'Skill'},
+                        title=f"Skill Requirements for {dream_job}",
+                        labels={'frequency': 'Number of Jobs', 'skill': 'Technology'},
                         color='avg_salary',
-                        color_continuous_scale='viridis',
+                        color_continuous_scale='Viridis',
                         hover_data=['percentage']
                     )
-                    fig.update_layout(height=400, yaxis={'categoryorder': 'total ascending'})
-                    st.plotly_chart(fig, use_container_width=True)
+                    fig.update_layout(
+                        height=400,
+                        yaxis={'categoryorder': 'total ascending'},
+                        plot_bgcolor='white'
+                    )
+                    st.plotly_chart(fig, use_container_width=True, config={'displayModeBar': False})
                     
                     # Show detailed list
                     for idx, rec in enumerate(recs, 1):
-                        st.write(f"{idx}. **{rec['skill']}** - {rec['frequency']} jobs ({rec['percentage']:.1f}%), Avg Salary: ₹{rec['avg_salary']:.1f}L")
+                        st.write(f"{idx}. **{rec['skill']}** - {rec['frequency']} jobs ({rec['percentage']:.1f}%), Average Salary: ₹{rec['avg_salary']:.1f}L")
                 else:
                     st.warning(status)
         
         with rec_tab3:
-            st.subheader("🛤️ Personalized Learning Path")
-            st.write("Get a customized skill roadmap from your current skills to your dream job")
+            st.subheader("Personalized Learning Roadmap")
+            st.write("Generate a customized skill development path based on your current abilities and career goals")
             
             col1, col2 = st.columns(2)
             
             with col1:
                 current_skills_input = st.text_input(
-                    "Your Current Skills (comma-separated)",
+                    "Current Skills (comma-separated)",
                     placeholder="Python, SQL, Pandas",
                     key="current_skills"
                 )
@@ -536,20 +683,24 @@ def main():
                 learning_path, status = get_learning_path(df, current_skills_list, target_role)
                 
                 if learning_path:
-                    st.success(f"✅ Learning path to become a **{target_role}**:")
+                    st.success(f"Recommended learning path to become {target_role}:")
                     
-                    st.write("### Skills You Should Learn:")
+                    st.write("### Priority Skills to Develop:")
                     for idx, skill in enumerate(learning_path[:10], 1):
-                        st.write(f"{idx}. **{skill['skill']}** - {skill['frequency']} jobs, ₹{skill['avg_salary']:.1f}L avg salary")
+                        st.write(f"{idx}. **{skill['skill']}** - {skill['frequency']} job openings, ₹{skill['avg_salary']:.1f}L average salary")
                 else:
                     st.warning(status)
     
-    # Footer
+    # Professional Footer
     st.markdown("---")
     st.markdown("""
-    <div style='text-align: center; color: #666; padding: 2rem 0;'>
-        <p><strong>Tech Skill Tracker - BI Dashboard for Indian Tech Market</strong></p>
-        <p>Built with Streamlit • Powered by Machine Learning</p>
+    <div style='text-align: center; color: #7f8c8d; padding: 2rem 0; font-family: Arial, sans-serif;'>
+        <p style='font-size: 1.1rem; font-weight: 600; color: #2c3e50; margin-bottom: 0.5rem;'>
+            Tech Skill Tracker - Business Intelligence
+        </p>
+        <p style='font-size: 0.9rem; margin: 0.3rem 0;'>
+            Team Members: Om Aravindhashan S (23MID0222) | Raghul (23MID0322)
+        </p>
     </div>
     """, unsafe_allow_html=True)
 
