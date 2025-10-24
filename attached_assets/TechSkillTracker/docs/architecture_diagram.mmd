@@ -1,0 +1,28 @@
+graph TD
+    A[User] -->|Accesses| B(Streamlit Web App)
+    B -->|Loads Data From| C[Data Directory]
+    B -->|Uses| D{Data Processing Engine}
+    D -->|Cleans & Standardizes| C
+    B -->|Visualizes Data With| E[Plotly Charts]
+    B -->|Generates Reports With| F[PDF Report Generator]
+    B -->|Provides Career Guidance With| G[Dynamic Learning Path Generator]
+    B -->|Recommends Skills With| H[Skill Recommendation Engine]
+    B -->|Classifies Jobs With| I[Job Role Classification Model]
+    B -->|Predicts Salaries With| J[Salary Prediction Model]
+    B -->|Forecasts Trends With| K[Prophet Forecasting Model]
+    I -->|Uses| L[Pre-trained NLP Model]
+    J -->|Uses| M[Regression Model]
+    K -->|Uses| N[Historical Data]
+    F -->|Includes| E
+    F -->|Includes| G
+    F -->|Includes| H
+    F -->|Includes| I
+    F -->|Includes| J
+    F -->|Includes| K
+    G -->|Uses| H
+    G -->|Uses| J
+    H -->|Uses| D
+    I -->|Uses| D
+    J -->|Uses| D
+    K -->|Uses| D
+

@@ -1,0 +1,1001 @@
+Job Title,Tech Skill,Company,Location,Salary (in LPA),Experience Required (in years),Date Posted
+Cloud Engineer,JavaScript,Hasura,Hyderabad,22.1,4,2023-04-25
+Solutions Architect,REST API,Salesforce,Mumbai,12.0,1,2023-03-31
+Frontend Developer,Tailwind,Adobe,Ahmedabad,20.6,7,2023-01-28
+DevOps Engineer,Next.js,Capgemini,Pune,24.2,7,2023-01-07
+DevOps Engineer,Docker,Salesforce,Chennai,23.0,7,2023-12-11
+Senior Software Engineer,Java,Zomato,Gurugram,36.1,13,2023-09-28
+AI Engineer,Rust,IBM,Hyderabad,28.1,6,2024-07-19
+DevOps Engineer,AWS,Paytm,Noida,16.9,2,2023-10-24
+AI Engineer,Pandas,Tech Mahindra,Hyderabad,27.7,4,2023-06-16
+Full Stack Developer,Spring Boot,Druva,New Delhi,17.8,3,2024-06-30
+QA Engineer,Azure,CRED,Bengaluru,10.8,1,2023-08-13
+Full Stack Developer,Node.js,CRED,Noida,21.1,6,2023-10-02
+Cloud Engineer,MongoDB,Hasura,Kolkata,18.7,3,2024-04-14
+Site Reliability Engineer,Express,Paytm,Gurugram,25.0,7,2023-09-27
+Data Analyst,SQL,HCL,Bengaluru,23.1,8,2023-08-13
+Solutions Architect,Azure,OYO,Ahmedabad,14.9,2,2023-06-13
+Business Intelligence Developer,TypeScript,Hasura,Hyderabad,16.4,1,2024-06-25
+AI Engineer,PyTorch,OYO,Pune,20.5,2,2023-10-01
+Software Engineer,Spring Boot,Intel,Hyderabad,19.2,3,2023-01-04
+Software Engineer,Microservices,Hasura,Pune,16.4,3,2024-06-03
+Data Analyst,Python,Intel,Hyderabad,22.1,6,2024-06-27
+Frontend Developer,React,Swiggy,Noida,12.4,2,2023-09-03
+Machine Learning Engineer,PyTorch,Tech Mahindra,Kolkata,21.8,3,2024-06-29
+Full Stack Developer,CSS,Accenture,Kolkata,26.3,7,2023-09-29
+AI Engineer,Scikit-learn,Infosys,Noida,32.5,8,2023-11-16
+Frontend Developer,Angular,IBM,Kolkata,18.1,6,2023-09-11
+Frontend Developer,Angular,Microsoft,Bengaluru,16.0,2,2024-08-25
+Full Stack Developer,Node.js,Thoughtworks,Mumbai,23.6,5,2023-12-05
+Senior Software Engineer,Kafka,Uber,Mumbai,38.5,12,2024-08-13
+Solutions Architect,MySQL,TCS,Bengaluru,29.0,8,2023-12-29
+AI Engineer,Scikit-learn,Wipro,Mumbai,21.8,2,2023-03-04
+AI Engineer,Machine Learning,Druva,Hyderabad,31.1,8,2024-03-08
+Full Stack Developer,React,Zoho,Mumbai,17.7,1,2023-04-11
+Senior Software Engineer,Flask,SAP,Bengaluru,27.9,5,2024-05-07
+Solutions Architect,Rust,Capgemini,New Delhi,22.8,8,2024-04-10
+Business Intelligence Developer,REST API,Freshworks,Bengaluru,15.3,1,2023-03-01
+Frontend Developer,CSS,Swiggy,Hyderabad,17.3,1,2024-05-29
+Full Stack Developer,Node.js,Oracle,Ahmedabad,22.1,7,2024-09-01
+Machine Learning Engineer,Microservices,Thoughtworks,Ahmedabad,19.1,2,2024-08-15
+Cloud Engineer,DevOps,Oracle,Chennai,22.3,4,2024-06-19
+Machine Learning Engineer,Scikit-learn,ServiceNow,Hyderabad,23.8,5,2023-09-29
+DevOps Engineer,Docker,PhonePe,Pune,20.5,4,2024-07-30
+UI/UX Developer,Vue.js,Intel,Kolkata,18.3,5,2023-03-12
+Site Reliability Engineer,Ansible,Intel,Kolkata,14.8,1,2024-09-18
+Cloud Engineer,SQL,HCL,Kolkata,20.4,2,2023-04-17
+AI Engineer,Rust,SAP,Mumbai,28.2,4,2023-10-06
+Cloud Engineer,Spark,Adobe,Gurugram,15.0,1,2024-06-01
+AI Engineer,Python,Tech Mahindra,New Delhi,23.7,3,2023-02-15
+Full Stack Developer,Tailwind,HCL,Hyderabad,24.6,7,2024-03-28
+Software Engineer,Java,Microsoft,Bengaluru,17.4,3,2024-07-12
+Full Stack Developer,Flask,Ola,Kolkata,15.8,2,2024-01-02
+Full Stack Developer,Express,Ola,Pune,21.3,4,2024-09-27
+AI Engineer,Machine Learning,TCS,Mumbai,31.7,7,2023-01-26
+Senior Software Engineer,Java,PhonePe,Noida,29.0,8,2024-01-27
+Frontend Developer,Angular,PayPal,Gurugram,13.8,1,2023-11-09
+Software Engineer,Node.js,Hasura,Gurugram,22.2,6,2023-10-13
+Frontend Developer,JavaScript,Microsoft,New Delhi,17.4,5,2023-12-06
+Solutions Architect,Microservices,Uber,Chennai,22.6,6,2023-04-22
+Frontend Developer,HTML,Uber,Mumbai,24.9,7,2024-09-12
+Full Stack Developer,CSS,PayPal,Hyderabad,21.5,4,2023-01-02
+Site Reliability Engineer,DevOps,Chargebee,New Delhi,16.6,2,2024-09-30
+Solutions Architect,Linux,Druva,New Delhi,21.0,6,2023-11-13
+Senior Software Engineer,Django,ServiceNow,Pune,43.2,15,2023-05-11
+UI/UX Developer,C++,Atlassian,Mumbai,13.8,1,2024-08-05
+Cloud Engineer,Ansible,Tech Mahindra,Mumbai,29.3,8,2024-09-13
+Data Analyst,Rust,IBM,Mumbai,19.3,6,2023-03-28
+Data Scientist,MongoDB,ServiceNow,Noida,15.7,1,2023-07-23
+Solutions Architect,Elasticsearch,Zoho,Gurugram,19.6,4,2023-03-16
+Frontend Developer,Vue.js,IBM,Hyderabad,16.8,1,2024-02-14
+Data Analyst,GCP,Infosys,Mumbai,23.1,8,2023-06-30
+Tech Lead,SQL,Salesforce,Kolkata,45.2,15,2024-04-12
+Tech Lead,Next.js,Uber,Kolkata,45.1,14,2023-11-21
+DevOps Engineer,Redis,Adobe,Mumbai,29.6,8,2024-07-15
+Senior Software Engineer,Spark,Oracle,New Delhi,31.7,9,2024-06-17
+Cloud Engineer,Jenkins,HCL,Mumbai,17.7,2,2023-10-06
+Senior Software Engineer,Node.js,Ola,Noida,34.2,11,2023-08-08
+Senior Software Engineer,Flask,Amazon,Ahmedabad,37.0,11,2023-03-05
+Data Engineer,NumPy,Razorpay,New Delhi,18.2,1,2024-08-12
+Full Stack Developer,Bootstrap,Uber,New Delhi,19.4,4,2024-03-05
+UI/UX Developer,JavaScript,Tech Mahindra,Gurugram,22.3,6,2024-05-12
+AI Engineer,SQL,Thoughtworks,Ahmedabad,22.0,1,2024-04-23
+Site Reliability Engineer,AWS,Cognizant,Noida,21.2,7,2023-01-28
+UI/UX Developer,TypeScript,PayPal,Chennai,20.1,6,2023-02-21
+Senior Software Engineer,Go,Amazon,Noida,33.7,9,2024-01-24
+UI/UX Developer,React,Oracle,Bengaluru,21.5,4,2024-07-06
+AI Engineer,JavaScript,Infosys,Noida,21.7,3,2023-07-24
+Senior Software Engineer,Flask,Salesforce,Pune,33.3,9,2024-07-31
+Frontend Developer,Express,Intel,Hyderabad,19.9,3,2024-09-13
+UI/UX Developer,Azure,Oracle,Mumbai,25.5,7,2024-08-12
+Data Engineer,GCP,Microsoft,Ahmedabad,19.0,2,2023-04-15
+UI/UX Developer,Bootstrap,Google,Chennai,19.3,6,2023-12-22
+Frontend Developer,Spark,HCL,Noida,24.3,7,2024-03-06
+Data Analyst,Machine Learning,Freshworks,Kolkata,18.6,5,2024-03-21
+Site Reliability Engineer,MySQL,Zomato,Mumbai,21.5,5,2024-04-21
+Senior Software Engineer,Redis,PayPal,Gurugram,36.8,12,2023-10-13
+QA Engineer,Spark,SAP,Chennai,13.9,3,2023-01-30
+Software Engineer,Go,Ola,Mumbai,14.3,1,2023-12-15
+Frontend Developer,Tailwind,MakeMyTrip,Noida,24.2,8,2024-05-15
+Cloud Engineer,AWS,Atlassian,Mumbai,22.0,4,2023-01-18
+Business Intelligence Developer,Kafka,PayPal,Kolkata,21.1,6,2024-01-13
+Tech Lead,GCP,Accenture,Mumbai,35.6,9,2023-12-27
+Site Reliability Engineer,Kubernetes,Adobe,Noida,15.5,3,2023-11-20
+Data Analyst,Next.js,Paytm,Mumbai,21.3,5,2024-08-26
+Data Scientist,C++,Wipro,Bengaluru,20.5,3,2023-07-03
+DevOps Engineer,Docker,PayPal,Noida,21.8,5,2024-05-17
+UI/UX Developer,React,Swiggy,Hyderabad,24.0,8,2023-07-08
+Site Reliability Engineer,Terraform,Intel,Ahmedabad,12.3,1,2024-08-13
+Frontend Developer,Vue.js,IBM,Ahmedabad,22.5,7,2023-03-29
+Data Engineer,NumPy,Uber,Ahmedabad,25.5,8,2024-06-19
+AI Engineer,GraphQL,Capgemini,Hyderabad,23.4,1,2023-11-09
+Backend Developer,TypeScript,Swiggy,Kolkata,15.7,3,2023-08-05
+Data Engineer,Python,NVIDIA,Noida,27.4,8,2023-06-10
+UI/UX Developer,Angular,Swiggy,Noida,21.0,5,2023-02-03
+Site Reliability Engineer,TypeScript,IBM,Kolkata,18.1,4,2023-08-28
+Full Stack Developer,Go,Salesforce,New Delhi,14.3,2,2023-06-02
+Tech Lead,Rust,CRED,New Delhi,31.3,6,2024-08-05
+Full Stack Developer,HTML,Microsoft,Ahmedabad,25.2,8,2023-10-06
+QA Engineer,Express,Thoughtworks,Mumbai,16.7,5,2024-03-18
+Cloud Engineer,JavaScript,Freshworks,Pune,18.3,1,2024-08-24
+Cloud Engineer,Ansible,Uber,Ahmedabad,21.4,5,2024-06-15
+Cloud Engineer,AWS,TCS,Chennai,24.0,6,2024-05-18
+Cloud Engineer,Jenkins,Druva,Gurugram,26.4,8,2023-06-14
+Backend Developer,Elasticsearch,CRED,Hyderabad,23.3,6,2023-02-07
+Data Analyst,Python,ServiceNow,Mumbai,23.8,8,2024-06-10
+Cloud Engineer,Terraform,Wipro,Kolkata,15.5,1,2024-05-25
+Engineering Manager,Redis,Oracle,Ahmedabad,32.1,6,2023-10-22
+Business Intelligence Developer,C++,Infosys,Hyderabad,14.8,1,2023-06-12
+Site Reliability Engineer,Kubernetes,Chargebee,New Delhi,17.0,3,2024-04-17
+Engineering Manager,PostgreSQL,HCL,Kolkata,42.2,12,2023-10-07
+Full Stack Developer,Django,PayPal,Gurugram,15.4,2,2024-01-28
+Backend Developer,Go,Atlassian,Ahmedabad,21.1,5,2024-06-03
+Tech Lead,MongoDB,Druva,Chennai,41.9,13,2024-05-16
+Data Engineer,NumPy,IBM,Mumbai,27.5,6,2024-07-10
+Software Engineer,Java,Razorpay,Gurugram,25.5,8,2024-02-25
+Machine Learning Engineer,Spark,PayPal,Ahmedabad,21.0,3,2023-06-05
+Frontend Developer,Redis,Ola,Pune,21.1,8,2023-04-13
+Senior Software Engineer,Node.js,Zomato,Gurugram,31.2,9,2023-06-08
+Business Intelligence Developer,Azure,Hasura,Noida,25.3,7,2023-12-03
+Backend Developer,CI/CD,IBM,New Delhi,19.2,4,2023-02-06
+Frontend Developer,MySQL,Amazon,New Delhi,14.2,2,2023-04-03
+DevOps Engineer,DevOps,HCL,Gurugram,21.3,5,2023-02-17
+UI/UX Developer,CSS,Razorpay,Hyderabad,16.7,3,2023-09-08
+Senior Software Engineer,Azure,IBM,Pune,38.6,12,2024-09-26
+Cloud Engineer,Terraform,OYO,Bengaluru,29.8,8,2024-04-17
+Business Intelligence Developer,Azure,Atlassian,Chennai,14.9,3,2023-10-22
+Cloud Engineer,Terraform,Accenture,New Delhi,22.8,5,2023-11-03
+Frontend Developer,Kafka,Thoughtworks,Chennai,16.9,4,2024-01-29
+Data Engineer,GCP,Adobe,Gurugram,18.4,1,2023-10-30
+Machine Learning Engineer,GraphQL,IBM,New Delhi,30.2,8,2023-01-09
+Senior Software Engineer,Git,Wipro,New Delhi,39.5,15,2024-09-13
+Site Reliability Engineer,Terraform,Microsoft,Noida,13.0,1,2023-04-10
+Machine Learning Engineer,Pandas,Ola,Chennai,21.5,2,2024-08-16
+Full Stack Developer,Django,Tech Mahindra,New Delhi,22.7,6,2023-06-29
+Data Engineer,Kafka,Swiggy,Noida,25.0,6,2023-09-21
+Senior Software Engineer,Next.js,Druva,Gurugram,42.1,15,2023-05-25
+Cloud Engineer,AWS,SAP,Hyderabad,16.9,1,2024-01-10
+AI Engineer,NumPy,Amazon,Noida,22.4,2,2024-08-21
+UI/UX Developer,Tailwind,Intel,Noida,19.2,4,2024-09-26
+DevOps Engineer,Kubernetes,Zoho,New Delhi,18.2,1,2024-02-23
+DevOps Engineer,Docker,Hasura,Chennai,18.4,3,2023-04-29
+Full Stack Developer,REST API,ServiceNow,Noida,24.8,7,2024-03-05
+Backend Developer,Go,Oracle,Noida,20.1,6,2024-02-22
+Site Reliability Engineer,Docker,Flipkart,Chennai,21.7,6,2024-01-07
+Full Stack Developer,Go,Zomato,Noida,18.7,2,2024-02-12
+Site Reliability Engineer,Ansible,Oracle,Chennai,11.8,1,2023-08-06
+Software Engineer,GraphQL,Capgemini,Kolkata,17.1,2,2023-05-09
+Full Stack Developer,Flask,Google,Ahmedabad,23.9,6,2024-08-23
+Full Stack Developer,MongoDB,Amazon,Hyderabad,24.7,5,2023-10-11
+AI Engineer,Python,Flipkart,Bengaluru,25.6,4,2023-05-15
+Solutions Architect,Express,MakeMyTrip,Noida,16.7,2,2023-05-10
+Full Stack Developer,HTML,Microsoft,Mumbai,18.6,2,2024-01-06
+Tech Lead,C++,CRED,Bengaluru,54.4,15,2024-06-17
+Frontend Developer,Azure,Swiggy,Noida,24.6,8,2024-03-12
+Site Reliability Engineer,DevOps,ServiceNow,New Delhi,14.8,3,2023-03-24
+Full Stack Developer,Tailwind,Postman,Ahmedabad,21.9,6,2024-08-22
+Data Analyst,Elasticsearch,Druva,Hyderabad,21.4,7,2023-10-29
+Tech Lead,MySQL,CRED,Noida,34.1,8,2023-08-09
+Backend Developer,Spring Boot,Paytm,New Delhi,21.1,6,2024-03-01
+Engineering Manager,Azure,TCS,Hyderabad,33.0,6,2023-06-06
+Business Intelligence Developer,SQL,Druva,Kolkata,14.4,1,2024-01-17
+Frontend Developer,Linux,Flipkart,Gurugram,21.3,7,2023-12-04
+Data Engineer,Microservices,Capgemini,Kolkata,21.5,6,2023-10-22
+Engineering Manager,Linux,Druva,Chennai,39.2,8,2023-06-08
+Cloud Engineer,Kubernetes,ServiceNow,Kolkata,23.0,4,2024-01-12
+Business Intelligence Developer,Azure,Amazon,New Delhi,14.5,1,2024-09-20
+Software Engineer,Go,HCL,Pune,20.8,6,2023-07-04
+UI/UX Developer,Linux,Postman,Bengaluru,13.9,2,2024-08-02
+Data Engineer,NumPy,Intel,Chennai,25.7,8,2023-08-09
+Data Analyst,PyTorch,Tech Mahindra,Pune,15.4,2,2023-11-29
+Full Stack Developer,React,Zoho,Gurugram,15.4,2,2024-09-24
+Solutions Architect,Redis,Infosys,Kolkata,18.6,5,2024-09-13
+Frontend Developer,MySQL,Zoho,Ahmedabad,19.9,5,2023-12-20
+Data Engineer,Linux,Flipkart,Ahmedabad,14.6,1,2024-06-23
+Software Engineer,Flask,NVIDIA,New Delhi,19.8,4,2023-01-08
+DevOps Engineer,Kubernetes,Wipro,Pune,27.7,8,2023-12-02
+Full Stack Developer,Bootstrap,Swiggy,Chennai,19.5,4,2024-01-25
+Machine Learning Engineer,Express,Thoughtworks,Hyderabad,27.8,7,2024-02-11
+UI/UX Developer,GraphQL,Amazon,Gurugram,21.9,7,2024-03-15
+Data Analyst,TensorFlow,Zomato,Chennai,24.2,8,2023-11-29
+DevOps Engineer,Docker,Zomato,Kolkata,25.4,7,2024-03-23
+QA Engineer,C++,Swiggy,Pune,14.7,4,2024-02-10
+DevOps Engineer,Terraform,PhonePe,Chennai,22.5,4,2024-06-06
+Frontend Developer,Vue.js,Salesforce,Pune,14.8,3,2023-06-01
+Backend Developer,Next.js,OYO,Noida,19.3,3,2023-06-06
+Site Reliability Engineer,Next.js,ServiceNow,Ahmedabad,25.4,8,2024-07-31
+Cloud Engineer,Terraform,MakeMyTrip,Noida,19.7,3,2023-11-27
+Backend Developer,Go,OYO,New Delhi,21.5,6,2023-11-07
+Backend Developer,Java,Zomato,Hyderabad,25.4,6,2024-04-07
+Data Analyst,Microservices,Microsoft,Kolkata,20.8,7,2024-09-21
+Software Engineer,GraphQL,HCL,Kolkata,22.0,6,2024-04-05
+Frontend Developer,Redis,Cognizant,Hyderabad,24.6,6,2023-03-05
+Full Stack Developer,Vue.js,Postman,Kolkata,28.0,8,2023-02-10
+AI Engineer,TensorFlow,Ola,Gurugram,29.6,6,2024-09-16
+AI Engineer,Azure,Swiggy,Chennai,21.4,1,2023-12-13
+Site Reliability Engineer,Docker,HCL,Ahmedabad,21.9,7,2023-12-04
+Site Reliability Engineer,AWS,CRED,New Delhi,19.1,3,2023-12-08
+Backend Developer,Microservices,Wipro,Chennai,20.3,5,2023-05-13
+Site Reliability Engineer,AWS,Cognizant,Bengaluru,24.3,7,2024-06-23
+Cloud Engineer,Jenkins,HCL,Pune,20.1,4,2023-08-08
+Frontend Developer,Rust,Wipro,Ahmedabad,13.8,1,2023-03-21
+Machine Learning Engineer,NumPy,Tech Mahindra,Ahmedabad,19.4,3,2024-09-03
+Senior Software Engineer,Java,ServiceNow,Mumbai,39.4,10,2024-03-24
+Tech Lead,Next.js,Freshworks,New Delhi,34.7,8,2023-10-19
+Data Analyst,Pandas,Razorpay,New Delhi,22.3,8,2023-07-18
+UI/UX Developer,CSS,Wipro,Ahmedabad,18.6,3,2024-05-29
+Full Stack Developer,React,TCS,Kolkata,27.4,8,2023-09-14
+Cloud Engineer,Kubernetes,MakeMyTrip,New Delhi,19.8,2,2024-06-12
+Solutions Architect,MongoDB,PhonePe,Mumbai,19.9,2,2024-06-09
+Machine Learning Engineer,PostgreSQL,Zomato,Mumbai,28.6,7,2023-01-28
+Frontend Developer,Angular,HCL,Chennai,22.7,6,2024-01-19
+Software Engineer,Java,Freshworks,Pune,25.5,8,2023-05-21
+Data Scientist,CI/CD,Druva,Mumbai,18.1,2,2024-04-04
+UI/UX Developer,CSS,Flipkart,Mumbai,17.7,2,2024-09-15
+AI Engineer,PostgreSQL,Salesforce,Noida,28.3,8,2023-09-02
+Data Analyst,JavaScript,Uber,New Delhi,17.6,4,2024-07-02
+Mobile Developer,CI/CD,Zomato,Pune,18.9,4,2023-01-02
+Data Scientist,Pandas,Microsoft,Noida,16.5,1,2024-06-20
+AI Engineer,Pandas,TCS,Hyderabad,20.3,1,2024-02-01
+QA Engineer,Express,PayPal,Kolkata,11.7,3,2024-08-18
+Data Engineer,PyTorch,Swiggy,Pune,27.2,8,2023-06-29
+Software Engineer,Java,Qualcomm,Mumbai,18.4,4,2024-04-13
+UI/UX Developer,HTML,Flipkart,Mumbai,24.3,8,2023-11-14
+Backend Developer,Go,MakeMyTrip,Gurugram,21.2,6,2023-12-06
+DevOps Engineer,Jenkins,Postman,Chennai,27.5,8,2024-01-31
+Site Reliability Engineer,AWS,Cognizant,Ahmedabad,20.9,7,2023-10-01
+QA Engineer,Rust,Intel,New Delhi,10.4,2,2024-07-12
+Solutions Architect,Microservices,MakeMyTrip,Chennai,17.9,3,2024-04-01
+Software Engineer,Spring Boot,CRED,Bengaluru,22.1,7,2023-02-13
+Full Stack Developer,HTML,Salesforce,Pune,20.3,3,2024-01-08
+Full Stack Developer,Java,Paytm,Chennai,15.2,2,2024-03-24
+Machine Learning Engineer,GraphQL,Paytm,Chennai,21.9,3,2024-01-28
+Backend Developer,Next.js,Qualcomm,Gurugram,17.1,3,2024-03-30
+Frontend Developer,Vue.js,Postman,Noida,14.2,1,2023-10-13
+Frontend Developer,Tailwind,Capgemini,Noida,20.4,5,2024-02-01
+Engineering Manager,Rust,MakeMyTrip,Hyderabad,38.0,8,2024-09-18
+QA Engineer,Azure,Hasura,Kolkata,19.5,6,2023-03-31
+DevOps Engineer,C++,IBM,Kolkata,20.5,3,2023-10-25
+Full Stack Developer,Django,Thoughtworks,Bengaluru,22.1,4,2023-05-05
+Business Intelligence Developer,Elasticsearch,CRED,Hyderabad,17.8,3,2024-01-13
+UI/UX Developer,CSS,Qualcomm,Hyderabad,25.1,7,2024-05-05
+Tech Lead,Redis,Druva,Pune,45.1,15,2023-03-17
+Machine Learning Engineer,Machine Learning,Postman,Bengaluru,30.4,7,2024-08-24
+DevOps Engineer,C++,Postman,Mumbai,19.0,3,2023-06-06
+Cloud Engineer,AWS,Adobe,Kolkata,22.2,4,2023-10-18
+Cloud Engineer,Terraform,Atlassian,Pune,18.5,2,2023-05-09
+DevOps Engineer,MongoDB,Microsoft,Ahmedabad,25.2,6,2024-08-17
+DevOps Engineer,AWS,Ola,Ahmedabad,22.8,5,2023-01-30
+DevOps Engineer,Terraform,NVIDIA,Kolkata,28.4,8,2024-09-24
+Senior Software Engineer,Kafka,Swiggy,Noida,40.5,15,2023-11-06
+Data Engineer,TensorFlow,HCL,Mumbai,26.2,7,2023-03-03
+Software Engineer,FastAPI,Paytm,Pune,23.9,6,2023-11-17
+Frontend Developer,Tailwind,Oracle,Hyderabad,20.0,6,2024-06-11
+DevOps Engineer,Docker,Ola,Ahmedabad,24.2,5,2023-05-25
+AI Engineer,TensorFlow,Zoho,Pune,25.9,6,2023-09-12
+Engineering Manager,Elasticsearch,Chargebee,Hyderabad,44.5,9,2024-06-11
+Frontend Developer,Vue.js,Zoho,New Delhi,18.2,6,2024-04-13
+Site Reliability Engineer,Ansible,Uber,Bengaluru,26.4,8,2024-09-03
+Mobile Developer,TypeScript,Flipkart,Gurugram,22.3,7,2023-05-18
+Frontend Developer,Tailwind,MakeMyTrip,Hyderabad,22.0,6,2024-08-06
+Backend Developer,Go,Paytm,Gurugram,19.4,3,2024-07-17
+UI/UX Developer,Tailwind,CRED,Kolkata,15.5,3,2023-12-14
+Backend Developer,Java,Freshworks,Chennai,12.2,1,2024-05-27
+Full Stack Developer,Elasticsearch,Qualcomm,Ahmedabad,17.1,3,2024-06-15
+Data Analyst,Scikit-learn,Chargebee,Kolkata,18.5,5,2023-06-16
+Site Reliability Engineer,Spark,Infosys,Bengaluru,21.0,5,2024-06-29
+Data Engineer,REST API,Atlassian,New Delhi,16.5,1,2024-03-02
+Full Stack Developer,Angular,Postman,Pune,15.4,1,2024-08-14
+Data Engineer,PyTorch,Infosys,Mumbai,20.7,3,2024-09-26
+Tech Lead,JavaScript,Capgemini,Gurugram,37.1,10,2023-07-15
+Full Stack Developer,HTML,Postman,Bengaluru,30.3,8,2024-02-25
+UI/UX Developer,Tailwind,Cognizant,Chennai,24.6,8,2023-08-01
+UI/UX Developer,Bootstrap,ServiceNow,New Delhi,22.4,6,2024-04-15
+Full Stack Developer,Django,Intel,Mumbai,24.3,5,2024-05-10
+Full Stack Developer,FastAPI,Druva,Chennai,24.6,8,2023-10-23
+Frontend Developer,Rust,PhonePe,Gurugram,24.0,7,2023-10-08
+Machine Learning Engineer,Rust,MakeMyTrip,Hyderabad,27.7,5,2023-05-30
+Engineering Manager,Express,Adobe,Kolkata,36.0,8,2023-09-20
+Cloud Engineer,GCP,Oracle,Ahmedabad,18.0,3,2024-07-29
+Full Stack Developer,React,PayPal,Bengaluru,20.5,4,2023-09-06
+Site Reliability Engineer,Docker,Tech Mahindra,Kolkata,14.5,3,2024-04-28
+Cloud Engineer,Ansible,Qualcomm,New Delhi,28.3,8,2024-02-21
+DevOps Engineer,Ansible,Microsoft,Mumbai,19.8,2,2023-10-20
+DevOps Engineer,PostgreSQL,Zoho,Gurugram,18.5,1,2023-06-29
+Data Engineer,Express,Salesforce,Ahmedabad,13.5,1,2023-07-10
+Cloud Engineer,Jenkins,Postman,Kolkata,29.9,8,2023-04-20
+Data Analyst,SQL,OYO,Hyderabad,22.5,8,2024-05-20
+Full Stack Developer,FastAPI,Thoughtworks,New Delhi,16.2,1,2023-09-21
+Data Analyst,Machine Learning,Qualcomm,Kolkata,22.6,7,2023-07-17
+Data Scientist,Scikit-learn,Qualcomm,Noida,22.4,3,2023-03-30
+AI Engineer,Python,PayPal,New Delhi,27.7,7,2023-09-12
+Site Reliability Engineer,REST API,Oracle,Chennai,12.8,1,2023-11-06
+Frontend Developer,Linux,Chargebee,Gurugram,22.5,8,2023-03-05
+Frontend Developer,GCP,Wipro,Mumbai,18.9,5,2023-11-15
+Tech Lead,MongoDB,Freshworks,Kolkata,42.9,14,2024-05-04
+Software Engineer,Linux,Zomato,Ahmedabad,19.4,4,2024-07-04
+Data Analyst,Redis,Infosys,Ahmedabad,17.4,6,2024-06-22
+Full Stack Developer,Tailwind,Tech Mahindra,Pune,19.9,4,2023-03-05
+UI/UX Developer,CSS,Zoho,Ahmedabad,16.4,2,2023-12-02
+UI/UX Developer,HTML,Ola,Kolkata,13.8,1,2023-04-04
+Machine Learning Engineer,GraphQL,Amazon,New Delhi,29.4,8,2024-04-12
+Data Scientist,TypeScript,Swiggy,Bengaluru,23.3,4,2024-02-10
+Frontend Developer,React,Cognizant,Gurugram,21.2,8,2024-07-08
+Data Engineer,PyTorch,MakeMyTrip,Gurugram,26.0,6,2023-05-19
+Data Scientist,NumPy,Infosys,Chennai,20.8,3,2024-01-22
+UI/UX Developer,Bootstrap,Amazon,Mumbai,20.4,3,2023-07-02
+Business Intelligence Developer,Elasticsearch,PhonePe,Mumbai,24.1,7,2023-11-02
+Full Stack Developer,Go,ServiceNow,Gurugram,14.2,2,2023-06-08
+Frontend Developer,Vue.js,Flipkart,Bengaluru,13.3,2,2023-01-17
+Machine Learning Engineer,Express,Capgemini,Kolkata,26.7,7,2023-09-08
+Data Analyst,SQL,Qualcomm,Ahmedabad,16.7,5,2023-02-27
+QA Engineer,Microservices,Postman,Pune,14.5,4,2024-08-14
+Data Engineer,PostgreSQL,Cognizant,Ahmedabad,19.8,5,2023-08-15
+UI/UX Developer,Tailwind,Postman,Gurugram,16.4,1,2024-03-13
+Solutions Architect,GCP,Cognizant,Gurugram,21.2,7,2023-11-23
+Senior Software Engineer,Kafka,OYO,Pune,29.5,8,2024-07-04
+UI/UX Developer,Tailwind,Razorpay,Pune,23.3,7,2023-03-01
+Software Engineer,TypeScript,Paytm,Noida,22.2,6,2023-09-06
+Full Stack Developer,Bootstrap,Salesforce,Gurugram,17.3,4,2023-04-05
+Backend Developer,Java,Druva,Ahmedabad,20.0,4,2024-09-09
+Software Engineer,Kafka,Accenture,Bengaluru,21.2,6,2023-08-11
+Engineering Manager,Express,Oracle,Mumbai,40.8,8,2023-05-01
+Cloud Engineer,DevOps,Intel,Chennai,25.8,7,2024-07-19
+Data Analyst,Pandas,Qualcomm,Noida,22.3,8,2023-09-25
+AI Engineer,Pandas,Amazon,Mumbai,29.7,7,2023-07-28
+Full Stack Developer,Tailwind,Razorpay,Mumbai,24.1,7,2023-09-25
+UI/UX Developer,Vue.js,Zoho,Noida,20.3,6,2024-08-06
+AI Engineer,TensorFlow,Zoho,Kolkata,21.2,3,2024-04-16
+Full Stack Developer,Bootstrap,Flipkart,Hyderabad,17.2,1,2023-07-08
+Full Stack Developer,PostgreSQL,Google,Pune,17.3,4,2023-01-07
+UI/UX Developer,HTML,Freshworks,Ahmedabad,19.3,6,2023-08-12
+Data Scientist,JavaScript,Adobe,Kolkata,23.6,7,2024-05-14
+Data Scientist,Rust,TCS,Pune,27.5,7,2024-07-02
+Frontend Developer,CSS,SAP,Kolkata,16.0,4,2023-04-09
+Senior Software Engineer,Go,OYO,Gurugram,26.9,6,2023-12-29
+Full Stack Developer,Vue.js,Microsoft,Hyderabad,20.3,4,2024-08-01
+Data Engineer,Scikit-learn,Tech Mahindra,Bengaluru,27.7,7,2023-04-06
+Solutions Architect,Spark,Microsoft,Hyderabad,24.7,6,2023-03-26
+Senior Software Engineer,Flask,Adobe,Hyderabad,32.7,9,2023-08-24
+Machine Learning Engineer,GraphQL,Amazon,Chennai,23.1,3,2024-07-10
+Full Stack Developer,REST API,Tech Mahindra,New Delhi,26.1,7,2023-08-01
+Full Stack Developer,Vue.js,PayPal,Kolkata,24.9,7,2024-07-31
+Full Stack Developer,Next.js,Flipkart,Chennai,16.5,2,2024-01-29
+Senior Software Engineer,MySQL,Salesforce,Ahmedabad,26.7,6,2023-04-11
+AI Engineer,PyTorch,Zoho,Noida,20.7,1,2024-02-11
+Business Intelligence Developer,Git,Razorpay,Ahmedabad,22.7,7,2023-08-22
+Data Analyst,PyTorch,HCL,Hyderabad,19.7,5,2023-03-29
+Full Stack Developer,FastAPI,Intel,Hyderabad,23.4,7,2024-01-25
+AI Engineer,Pandas,Uber,Pune,19.7,2,2024-03-31
+Full Stack Developer,Tailwind,Zomato,Hyderabad,23.2,7,2024-04-04
+QA Engineer,Microservices,Razorpay,Gurugram,17.6,7,2024-09-03
+Full Stack Developer,Spring Boot,Wipro,Pune,18.9,3,2023-03-28
+Cloud Engineer,C++,Uber,Pune,25.7,8,2023-10-03
+Data Engineer,PostgreSQL,SAP,Chennai,27.9,8,2023-10-10
+Senior Software Engineer,Spring Boot,TCS,Noida,40.1,14,2023-09-10
+Data Scientist,C++,Razorpay,Ahmedabad,25.2,7,2023-05-19
+QA Engineer,Redis,Wipro,Ahmedabad,21.6,7,2023-12-04
+Site Reliability Engineer,DevOps,CRED,Pune,18.4,4,2023-11-04
+Engineering Manager,Rust,Razorpay,Chennai,47.9,14,2023-11-23
+AI Engineer,Scikit-learn,Hasura,Mumbai,25.8,2,2023-10-15
+Business Intelligence Developer,Azure,Capgemini,Noida,16.3,1,2023-07-04
+Backend Developer,Rust,Intel,Pune,23.9,7,2024-03-24
+Full Stack Developer,TypeScript,Salesforce,Hyderabad,27.1,7,2023-09-05
+UI/UX Developer,REST API,Hasura,Chennai,23.2,7,2024-05-05
+DevOps Engineer,Terraform,Tech Mahindra,Chennai,18.8,2,2024-08-31
+Senior Software Engineer,Java,TCS,Gurugram,35.8,10,2024-09-19
+Cloud Engineer,Docker,Druva,Kolkata,21.6,4,2023-01-11
+Site Reliability Engineer,GCP,OYO,Gurugram,18.2,4,2024-08-17
+Data Analyst,GCP,NVIDIA,Bengaluru,15.2,3,2024-08-25
+DevOps Engineer,AWS,OYO,Chennai,18.2,3,2024-03-01
+UI/UX Developer,CSS,MakeMyTrip,Noida,21.4,6,2023-07-31
+Software Engineer,Node.js,PayPal,Hyderabad,15.7,1,2023-11-23
+DevOps Engineer,Azure,Tech Mahindra,Kolkata,20.6,4,2023-04-22
+UI/UX Developer,Tailwind,Cognizant,Gurugram,23.2,8,2023-12-05
+Site Reliability Engineer,Terraform,Accenture,Ahmedabad,22.5,7,2023-07-10
+Solutions Architect,REST API,Swiggy,Mumbai,21.1,7,2024-04-05
+Site Reliability Engineer,Docker,SAP,Mumbai,17.4,3,2024-08-14
+Full Stack Developer,CSS,CRED,Ahmedabad,23.0,6,2024-05-16
+Cloud Engineer,Kubernetes,Cognizant,Ahmedabad,26.2,6,2024-08-24
+Site Reliability Engineer,CI/CD,Infosys,Chennai,16.4,2,2023-11-01
+Frontend Developer,C++,Chargebee,Pune,15.4,3,2023-09-02
+AI Engineer,PostgreSQL,Cognizant,Gurugram,23.4,3,2024-02-02
+Site Reliability Engineer,Terraform,NVIDIA,Noida,17.3,3,2024-05-13
+AI Engineer,Machine Learning,Google,Chennai,31.1,8,2023-05-24
+Software Engineer,SQL,Zoho,Kolkata,25.3,7,2024-05-11
+Engineering Manager,Azure,Zoho,Noida,43.1,11,2024-02-23
+Site Reliability Engineer,AWS,Adobe,Mumbai,16.2,1,2023-06-21
+UI/UX Developer,Bootstrap,Zoho,Ahmedabad,18.4,3,2023-08-19
+Frontend Developer,HTML,Paytm,Kolkata,13.3,2,2024-07-16
+Machine Learning Engineer,Next.js,TCS,Gurugram,28.7,8,2024-07-09
+Machine Learning Engineer,C++,Infosys,Hyderabad,29.1,8,2023-09-11
+Software Engineer,Flask,Capgemini,Pune,21.3,7,2023-08-31
+Full Stack Developer,React,Hasura,Ahmedabad,22.7,6,2023-07-31
+Site Reliability Engineer,DevOps,Chargebee,New Delhi,18.9,5,2023-06-22
+Solutions Architect,SQL,Wipro,Pune,16.5,1,2023-04-08
+QA Engineer,MongoDB,Zoho,Gurugram,16.8,4,2023-09-13
+Cloud Engineer,GraphQL,Zomato,Hyderabad,27.8,7,2023-05-26
+Full Stack Developer,HTML,OYO,Chennai,22.0,5,2024-02-17
+Site Reliability Engineer,DevOps,OYO,Hyderabad,17.5,1,2024-05-14
+Senior Software Engineer,Node.js,Qualcomm,Mumbai,35.2,8,2024-01-02
+Site Reliability Engineer,Jenkins,PayPal,Noida,17.3,3,2023-10-18
+Backend Developer,Java,MakeMyTrip,Pune,22.1,8,2023-02-19
+Data Engineer,Python,Intel,Pune,23.0,4,2024-04-12
+Backend Developer,Go,Tech Mahindra,Chennai,20.3,6,2023-06-12
+AI Engineer,Scikit-learn,Google,Hyderabad,26.6,4,2023-02-23
+Backend Developer,Kafka,MakeMyTrip,Kolkata,17.5,3,2023-08-07
+AI Engineer,Python,Wipro,Gurugram,23.9,2,2023-01-10
+Full Stack Developer,Node.js,Paytm,Hyderabad,22.2,7,2024-05-04
+UI/UX Developer,SQL,Swiggy,Pune,17.7,3,2023-11-03
+Data Scientist,GraphQL,HCL,Mumbai,21.6,3,2024-06-27
+Tech Lead,CI/CD,Infosys,Hyderabad,33.1,8,2024-02-26
+Senior Software Engineer,Spring Boot,Wipro,Chennai,35.8,10,2024-08-26
+Backend Developer,Go,Salesforce,Ahmedabad,18.8,4,2023-09-11
+Data Scientist,PyTorch,Chargebee,Ahmedabad,21.5,5,2023-10-19
+UI/UX Developer,Express,Infosys,Mumbai,22.2,5,2023-07-13
+AI Engineer,Spark,Qualcomm,Bengaluru,24.8,2,2023-09-04
+Data Analyst,NumPy,Freshworks,Pune,20.3,7,2023-05-16
+Site Reliability Engineer,JavaScript,Flipkart,Mumbai,13.2,2,2023-03-16
+UI/UX Developer,HTML,Zomato,Gurugram,22.6,7,2024-02-12
+Full Stack Developer,Bootstrap,Zomato,New Delhi,16.9,3,2024-07-03
+Full Stack Developer,Flask,Uber,Hyderabad,23.0,6,2024-06-07
+Frontend Developer,React,Salesforce,Hyderabad,17.7,2,2023-09-02
+DevOps Engineer,C++,Google,Pune,15.1,2,2023-02-26
+Mobile Developer,Spark,Adobe,Pune,18.3,5,2023-06-17
+Data Scientist,PyTorch,Postman,New Delhi,26.0,6,2023-05-01
+Site Reliability Engineer,TypeScript,Paytm,Kolkata,15.5,2,2023-03-07
+Site Reliability Engineer,Spark,TCS,New Delhi,16.3,3,2023-02-26
+Frontend Developer,Azure,Google,Bengaluru,18.8,4,2024-08-10
+Senior Software Engineer,Java,Cognizant,Pune,32.9,10,2023-09-08
+Full Stack Developer,Tailwind,Qualcomm,Mumbai,24.0,7,2023-02-06
+Software Engineer,Node.js,Postman,Bengaluru,15.9,2,2023-10-05
+Data Scientist,Scikit-learn,Qualcomm,New Delhi,29.3,8,2023-02-17
+UI/UX Developer,Tailwind,Thoughtworks,New Delhi,13.3,1,2023-03-30
+AI Engineer,Express,Zoho,Ahmedabad,24.3,4,2023-11-08
+Full Stack Developer,Spring Boot,Amazon,Gurugram,15.5,3,2023-07-20
+UI/UX Developer,Bootstrap,Razorpay,Bengaluru,18.2,1,2023-08-27
+DevOps Engineer,Docker,HCL,Bengaluru,23.0,4,2023-11-11
+DevOps Engineer,AWS,Ola,Kolkata,22.5,4,2023-10-14
+Backend Developer,Elasticsearch,Swiggy,Gurugram,15.5,2,2024-01-17
+Machine Learning Engineer,GraphQL,Oracle,Pune,27.8,7,2024-08-29
+QA Engineer,TypeScript,Qualcomm,Chennai,21.0,7,2023-10-26
+Full Stack Developer,Go,Atlassian,Pune,18.7,2,2024-04-08
+Frontend Developer,MongoDB,Ola,Chennai,15.7,3,2023-04-22
+UI/UX Developer,Bootstrap,SAP,Noida,18.3,4,2023-05-04
+DevOps Engineer,AWS,Microsoft,Ahmedabad,23.6,5,2023-05-03
+DevOps Engineer,DevOps,CRED,Chennai,18.6,2,2023-08-09
+Full Stack Developer,React,Amazon,Pune,19.8,5,2024-06-09
+Business Intelligence Developer,Redis,Wipro,Hyderabad,18.5,4,2024-02-19
+Data Scientist,Python,Paytm,Gurugram,19.7,4,2023-05-05
+Site Reliability Engineer,REST API,Swiggy,Hyderabad,22.2,5,2023-03-28
+Cloud Engineer,Ansible,Infosys,Chennai,18.0,3,2023-07-22
+Machine Learning Engineer,Elasticsearch,CRED,Gurugram,23.1,3,2023-02-13
+UI/UX Developer,JavaScript,Adobe,Mumbai,24.3,7,2024-05-23
+Full Stack Developer,Redis,Oracle,Ahmedabad,15.6,1,2023-10-14
+Solutions Architect,Spark,Razorpay,New Delhi,22.3,8,2023-10-30
+Software Engineer,PostgreSQL,Amazon,Kolkata,19.2,4,2023-05-21
+Software Engineer,FastAPI,PhonePe,Noida,24.7,8,2024-01-27
+UI/UX Developer,HTML,IBM,Bengaluru,22.9,7,2024-08-02
+AI Engineer,PyTorch,Postman,Noida,21.5,1,2023-01-31
+Data Analyst,PyTorch,Oracle,Hyderabad,19.6,4,2024-01-02
+Full Stack Developer,Bootstrap,Razorpay,Mumbai,17.7,1,2023-09-30
+Machine Learning Engineer,Machine Learning,Atlassian,Chennai,23.0,4,2023-12-30
+Software Engineer,FastAPI,Zoho,Mumbai,19.5,3,2023-01-29
+DevOps Engineer,C++,IBM,Bengaluru,25.0,8,2024-07-09
+UI/UX Developer,CSS,Accenture,Ahmedabad,13.2,1,2023-01-21
+Site Reliability Engineer,Jenkins,Flipkart,Chennai,19.1,3,2023-05-14
+Site Reliability Engineer,MongoDB,Paytm,Kolkata,18.4,3,2023-01-23
+Data Engineer,Pandas,Wipro,Chennai,16.7,2,2023-03-16
+Senior Software Engineer,Spring Boot,Cognizant,Chennai,43.3,15,2023-06-11
+AI Engineer,GCP,Cognizant,Ahmedabad,26.1,6,2024-07-29
+Data Engineer,C++,Thoughtworks,Bengaluru,19.9,3,2024-01-23
+Data Analyst,PyTorch,ServiceNow,Chennai,10.4,1,2024-02-05
+Site Reliability Engineer,Terraform,PayPal,Pune,17.7,2,2023-08-15
+UI/UX Developer,Vue.js,PayPal,Hyderabad,22.2,6,2023-03-21
+AI Engineer,Python,TCS,Hyderabad,24.4,4,2024-04-02
+UI/UX Developer,React,Ola,Pune,25.7,8,2023-01-02
+AI Engineer,NumPy,Thoughtworks,Noida,27.0,7,2024-05-19
+Data Engineer,TensorFlow,Qualcomm,Bengaluru,19.8,2,2023-08-19
+DevOps Engineer,Docker,Tech Mahindra,Gurugram,21.9,6,2023-09-25
+Frontend Developer,Tailwind,Freshworks,Ahmedabad,21.0,6,2023-03-18
+DevOps Engineer,MySQL,Accenture,Hyderabad,24.5,7,2023-02-01
+Business Intelligence Developer,GCP,Oracle,New Delhi,20.8,5,2024-02-24
+UI/UX Developer,React,Google,Chennai,22.8,8,2023-04-09
+Cloud Engineer,AWS,NVIDIA,Bengaluru,26.8,8,2024-03-13
+Frontend Developer,Kafka,Zoho,Noida,20.4,5,2023-03-25
+Site Reliability Engineer,AWS,Paytm,Gurugram,21.4,7,2023-09-29
+Machine Learning Engineer,Redis,IBM,New Delhi,23.7,5,2023-07-11
+Machine Learning Engineer,GraphQL,PhonePe,Hyderabad,22.6,3,2023-10-03
+Site Reliability Engineer,PostgreSQL,Postman,Gurugram,18.8,4,2024-07-08
+Full Stack Developer,Bootstrap,Zomato,Mumbai,27.8,8,2024-03-04
+Backend Developer,FastAPI,Cognizant,Noida,15.1,3,2024-02-09
+Full Stack Developer,Flask,Uber,Hyderabad,18.0,3,2023-06-21
+DevOps Engineer,Terraform,Druva,Hyderabad,21.4,5,2023-07-26
+UI/UX Developer,Tailwind,ServiceNow,Bengaluru,22.5,5,2024-02-11
+UI/UX Developer,CSS,Thoughtworks,Pune,15.1,2,2024-08-24
+Frontend Developer,REST API,Hasura,Hyderabad,16.5,2,2024-08-25
+Cloud Engineer,PostgreSQL,Salesforce,Ahmedabad,26.8,7,2023-12-19
+Full Stack Developer,Java,Salesforce,Ahmedabad,20.5,5,2024-04-29
+Senior Software Engineer,Java,Adobe,Bengaluru,38.4,10,2024-02-16
+QA Engineer,JavaScript,TCS,Noida,16.1,5,2024-01-17
+Data Engineer,SQL,Adobe,Chennai,27.9,8,2023-08-22
+Backend Developer,Microservices,Zoho,Gurugram,18.2,4,2024-03-02
+Data Scientist,Pandas,CRED,Kolkata,17.8,3,2024-06-12
+Data Analyst,PyTorch,Oracle,Mumbai,11.7,1,2023-05-19
+Machine Learning Engineer,Elasticsearch,Paytm,New Delhi,26.5,6,2023-02-03
+UI/UX Developer,HTML,Salesforce,Mumbai,17.3,2,2024-04-20
+Data Engineer,Machine Learning,Zomato,New Delhi,22.7,6,2024-04-01
+UI/UX Developer,JavaScript,Capgemini,Ahmedabad,12.3,1,2023-10-19
+DevOps Engineer,Ansible,Chargebee,Gurugram,19.3,4,2023-08-15
+Data Scientist,PyTorch,Salesforce,Pune,29.6,8,2023-01-21
+UI/UX Developer,Angular,Uber,New Delhi,21.1,5,2023-01-09
+Tech Lead,Git,Postman,New Delhi,34.6,9,2024-01-21
+Data Analyst,Scikit-learn,Druva,Chennai,11.0,2,2024-09-30
+Data Engineer,Microservices,Swiggy,Noida,22.9,5,2024-08-31
+Software Engineer,Go,Accenture,New Delhi,18.8,5,2023-12-11
+Frontend Developer,CSS,CRED,Ahmedabad,14.5,1,2023-06-03
+Full Stack Developer,Azure,SAP,New Delhi,15.8,1,2023-11-24
+Data Engineer,Scikit-learn,Accenture,Ahmedabad,16.4,1,2024-03-04
+Full Stack Developer,Spring Boot,Chargebee,Chennai,27.5,8,2023-12-18
+Data Analyst,TensorFlow,Wipro,Noida,14.0,3,2023-11-04
+Full Stack Developer,Spring Boot,Intel,Mumbai,24.5,6,2023-09-22
+Cloud Engineer,Jenkins,Infosys,Noida,23.4,5,2024-03-06
+Full Stack Developer,React,Razorpay,Mumbai,17.6,2,2024-04-26
+Solutions Architect,C++,Wipro,Pune,15.9,1,2024-06-26
+Cloud Engineer,Jenkins,Zomato,Pune,25.7,8,2023-07-25
+Site Reliability Engineer,Jenkins,Adobe,Bengaluru,16.1,3,2024-05-14
+DevOps Engineer,Next.js,Uber,Hyderabad,19.3,3,2023-08-03
+Data Engineer,Scikit-learn,Paytm,Bengaluru,28.0,8,2024-03-15
+Site Reliability Engineer,DevOps,Oracle,Bengaluru,17.6,4,2023-01-15
+Mobile Developer,GCP,Chargebee,Gurugram,18.1,5,2023-08-20
+DevOps Engineer,C++,NVIDIA,New Delhi,19.1,2,2024-08-25
+Software Engineer,Spring Boot,PayPal,Pune,24.9,7,2024-04-11
+Software Engineer,Git,Amazon,Gurugram,19.2,3,2024-05-16
+Full Stack Developer,Angular,Tech Mahindra,Bengaluru,18.1,3,2023-08-22
+Data Scientist,Pandas,Hasura,New Delhi,27.9,7,2023-05-07
+Full Stack Developer,React,Infosys,Bengaluru,15.9,1,2024-09-30
+UI/UX Developer,Redis,HCL,Noida,15.7,2,2024-03-02
+Data Scientist,GCP,Adobe,Hyderabad,24.8,5,2023-07-30
+Full Stack Developer,Microservices,ServiceNow,Hyderabad,27.7,7,2024-09-29
+Frontend Developer,Rust,Accenture,Ahmedabad,14.5,2,2023-05-01
+Frontend Developer,CSS,Tech Mahindra,New Delhi,21.5,6,2023-09-27
+UI/UX Developer,Tailwind,PayPal,Noida,19.4,4,2023-02-10
+Data Scientist,Python,Zoho,Ahmedabad,20.5,2,2023-08-29
+Site Reliability Engineer,AWS,IBM,Hyderabad,18.9,2,2023-06-02
+Cloud Engineer,Rust,Microsoft,Pune,25.3,8,2024-04-12
+AI Engineer,Pandas,Microsoft,Hyderabad,34.1,7,2023-10-25
+DevOps Engineer,SQL,ServiceNow,Noida,22.8,6,2023-01-10
+Backend Developer,Spring Boot,Infosys,Pune,23.1,6,2023-10-02
+Data Engineer,Scikit-learn,Ola,Noida,23.7,5,2024-02-15
+DevOps Engineer,Kubernetes,TCS,Pune,18.4,1,2023-06-20
+Engineering Manager,REST API,ServiceNow,Pune,47.4,14,2024-03-02
+AI Engineer,PyTorch,Freshworks,Pune,21.8,1,2024-01-24
+Cloud Engineer,Kubernetes,Qualcomm,New Delhi,25.2,8,2024-05-14
+Full Stack Developer,FastAPI,TCS,Ahmedabad,22.6,6,2023-01-13
+Senior Software Engineer,Linux,HCL,Gurugram,35.7,12,2024-03-19
+Machine Learning Engineer,CI/CD,Chargebee,Pune,18.7,1,2024-07-25
+DevOps Engineer,Spark,Oracle,Chennai,18.8,2,2024-04-25
+Backend Developer,Go,CRED,Gurugram,18.8,4,2023-12-05
+Cloud Engineer,AWS,Zomato,Noida,29.0,8,2023-08-29
+QA Engineer,Redis,Ola,Bengaluru,15.1,2,2024-05-25
+Full Stack Developer,Tailwind,ServiceNow,Ahmedabad,16.6,1,2023-02-06
+Full Stack Developer,HTML,PayPal,Noida,20.3,4,2023-11-08
+Frontend Developer,React,Salesforce,Ahmedabad,22.7,8,2024-01-08
+Software Engineer,FastAPI,PhonePe,Mumbai,22.6,8,2024-04-29
+Full Stack Developer,Tailwind,Zoho,Bengaluru,26.7,6,2023-10-26
+Senior Software Engineer,FastAPI,CRED,Mumbai,27.0,6,2023-05-24
+Software Engineer,Elasticsearch,Microsoft,Gurugram,19.5,6,2023-08-09
+Cloud Engineer,Kubernetes,Wipro,Kolkata,28.3,8,2024-08-25
+Data Analyst,Python,Atlassian,Gurugram,12.3,1,2024-05-25
+Frontend Developer,HTML,TCS,Pune,17.2,3,2024-05-09
+AI Engineer,Linux,Ola,Gurugram,27.5,6,2024-02-01
+Senior Software Engineer,GCP,NVIDIA,Chennai,31.5,9,2024-09-15
+Full Stack Developer,SQL,Intel,Kolkata,24.5,7,2024-04-08
+Site Reliability Engineer,DevOps,NVIDIA,Ahmedabad,17.0,4,2024-07-14
+Full Stack Developer,Azure,Infosys,Chennai,18.0,3,2023-12-20
+UI/UX Developer,Tailwind,NVIDIA,Kolkata,23.9,7,2023-12-27
+Data Analyst,Python,Flipkart,Pune,11.1,2,2024-03-08
+Software Engineer,Django,HCL,New Delhi,19.4,3,2023-02-27
+Data Engineer,GCP,MakeMyTrip,Bengaluru,23.0,4,2023-03-05
+Business Intelligence Developer,CI/CD,Razorpay,Kolkata,19.7,4,2023-04-15
+Full Stack Developer,HTML,Razorpay,Bengaluru,25.1,5,2023-09-01
+QA Engineer,Azure,Accenture,New Delhi,8.6,1,2024-03-02
+Data Engineer,PyTorch,Atlassian,Chennai,22.6,4,2024-09-27
+AI Engineer,Express,Cognizant,Mumbai,27.0,4,2024-07-13
+Machine Learning Engineer,Machine Learning,Adobe,Gurugram,18.9,2,2023-03-18
+Full Stack Developer,TypeScript,Google,New Delhi,18.4,3,2024-07-23
+Full Stack Developer,Elasticsearch,Salesforce,Chennai,13.3,1,2023-12-05
+Data Analyst,PyTorch,Druva,Ahmedabad,18.0,5,2023-02-22
+Software Engineer,Node.js,Swiggy,Kolkata,20.8,4,2024-01-02
+Data Engineer,TensorFlow,PayPal,Mumbai,26.0,7,2024-06-01
+AI Engineer,Pandas,Postman,Ahmedabad,26.8,4,2023-12-06
+Full Stack Developer,Tailwind,MakeMyTrip,Chennai,13.1,1,2024-05-01
+Site Reliability Engineer,Ansible,Razorpay,Chennai,20.8,4,2023-09-04
+AI Engineer,NumPy,Paytm,Kolkata,23.6,5,2023-04-27
+UI/UX Developer,HTML,Zomato,Mumbai,23.3,8,2024-06-10
+Data Analyst,TensorFlow,Capgemini,Mumbai,13.9,1,2023-04-09
+DevOps Engineer,Docker,HCL,Hyderabad,28.6,7,2024-03-10
+QA Engineer,Elasticsearch,SAP,Bengaluru,9.1,1,2023-01-25
+Full Stack Developer,Node.js,CRED,Noida,20.5,5,2024-07-25
+DevOps Engineer,DevOps,Google,Kolkata,25.9,7,2024-03-19
+Backend Developer,Node.js,TCS,Kolkata,14.8,2,2024-09-25
+Data Engineer,Azure,Razorpay,Noida,16.4,2,2023-10-24
+Data Scientist,Linux,CRED,Mumbai,26.3,8,2024-02-09
+Full Stack Developer,Rust,Google,Chennai,21.9,5,2024-07-12
+Frontend Developer,Tailwind,Salesforce,Ahmedabad,12.2,2,2024-07-20
+Full Stack Developer,Bootstrap,Capgemini,Chennai,15.5,2,2024-02-08
+Site Reliability Engineer,Ansible,SAP,Mumbai,16.7,3,2024-02-27
+DevOps Engineer,Kubernetes,OYO,Kolkata,17.8,1,2023-07-18
+Software Engineer,Node.js,Zoho,Mumbai,15.9,2,2024-07-16
+Full Stack Developer,Git,Swiggy,Ahmedabad,17.5,4,2023-12-05
+Cloud Engineer,DevOps,Atlassian,New Delhi,26.6,8,2023-07-18
+Site Reliability Engineer,GraphQL,Tech Mahindra,Gurugram,23.0,6,2023-06-06
+DevOps Engineer,DevOps,Adobe,Gurugram,21.6,4,2023-01-05
+QA Engineer,SQL,Intel,Chennai,21.3,8,2024-01-04
+Frontend Developer,Tailwind,Wipro,Hyderabad,18.8,3,2024-05-13
+Software Engineer,Django,Amazon,Bengaluru,18.7,2,2024-07-05
+UI/UX Developer,REST API,SAP,Kolkata,20.5,4,2024-08-18
+UI/UX Developer,Bootstrap,Atlassian,Mumbai,18.5,3,2024-07-10
+Tech Lead,SQL,Paytm,Gurugram,42.1,13,2023-10-25
+Machine Learning Engineer,Python,MakeMyTrip,Pune,22.3,3,2024-05-29
+Data Analyst,Machine Learning,PhonePe,Noida,16.2,3,2023-06-13
+UI/UX Developer,Angular,IBM,Chennai,16.3,4,2023-02-11
+Software Engineer,Linux,Microsoft,Noida,20.9,6,2023-02-13
+Cloud Engineer,Ansible,Adobe,Kolkata,19.5,2,2023-02-10
+Business Intelligence Developer,REST API,Paytm,Gurugram,16.4,3,2023-09-27
+DevOps Engineer,Ansible,PhonePe,Mumbai,23.1,5,2024-08-24
+Engineering Manager,Spark,MakeMyTrip,Pune,44.0,14,2023-12-20
+Frontend Developer,Angular,Tech Mahindra,Pune,17.6,5,2023-06-19
+Frontend Developer,Microservices,Infosys,Chennai,17.1,4,2024-01-06
+Engineering Manager,Azure,Ola,Pune,42.1,12,2024-05-08
+Frontend Developer,Vue.js,Wipro,Pune,16.4,3,2023-01-23
+Full Stack Developer,Java,Postman,Pune,13.3,1,2024-06-08
+Site Reliability Engineer,Microservices,Zomato,New Delhi,15.9,1,2024-02-20
+AI Engineer,Redis,IBM,Pune,32.3,8,2023-08-10
+Full Stack Developer,Microservices,SAP,Kolkata,18.6,3,2024-02-25
+Software Engineer,Spring Boot,Razorpay,Hyderabad,25.9,8,2023-06-21
+DevOps Engineer,Docker,Ola,Kolkata,20.6,4,2023-05-16
+Frontend Developer,Microservices,Salesforce,Ahmedabad,15.9,3,2023-06-03
+Full Stack Developer,Bootstrap,Salesforce,Pune,14.5,2,2023-02-09
+Data Engineer,Python,Uber,Bengaluru,27.0,7,2024-07-06
+UI/UX Developer,Kafka,TCS,Ahmedabad,21.9,6,2023-08-23
+Cloud Engineer,SQL,Hasura,Hyderabad,30.0,8,2024-03-11
+Software Engineer,TypeScript,Infosys,Bengaluru,16.3,1,2024-02-23
+Data Engineer,Python,Ola,Chennai,21.4,4,2024-06-16
+DevOps Engineer,Docker,SAP,New Delhi,25.8,7,2024-01-06
+Site Reliability Engineer,MySQL,Capgemini,Gurugram,22.1,6,2024-07-02
+Full Stack Developer,Tailwind,Druva,Kolkata,23.9,8,2024-02-28
+Data Engineer,TypeScript,Wipro,Gurugram,24.9,6,2024-05-10
+Senior Software Engineer,Express,TCS,Pune,37.9,12,2023-05-02
+UI/UX Developer,HTML,Flipkart,Ahmedabad,23.0,6,2023-08-08
+Data Scientist,NumPy,Salesforce,Noida,20.1,2,2023-06-14
+DevOps Engineer,AWS,Razorpay,Hyderabad,22.5,5,2024-03-21
+Data Analyst,CI/CD,Flipkart,Ahmedabad,19.1,5,2024-02-15
+Cloud Engineer,Terraform,NVIDIA,Kolkata,25.1,8,2023-06-29
+Full Stack Developer,Java,Oracle,Chennai,18.9,3,2023-07-19
+Data Scientist,TensorFlow,CRED,Chennai,24.4,5,2023-01-01
+Software Engineer,REST API,Druva,Hyderabad,17.3,1,2024-02-20
+Software Engineer,Spring Boot,IBM,New Delhi,23.8,6,2023-10-19
+Senior Software Engineer,Django,Cognizant,New Delhi,35.4,11,2024-09-12
+Frontend Developer,HTML,Infosys,Chennai,14.5,2,2024-02-21
+Business Intelligence Developer,TypeScript,Thoughtworks,Gurugram,21.0,5,2024-06-09
+Machine Learning Engineer,PyTorch,OYO,Noida,27.8,6,2024-05-10
+Engineering Manager,JavaScript,IBM,Gurugram,33.3,6,2024-08-23
+Cloud Engineer,DevOps,SAP,Bengaluru,27.2,6,2023-08-24
+Backend Developer,Rust,Swiggy,Chennai,23.9,7,2023-09-12
+Data Engineer,Machine Learning,Adobe,Ahmedabad,22.8,6,2024-07-21
+Software Engineer,Express,SAP,Mumbai,28.5,8,2023-07-07
+Frontend Developer,Angular,HCL,Chennai,19.2,4,2023-07-31
+DevOps Engineer,Kubernetes,Microsoft,Kolkata,27.1,8,2023-04-20
+Data Analyst,Pandas,Adobe,Ahmedabad,19.5,6,2024-05-08
+Data Analyst,Machine Learning,Wipro,Ahmedabad,17.5,5,2024-05-17
+UI/UX Developer,CSS,CRED,Bengaluru,28.7,8,2023-02-25
+Frontend Developer,Elasticsearch,Capgemini,Bengaluru,22.6,8,2023-06-28
+Frontend Developer,REST API,Cognizant,New Delhi,19.8,6,2024-01-24
+Senior Software Engineer,TypeScript,PayPal,Ahmedabad,31.9,9,2024-07-15
+Data Engineer,Machine Learning,Paytm,Chennai,23.6,7,2024-01-10
+Senior Software Engineer,Go,IBM,Ahmedabad,29.4,7,2024-02-15
+Software Engineer,Spring Boot,Accenture,Gurugram,18.8,4,2023-04-13
+Full Stack Developer,Express,Ola,Pune,27.0,8,2023-05-30
+Data Analyst,SQL,SAP,New Delhi,20.9,6,2024-05-26
+Machine Learning Engineer,GraphQL,Flipkart,Pune,25.0,7,2024-07-29
+Engineering Manager,TypeScript,SAP,Chennai,46.0,15,2023-08-09
+Data Analyst,Pandas,Infosys,Gurugram,17.2,5,2024-01-05
+AI Engineer,Azure,Cognizant,Kolkata,24.9,4,2023-12-26
+QA Engineer,Git,Zomato,Noida,22.9,8,2023-10-19
+Data Engineer,CI/CD,Tech Mahindra,Pune,27.2,8,2024-01-26
+AI Engineer,PostgreSQL,PayPal,Hyderabad,31.1,7,2023-12-12
+Cloud Engineer,DevOps,CRED,Ahmedabad,24.1,5,2023-08-22
+Mobile Developer,Redis,Amazon,Pune,24.1,8,2023-10-05
+Full Stack Developer,Spring Boot,CRED,Hyderabad,23.9,5,2023-05-09
+DevOps Engineer,Docker,Postman,Bengaluru,29.8,8,2023-04-16
+Cloud Engineer,Docker,Intel,Gurugram,17.9,3,2023-03-27
+Full Stack Developer,Vue.js,Wipro,Pune,20.7,5,2023-08-23
+Data Scientist,TensorFlow,Freshworks,Chennai,17.8,1,2024-06-23
+UI/UX Developer,Bootstrap,Cognizant,Kolkata,22.7,8,2024-04-23
+Tech Lead,Microservices,Uber,Ahmedabad,46.2,15,2024-08-28
+Site Reliability Engineer,Terraform,Hasura,Noida,22.0,5,2024-06-20
+Cloud Engineer,AWS,HCL,New Delhi,22.3,5,2023-08-21
+Data Scientist,Python,Hasura,Noida,19.2,3,2023-11-07
+Engineering Manager,GCP,NVIDIA,Gurugram,42.5,12,2023-01-09
+Frontend Developer,Angular,Uber,Kolkata,18.9,6,2024-09-03
+Frontend Developer,Vue.js,Uber,Mumbai,24.5,7,2024-02-09
+Full Stack Developer,CSS,Adobe,Kolkata,19.9,5,2023-09-03
+Backend Developer,Django,ServiceNow,Hyderabad,16.7,3,2024-02-27
+Senior Software Engineer,Go,Flipkart,Pune,29.6,8,2024-04-08
+DevOps Engineer,JavaScript,MakeMyTrip,Pune,16.4,2,2024-07-01
+Frontend Developer,Angular,Intel,Mumbai,14.3,3,2023-01-09
+Data Engineer,Pandas,Flipkart,Pune,15.2,1,2024-05-25
+Data Engineer,PyTorch,Accenture,Pune,17.7,2,2023-09-30
+Data Scientist,NumPy,MakeMyTrip,Mumbai,22.1,2,2023-09-14
+Machine Learning Engineer,Express,Capgemini,Hyderabad,24.0,4,2023-09-11
+AI Engineer,NumPy,Druva,Bengaluru,28.7,6,2024-04-29
+Cloud Engineer,Kubernetes,Flipkart,Mumbai,29.7,8,2024-06-17
+DevOps Engineer,Kubernetes,Adobe,Pune,24.1,7,2023-08-12
+Cloud Engineer,Kubernetes,Freshworks,Bengaluru,20.7,4,2024-08-21
+Mobile Developer,MongoDB,Zomato,Noida,14.2,2,2024-09-02
+Site Reliability Engineer,Jenkins,Hasura,Pune,11.8,1,2024-09-25
+Engineering Manager,SQL,PhonePe,Kolkata,36.6,8,2023-04-20
+Full Stack Developer,Spring Boot,Wipro,Chennai,15.9,1,2024-03-25
+Senior Software Engineer,Java,Zoho,Kolkata,36.8,12,2023-09-14
+DevOps Engineer,GraphQL,Adobe,Noida,22.6,6,2023-07-14
+Frontend Developer,Tailwind,NVIDIA,Noida,14.7,2,2024-09-05
+UI/UX Developer,Bootstrap,Razorpay,Kolkata,22.0,8,2023-09-27
+AI Engineer,JavaScript,Swiggy,Mumbai,30.3,6,2023-07-09
+Machine Learning Engineer,NumPy,ServiceNow,Pune,29.8,8,2024-07-05
+Cloud Engineer,DevOps,Swiggy,Kolkata,22.6,6,2023-10-17
+DevOps Engineer,SQL,Accenture,Noida,14.5,1,2023-02-14
+Senior Software Engineer,Java,Atlassian,Ahmedabad,40.9,15,2023-04-12
+UI/UX Developer,React,Capgemini,Hyderabad,19.0,4,2023-09-20
+Cloud Engineer,AWS,Paytm,Gurugram,16.3,1,2024-05-18
+Cloud Engineer,CI/CD,Swiggy,New Delhi,18.2,1,2023-03-01
+Frontend Developer,CSS,Razorpay,Kolkata,15.6,2,2023-08-10
+Full Stack Developer,Django,Ola,Kolkata,18.3,3,2023-07-14
+Data Analyst,PyTorch,TCS,Gurugram,20.4,6,2023-04-19
+Data Analyst,Machine Learning,Hasura,Pune,21.0,7,2023-06-20
+Mobile Developer,Redis,Paytm,Chennai,21.8,6,2024-09-06
+Solutions Architect,Next.js,Hasura,Ahmedabad,22.0,6,2024-02-27
+Data Analyst,NumPy,MakeMyTrip,Noida,17.3,5,2023-08-08
+Data Scientist,Python,Wipro,Kolkata,23.5,5,2024-02-11
+AI Engineer,Python,Amazon,Chennai,23.1,4,2023-11-06
+Full Stack Developer,Tailwind,PhonePe,Noida,16.0,3,2023-10-10
+Cloud Engineer,SQL,Intel,Mumbai,27.3,6,2023-06-09
+UI/UX Developer,GraphQL,Freshworks,Chennai,19.7,4,2023-04-05
+Site Reliability Engineer,Spark,Microsoft,New Delhi,16.0,2,2023-06-27
+Data Scientist,NumPy,PhonePe,Chennai,19.1,1,2024-08-13
+Frontend Developer,PostgreSQL,Google,Ahmedabad,18.7,4,2024-03-20
+UI/UX Developer,React,HCL,Ahmedabad,13.1,1,2024-01-27
+Full Stack Developer,HTML,MakeMyTrip,Gurugram,17.8,4,2023-12-01
+Data Analyst,GraphQL,CRED,New Delhi,12.1,2,2024-09-01
+QA Engineer,SQL,SAP,Bengaluru,13.4,2,2023-06-01
+Data Analyst,Scikit-learn,Wipro,Pune,22.4,7,2023-03-29
+Frontend Developer,Tailwind,Accenture,Ahmedabad,23.0,8,2024-05-07
+Data Analyst,CI/CD,Uber,New Delhi,15.2,4,2024-07-28
+Site Reliability Engineer,Azure,Uber,Gurugram,13.6,2,2023-11-28
+Software Engineer,Git,Tech Mahindra,Bengaluru,23.1,6,2024-01-10
+Tech Lead,CI/CD,IBM,Bengaluru,47.5,14,2023-12-25
+Mobile Developer,Azure,Flipkart,Hyderabad,18.6,3,2023-07-24
+Full Stack Developer,CI/CD,Freshworks,Hyderabad,19.5,5,2023-09-06
+DevOps Engineer,Jenkins,SAP,Kolkata,19.0,4,2023-01-24
+AI Engineer,Kafka,Postman,Bengaluru,25.4,3,2024-07-15
+DevOps Engineer,TypeScript,Adobe,Ahmedabad,14.9,1,2023-02-14
+Data Scientist,Elasticsearch,Paytm,New Delhi,17.9,2,2023-02-24
+Data Engineer,JavaScript,Chargebee,Gurugram,23.7,7,2023-04-21
+Cloud Engineer,DevOps,OYO,Kolkata,16.9,2,2023-04-12
+Backend Developer,FastAPI,Intel,Kolkata,12.7,1,2024-07-28
+UI/UX Developer,Spark,PhonePe,Chennai,14.6,3,2023-12-08
+Full Stack Developer,Vue.js,Razorpay,New Delhi,22.6,5,2023-11-06
+UI/UX Developer,Tailwind,Wipro,Gurugram,16.8,4,2023-01-31
+Senior Software Engineer,Spring Boot,IBM,Ahmedabad,40.3,13,2023-03-31
+Full Stack Developer,Vue.js,Salesforce,New Delhi,17.6,3,2024-03-03
+Business Intelligence Developer,Redis,Atlassian,Pune,15.5,3,2023-12-04
+Software Engineer,Azure,Wipro,Kolkata,16.0,3,2024-07-08
+Machine Learning Engineer,PyTorch,Hasura,Kolkata,20.1,3,2024-03-16
+AI Engineer,Machine Learning,Ola,Chennai,24.1,3,2023-05-02
+Tech Lead,C++,HCL,New Delhi,47.2,15,2024-02-26
+DevOps Engineer,Docker,ServiceNow,Ahmedabad,16.6,3,2023-07-12
+Site Reliability Engineer,Microservices,PhonePe,Mumbai,21.0,4,2023-10-01
+Engineering Manager,GCP,Freshworks,Ahmedabad,36.0,7,2023-03-23
+Data Engineer,Machine Learning,Accenture,Pune,26.4,8,2024-01-18
+Senior Software Engineer,Java,IBM,Gurugram,28.1,5,2023-08-20
+Software Engineer,Next.js,ServiceNow,Noida,13.9,2,2023-07-27
+QA Engineer,GCP,CRED,Gurugram,23.4,8,2024-05-16
+UI/UX Developer,Microservices,Salesforce,Ahmedabad,21.0,6,2023-02-12
+Full Stack Developer,CSS,OYO,Noida,15.1,1,2024-07-03
+Full Stack Developer,Vue.js,Postman,Bengaluru,28.6,7,2023-02-13
+Software Engineer,Django,NVIDIA,New Delhi,24.0,8,2023-02-20
+Data Engineer,TensorFlow,HCL,Bengaluru,24.9,5,2024-04-17
+Cloud Engineer,Ansible,Atlassian,Hyderabad,20.1,2,2024-04-19
+UI/UX Developer,SQL,Atlassian,Bengaluru,22.7,7,2024-07-13
+Backend Developer,Elasticsearch,Infosys,Pune,19.1,5,2023-07-26
+Site Reliability Engineer,Kubernetes,Razorpay,Hyderabad,27.2,8,2023-04-04
+DevOps Engineer,CI/CD,PayPal,Bengaluru,28.2,7,2024-06-07
+Full Stack Developer,Linux,Flipkart,Pune,19.8,3,2024-08-02
+Data Engineer,C++,Infosys,Pune,25.4,8,2024-03-05
+Backend Developer,Django,Zoho,Noida,17.6,5,2023-05-15
+Data Analyst,Python,Freshworks,Ahmedabad,21.2,8,2024-07-10
+Tech Lead,PostgreSQL,Druva,Bengaluru,33.2,6,2024-04-09
+Business Intelligence Developer,CI/CD,Flipkart,Pune,16.2,4,2023-10-12
+Full Stack Developer,Java,Intel,Ahmedabad,15.8,1,2023-12-24
+DevOps Engineer,AWS,Tech Mahindra,Pune,17.1,2,2023-12-06
+AI Engineer,CI/CD,Paytm,Ahmedabad,25.3,3,2023-10-19
+Cloud Engineer,AWS,Swiggy,Gurugram,23.8,6,2023-02-06
+Frontend Developer,Tailwind,Adobe,Hyderabad,20.9,5,2024-03-13
+UI/UX Developer,CSS,Flipkart,Ahmedabad,19.5,4,2023-12-04
+Data Analyst,GraphQL,NVIDIA,Ahmedabad,13.4,2,2023-04-22
+QA Engineer,Microservices,PhonePe,Ahmedabad,17.1,5,2024-03-13
+Site Reliability Engineer,CI/CD,Zoho,Noida,24.6,8,2023-05-13
+Senior Software Engineer,CI/CD,OYO,Bengaluru,35.0,9,2023-07-04
+Software Engineer,Express,PhonePe,Chennai,22.6,7,2023-05-01
+DevOps Engineer,Terraform,SAP,New Delhi,16.7,1,2024-07-27
+Data Engineer,C++,PayPal,Hyderabad,27.4,6,2023-03-11
+Backend Developer,Spring Boot,Freshworks,Chennai,15.5,3,2024-02-10
+Full Stack Developer,Java,Hasura,Noida,23.8,8,2024-04-30
+Solutions Architect,Elasticsearch,Thoughtworks,New Delhi,15.7,1,2023-12-10
+Full Stack Developer,Tailwind,PhonePe,Chennai,13.5,1,2023-11-20
+Cloud Engineer,MongoDB,Hasura,Gurugram,16.2,1,2023-03-09
+AI Engineer,GraphQL,Intel,Hyderabad,31.0,7,2023-06-19
+Backend Developer,FastAPI,Oracle,Noida,19.6,5,2023-11-19
+Data Engineer,Redis,Infosys,Pune,20.6,4,2024-01-16
+Full Stack Developer,Java,Chargebee,Bengaluru,18.1,2,2024-01-19
+Software Engineer,Django,Intel,Kolkata,25.7,8,2023-06-07
+Frontend Developer,MongoDB,Postman,Bengaluru,15.5,3,2023-12-02
+AI Engineer,Python,Zomato,Ahmedabad,20.9,1,2023-04-29
+Machine Learning Engineer,Elasticsearch,Amazon,New Delhi,19.6,2,2023-12-08
+Data Engineer,Next.js,Hasura,Mumbai,20.4,4,2024-08-14
+Data Engineer,PyTorch,Adobe,Pune,16.4,2,2023-11-23
+Data Analyst,Python,Druva,Chennai,12.0,2,2023-04-28
+Full Stack Developer,Go,Swiggy,Pune,21.4,5,2023-11-23
+QA Engineer,CI/CD,Flipkart,Bengaluru,20.7,8,2023-11-15
+Data Scientist,NumPy,Salesforce,Pune,18.1,2,2023-04-19
+Site Reliability Engineer,Terraform,PayPal,New Delhi,25.1,8,2024-08-29
+Backend Developer,FastAPI,OYO,Hyderabad,27.8,8,2023-07-22
+Data Engineer,Elasticsearch,ServiceNow,Mumbai,27.0,8,2023-04-10
+Data Engineer,Pandas,Qualcomm,Chennai,20.0,3,2023-09-22
+Data Scientist,Spark,Freshworks,Chennai,18.4,2,2024-04-09
+AI Engineer,TensorFlow,Chargebee,Pune,28.0,6,2024-04-17
+Data Scientist,Scikit-learn,Hasura,Hyderabad,27.7,6,2023-04-16
+Data Analyst,Scikit-learn,Freshworks,Mumbai,21.3,7,2024-04-17
+Software Engineer,Node.js,Uber,Ahmedabad,20.1,4,2024-01-29
+QA Engineer,GraphQL,Thoughtworks,Hyderabad,15.4,4,2024-03-21
+Site Reliability Engineer,Kubernetes,Cognizant,Hyderabad,26.5,8,2024-05-13
+Data Scientist,Scikit-learn,Razorpay,Ahmedabad,19.4,2,2023-11-12
+Machine Learning Engineer,Spark,Atlassian,Pune,18.1,2,2023-12-02
+Full Stack Developer,Next.js,Razorpay,New Delhi,17.8,3,2023-01-01
+Tech Lead,GraphQL,Intel,Chennai,33.0,8,2024-09-22
+Data Engineer,Azure,Zomato,Chennai,26.1,7,2024-08-06
+Data Analyst,Python,Flipkart,New Delhi,22.7,7,2024-08-19
+Frontend Developer,Tailwind,Infosys,Chennai,14.0,1,2024-01-14
+Senior Software Engineer,JavaScript,Qualcomm,Gurugram,36.0,11,2023-10-16
+Data Engineer,Scikit-learn,Freshworks,Pune,25.2,7,2024-01-27
+Senior Software Engineer,Django,NVIDIA,Pune,35.2,10,2023-05-23
+Data Scientist,SQL,Zoho,Pune,19.2,2,2023-05-09
+Backend Developer,SQL,OYO,Gurugram,17.7,3,2024-03-23
+AI Engineer,MySQL,Druva,Gurugram,22.8,3,2024-09-10
+AI Engineer,NumPy,Google,Ahmedabad,22.9,4,2024-04-05
+Senior Software Engineer,Spark,Thoughtworks,Kolkata,36.8,13,2024-08-14
+Backend Developer,Java,Zomato,Hyderabad,27.7,8,2024-01-11
+Software Engineer,Spring Boot,ServiceNow,Kolkata,24.6,8,2023-05-26
+UI/UX Developer,Vue.js,Atlassian,Kolkata,16.4,2,2023-04-01
+Machine Learning Engineer,CI/CD,Chargebee,Bengaluru,27.5,6,2023-11-16
+QA Engineer,GraphQL,NVIDIA,New Delhi,19.3,7,2024-04-25
+Software Engineer,Java,Atlassian,Noida,17.8,5,2023-06-21
+Machine Learning Engineer,GraphQL,Amazon,Ahmedabad,25.5,5,2023-06-23
+Backend Developer,Spark,SAP,New Delhi,17.0,3,2023-10-21
+Cloud Engineer,CI/CD,Salesforce,Bengaluru,27.6,5,2023-05-16
+Full Stack Developer,REST API,SAP,Pune,24.8,8,2023-06-28
+DevOps Engineer,Spark,Salesforce,Hyderabad,17.4,1,2023-08-30
+Solutions Architect,Spark,Tech Mahindra,Noida,21.7,7,2023-06-07
+Mobile Developer,GraphQL,OYO,Hyderabad,14.8,1,2023-08-04
+Data Engineer,Kafka,IBM,Kolkata,27.7,8,2024-02-13
+UI/UX Developer,Azure,Uber,Kolkata,23.3,8,2024-01-24
+Tech Lead,Rust,Microsoft,Kolkata,39.9,11,2023-01-13
+Full Stack Developer,Bootstrap,ServiceNow,Gurugram,24.8,6,2023-04-10
+Cloud Engineer,Jenkins,Atlassian,New Delhi,24.5,5,2023-10-07
+Senior Software Engineer,Elasticsearch,Cognizant,Mumbai,44.6,15,2024-02-05
+Frontend Developer,Tailwind,Postman,Bengaluru,15.6,1,2023-11-17
+Tech Lead,Azure,SAP,New Delhi,36.1,10,2023-04-17
+Backend Developer,Java,Capgemini,Ahmedabad,13.3,2,2023-07-17
+DevOps Engineer,Terraform,Wipro,Ahmedabad,15.4,2,2024-09-05
+Site Reliability Engineer,Linux,SAP,Pune,19.0,3,2024-01-20
+Backend Developer,Elasticsearch,Uber,New Delhi,26.6,8,2023-10-29
+DevOps Engineer,TypeScript,PayPal,Bengaluru,17.3,2,2023-11-28
+Cloud Engineer,TypeScript,Accenture,Noida,19.7,3,2023-03-03
+Machine Learning Engineer,Scikit-learn,Uber,Kolkata,26.5,8,2024-09-16
+Frontend Developer,CI/CD,Swiggy,Hyderabad,24.7,8,2023-08-12
+Software Engineer,Spring Boot,HCL,Noida,22.1,8,2024-08-08
+Senior Software Engineer,Java,CRED,Chennai,30.3,9,2023-01-01
+Data Analyst,Python,Swiggy,Gurugram,22.4,8,2024-08-11
+Frontend Developer,Angular,Infosys,Noida,24.3,7,2024-07-07
+UI/UX Developer,Bootstrap,Flipkart,Gurugram,22.4,6,2024-08-03
+Data Analyst,Pandas,NVIDIA,Noida,17.4,6,2023-04-03
+Data Analyst,Machine Learning,Razorpay,Mumbai,14.9,1,2023-07-27
+Site Reliability Engineer,Terraform,Accenture,Noida,21.4,6,2023-04-20
+Full Stack Developer,Java,Oracle,Ahmedabad,16.1,1,2023-05-24
+Data Scientist,NumPy,Amazon,Noida,23.0,5,2024-05-15
+DevOps Engineer,Jenkins,Capgemini,Bengaluru,26.4,6,2023-02-07
+Business Intelligence Developer,Elasticsearch,Microsoft,Mumbai,20.7,3,2024-06-19
+Data Scientist,Spark,Microsoft,Ahmedabad,29.5,8,2023-05-25
+Full Stack Developer,GCP,TCS,Bengaluru,15.2,1,2023-09-06
+DevOps Engineer,CI/CD,Salesforce,Hyderabad,19.4,2,2024-04-12
+Frontend Developer,Angular,Qualcomm,Gurugram,17.1,4,2024-09-22
+Site Reliability Engineer,Azure,Atlassian,Mumbai,17.9,3,2023-05-04
+DevOps Engineer,Jenkins,Tech Mahindra,Gurugram,16.4,2,2023-06-27
+Frontend Developer,Tailwind,Microsoft,Ahmedabad,22.2,8,2024-01-14
+Site Reliability Engineer,Docker,Zomato,Bengaluru,27.6,7,2023-05-17
+Machine Learning Engineer,Python,NVIDIA,Ahmedabad,20.5,2,2023-01-07
+Engineering Manager,GCP,Postman,New Delhi,34.5,7,2024-03-02
+Senior Software Engineer,PostgreSQL,Zoho,Bengaluru,32.2,7,2024-04-06
+Site Reliability Engineer,AWS,Accenture,Bengaluru,20.8,5,2024-09-18
+Frontend Developer,CSS,Chargebee,Kolkata,22.3,6,2023-05-01
+Software Engineer,Elasticsearch,Freshworks,Hyderabad,19.9,5,2023-08-13
+Machine Learning Engineer,Machine Learning,NVIDIA,Chennai,15.8,1,2024-05-24
+Cloud Engineer,MySQL,Microsoft,Noida,25.1,6,2023-08-03
+Machine Learning Engineer,Express,Infosys,Bengaluru,20.7,3,2023-04-17
+Full Stack Developer,Vue.js,Ola,Chennai,26.0,8,2023-03-14
+QA Engineer,Express,IBM,Chennai,16.9,4,2023-07-23
+Full Stack Developer,Vue.js,IBM,Gurugram,25.8,7,2023-04-11
+Site Reliability Engineer,Kafka,HCL,Gurugram,22.3,8,2023-03-17
+Tech Lead,CI/CD,OYO,Pune,32.4,7,2023-08-10
+Cloud Engineer,Terraform,Microsoft,Pune,21.5,5,2023-07-18
+UI/UX Developer,React,OYO,Noida,15.1,3,2024-08-05
+AI Engineer,TensorFlow,Tech Mahindra,Ahmedabad,26.4,4,2024-03-04
+Data Analyst,TensorFlow,Zoho,Kolkata,14.4,4,2024-09-18
+Engineering Manager,REST API,Oracle,Gurugram,42.4,12,2023-08-10
+Cloud Engineer,DevOps,HCL,Ahmedabad,23.5,4,2023-09-11
+Data Engineer,Python,Chargebee,Noida,13.7,1,2024-08-10
+Data Analyst,MySQL,Oracle,Hyderabad,22.3,7,2023-02-04
+Frontend Developer,Tailwind,PhonePe,Pune,24.2,7,2023-03-27
+Full Stack Developer,Vue.js,Tech Mahindra,New Delhi,14.1,2,2023-10-30
+Site Reliability Engineer,GraphQL,Wipro,Noida,16.4,1,2024-04-15
+AI Engineer,Machine Learning,Swiggy,Bengaluru,35.6,8,2024-02-20
+QA Engineer,GCP,ServiceNow,New Delhi,10.0,1,2024-01-30
+Software Engineer,GraphQL,Flipkart,Chennai,16.1,2,2024-07-09
+Mobile Developer,Azure,OYO,Chennai,12.1,1,2024-06-11
+Software Engineer,Java,Swiggy,Kolkata,19.9,6,2024-09-25
+Full Stack Developer,FastAPI,Freshworks,Mumbai,22.1,3,2024-07-28
+Software Engineer,GCP,Chargebee,New Delhi,17.6,4,2024-08-17
+Backend Developer,Go,Zoho,Noida,14.9,2,2024-03-09
+Frontend Developer,CSS,NVIDIA,Kolkata,24.5,8,2024-05-28
+Mobile Developer,CI/CD,Zomato,Noida,13.9,2,2024-04-07
+Machine Learning Engineer,Scikit-learn,Adobe,Hyderabad,26.7,5,2023-03-24
+Full Stack Developer,GCP,Amazon,Mumbai,25.7,8,2023-04-25
+Business Intelligence Developer,PostgreSQL,MakeMyTrip,Gurugram,16.9,3,2023-10-28
+Software Engineer,Rust,Postman,Mumbai,14.7,2,2023-01-22
+Site Reliability Engineer,PostgreSQL,Zoho,Chennai,22.3,6,2023-12-10
+Data Analyst,Linux,Wipro,Ahmedabad,22.3,8,2024-08-30
+AI Engineer,TensorFlow,Flipkart,New Delhi,24.4,4,2023-11-10
+Data Engineer,Git,Tech Mahindra,Ahmedabad,28.8,8,2023-06-01
+DevOps Engineer,Rust,Tech Mahindra,Pune,20.7,3,2024-07-02
+DevOps Engineer,Kubernetes,SAP,Noida,23.9,6,2023-09-01
+Machine Learning Engineer,Machine Learning,HCL,Chennai,18.8,1,2024-01-14
+Business Intelligence Developer,Redis,CRED,Hyderabad,19.6,3,2024-01-17
+Machine Learning Engineer,PyTorch,Google,Pune,30.6,8,2024-05-26
+UI/UX Developer,HTML,Thoughtworks,New Delhi,19.9,5,2024-07-13
+Tech Lead,GraphQL,Microsoft,Noida,38.4,10,2023-05-31
+Business Intelligence Developer,Azure,ServiceNow,Gurugram,14.5,2,2023-05-23
+Mobile Developer,Redis,Accenture,Ahmedabad,14.6,2,2023-08-14
+Frontend Developer,CSS,MakeMyTrip,Hyderabad,18.9,5,2024-08-20
+UI/UX Developer,HTML,Salesforce,Ahmedabad,18.5,4,2023-03-31
+Full Stack Developer,React,Paytm,Gurugram,22.0,6,2024-06-07
+Data Scientist,Pandas,MakeMyTrip,New Delhi,22.2,5,2024-01-31
+DevOps Engineer,AWS,MakeMyTrip,Gurugram,27.7,8,2024-07-28
+Data Engineer,TensorFlow,Salesforce,Ahmedabad,23.2,7,2023-10-23
+Software Engineer,MongoDB,PayPal,Kolkata,19.9,5,2023-03-30
+UI/UX Developer,REST API,Ola,New Delhi,13.0,2,2023-03-09
+UI/UX Developer,Tailwind,NVIDIA,Gurugram,15.5,3,2023-06-29
+Machine Learning Engineer,Spark,Zoho,New Delhi,25.7,5,2024-07-21
+Tech Lead,Express,Intel,Bengaluru,32.8,8,2024-07-26
+Site Reliability Engineer,Kubernetes,Oracle,Noida,19.6,5,2024-04-28
+Cloud Engineer,Kubernetes,Paytm,Hyderabad,32.7,8,2023-01-30
+Site Reliability Engineer,Kafka,Infosys,Noida,24.8,7,2024-08-18
+Full Stack Developer,HTML,Atlassian,Pune,16.7,1,2024-01-18
+QA Engineer,MongoDB,PhonePe,Pune,23.4,8,2023-03-01
+UI/UX Developer,React,Flipkart,Chennai,21.1,6,2023-06-17
+Data Analyst,Rust,TCS,Pune,13.6,2,2023-10-24
+DevOps Engineer,Next.js,Adobe,New Delhi,25.4,6,2024-09-05
+Site Reliability Engineer,Docker,NVIDIA,Bengaluru,23.6,6,2024-01-07
+Data Engineer,PyTorch,TCS,Pune,24.2,7,2024-01-17
+Data Analyst,MongoDB,ServiceNow,Kolkata,18.2,4,2023-08-12
+Full Stack Developer,Bootstrap,Wipro,Hyderabad,16.4,2,2024-06-22
+Mobile Developer,Kafka,MakeMyTrip,Pune,21.0,5,2023-01-18
