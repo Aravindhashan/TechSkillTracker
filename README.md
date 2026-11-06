@@ -81,8 +81,7 @@ TechSkillTrackerWithML/
 │   ├── semantic_search.py          # Embeddings + FAISS + cross-encoder reranking
 │   ├── skill_roi.py                # Demand-based skill ROI regression
 │   └── learning_resources.py       # Curated and generated learning links
-├── tests/                          # pytest suite
-├── reports/                        # PDF report scripts
+├── tests/                     # pytest suite
 ├── logs/                           # Runtime logs
 └── .streamlit/
     └── config.toml                 # Server binds to 0.0.0.0:5000
@@ -201,24 +200,6 @@ Results are cached with `@st.cache_data` and `@st.cache_resource` so models and 
 
 ---
 
-## PDF Reports
-
-The app itself does not export PDFs. Two standalone scripts generate a formatted report:
-
-```bash
-# Built-in example data
-python reports/generate_report.py --output reports/output_report.pdf
-
-# Custom JSON input
-python reports/generate_report.py --input reports/input.json --output reports/output_report.pdf
-```
-
-`reports/generate_report_simple.py` provides a lighter version, and `modules/report_generator.py` contains a reusable builder for integrating reports into the dashboard. All three require `reportlab`.
-
-The JSON input accepts fields such as `name`, `email`, `skills`, `target_role`, `missing_skills`, `demand_forecast`, `short_term_plan`, and `long_term_plan`.
-
----
-
 ## Configuration
 
 `.streamlit/config.toml` currently sets:
@@ -238,12 +219,11 @@ Change `port` or `address` there, or override at launch with `--server.port`. Th
 
 | Symptom | Likely cause | Fix |
 | --- | --- | --- |
-| "No data found" | No CSV in `data/`, or columns renamed | Check the file and verify the required column names |
-| "Data validation failed" | Missing required columns | Compare the header with the schema above |
+| "No data found" | Store is empty | Run `python -m modules.ingestion` to ingest postings |
+| "Data validation failed" | Missing required columns | Check the store schema (`modules/store.py`) |
 | Forecast unavailable | Fewer than two months for that skill | Choose a skill with more history or widen the date filter |
 | Weak or flat forecast | Sparse monthly counts | Treat results as directional, not precise |
 | "Statsmodels not available" | Package not installed | `pip install statsmodels` |
-| PDF script fails on import | ReportLab missing | `pip install reportlab` |
 | Charts blank | Plotly version mismatch | `pip install --upgrade plotly` |
 | App opens on the wrong port | Config or CLI override | Check `.streamlit/config.toml` or pass `--server.port` |
 | Model refuses a prediction | Skill/location not in training data | Choose values present in the dataset |
@@ -260,8 +240,7 @@ Change `port` or `address` there, or override at launch with `--server.port`. Th
 
 ## Documentation
 
-- `PROJECT_DOCUMENTATION.md` — architecture, data flow, and an extended walkthrough
-- `reports/README.md` — PDF report usage
+- `PROJECT_DOCUMENTATION.md` — architecture, data flow, and an extended walkthrough (historical; describes the pre-live, pre-salary-removal era)
 
 ---
 
