@@ -6,11 +6,12 @@ import numpy as np
 from datetime import datetime
 
 # Import custom modules
-from modules.data_loader import load_job_data
+from modules.data_loader import load_job_data, get_data_source_info, available_sources
 from modules.data_cleaner import clean_job_data, validate_data, get_data_summary
 from modules.ml_forecast import forecast_skill_demand, get_forecast_insights
 from modules.salary_predictor import train_salary_model, predict_salary, get_salary_distribution, get_salary_insights
 from modules.recommendation_engine import recommend_skills, recommend_for_job_role, get_skill_pairs, get_learning_path
+from modules.learning_resources import get_learning_path_with_resources
 
 # Page configuration
 st.set_page_config(
@@ -115,20 +116,21 @@ def create_professional_forecast_chart(forecast_df, skill_name):
         yaxis=dict(
             title='Number of Job Openings',
             showgrid=True,
-            gridcolor='#ecf0f1',
-            title_font=dict(size=14, color='#34495e')
+            gridcolor='#444444',
+            title_font=dict(size=14, color='#FFFFFF')
         ),
         hovermode='x unified',
         height=500,
-        plot_bgcolor='white',
-        paper_bgcolor='white',
+        plot_bgcolor='#000000',
+        paper_bgcolor='#000000',
+        font=dict(color='#FFFFFF'),
         legend=dict(
             orientation="h",
             yanchor="bottom",
             y=1.02,
             xanchor="right",
             x=1,
-            font=dict(size=11)
+            font=dict(size=11, color='#FFFFFF')
         ),
         margin=dict(t=80, b=60, l=60, r=40)
     )
@@ -143,9 +145,21 @@ def main():
     st.markdown('<div class="main-header">Tech Skill Tracker - Business Intelligence</div>', unsafe_allow_html=True)
     st.markdown('<div class="subheader-text">Comprehensive Analytics for the Indian Tech Job Market</div>', unsafe_allow_html=True)
     
+    # Data source selector (only shown when both live and historical data exist)
+    data_source = "auto"
+    sources = available_sources()
+    if sources["live"] and sources["csv"]:
+        source_choice = st.sidebar.radio(
+            "Data source",
+            ["Live (ingested)", "Historical CSV"],
+            help="Live postings come from the scheduled JSearch ingestion. "
+                 "Historical CSV is the bundled sample with salary data.",
+        )
+        data_source = "live" if source_choice.startswith("Live") else "csv"
+
     # Load and clean data
     with st.spinner("Loading data..."):
-        df_raw, files_count = load_job_data("data")
+        df_raw, files_count = load_job_data("data", source=data_source)
         
         if df_raw.empty:
             st.error("No data found. Please add CSV files to the data folder.")
@@ -161,7 +175,19 @@ def main():
             st.error(f"Data validation failed: {message}")
             st.stop()
         
-        st.success(f"Data loaded successfully: {len(df)} records from {files_count} file(s)")
+        st.success(f"Data loaded successfully: {len(df)} records from {files_count} source(s)")
+
+        source_info = get_data_source_info()
+        if (
+            data_source in ("auto", "live")
+            and source_info["source"] in ("sqlite", "postgres")
+            and source_info["age_hours"] is not None
+        ):
+            st.caption(
+                f"Live store: {source_info['rows']:,} postings · "
+                f"last updated {source_info['age_hours']:.1f}h ago · "
+                f"source: {source_info['source']}"
+            )
     
     # Train ML models (cached)
     with st.spinner("Initializing machine learning models..."):
@@ -198,9 +224,12 @@ def main():
         default=all_locations
     )
     
-    # Experience filter
-    min_exp = int(df['Experience Required (in years)'].min())
-    max_exp = int(df['Experience Required (in years)'].max())
+    # Experience filter (live postings may not state experience)
+    exp_values = df['Experience Required (in years)'].dropna()
+    min_exp = int(exp_values.min()) if not exp_values.empty else 0
+    max_exp = int(exp_values.max()) if not exp_values.empty else 10
+    if max_exp <= min_exp:
+        max_exp = min_exp + 1
     exp_range = st.sidebar.slider(
         "Experience Range (years)",
         min_value=min_exp,
@@ -209,14 +238,15 @@ def main():
     )
     
     # Apply filters
+    exp_series = df['Experience Required (in years)'].fillna(min_exp)
     if len(date_range) == 2:
         df_filtered = df[
             (df['Date Posted'].dt.date >= date_range[0]) &
             (df['Date Posted'].dt.date <= date_range[1]) &
             (df['Tech Skill'].isin(selected_skills)) &
             (df['Location'].isin(selected_locations)) &
-            (df['Experience Required (in years)'] >= exp_range[0]) &
-            (df['Experience Required (in years)'] <= exp_range[1])
+            (exp_series >= exp_range[0]) &
+            (exp_series <= exp_range[1])
         ]
     else:
         df_filtered = df
@@ -242,13 +272,19 @@ def main():
         col1, col2, col3, col4 = st.columns(4)
         
         with col1:
-            st.metric("Total Job Openings", f"{len(df_filtered):,}")
+            total_openings = (
+                df_filtered["Job ID"].nunique()
+                if "Job ID" in df_filtered.columns
+                else len(df_filtered)
+            )
+            st.metric("Total Job Openings", f"{total_openings:,}")
         with col2:
             st.metric("Unique Technologies", f"{df_filtered['Tech Skill'].nunique():,}")
         with col3:
             st.metric("Companies Hiring", f"{df_filtered['Company'].nunique():,}")
         with col4:
-            st.metric("Average Salary", f"₹{df_filtered['Salary (in LPA)'].mean():.1f}L")
+            avg_salary = df_filtered['Salary (in LPA)'].mean()
+            st.metric("Average Salary", f"₹{avg_salary:.1f}L" if pd.notna(avg_salary) else "N/A")
         
         st.markdown("---")
         
@@ -269,9 +305,11 @@ def main():
             fig.update_layout(
                 showlegend=False,
                 height=450,
-                plot_bgcolor='white',
-                yaxis={'categoryorder': 'total ascending'},
-                font=dict(size=11)
+                plot_bgcolor='#000000',
+                paper_bgcolor='#000000',
+                yaxis={'categoryorder': 'total ascending', 'color': '#FFFFFF'},
+                xaxis={'color': '#FFFFFF', 'gridcolor': '#444444'},
+                font=dict(size=11, color='#FFFFFF')
             )
             fig.update_traces(marker_line_color='rgb(8,48,107)', marker_line_width=1.5)
             st.plotly_chart(fig, use_container_width=True, config={'displayModeBar': False})
@@ -291,7 +329,7 @@ def main():
                 textfont_size=11,
                 marker=dict(line=dict(color='white', width=2))
             )
-            fig.update_layout(height=450, plot_bgcolor='white', paper_bgcolor='white')
+            fig.update_layout(height=450, plot_bgcolor='#000000', paper_bgcolor='#000000', font=dict(color='#FFFFFF'))
             st.plotly_chart(fig, use_container_width=True, config={'displayModeBar': False})
         
         # Data summary
@@ -343,11 +381,12 @@ def main():
                 fig.update_layout(
                     height=500,
                     hovermode='x unified',
-                    plot_bgcolor='white',
-                    paper_bgcolor='white',
-                    xaxis=dict(showgrid=True, gridcolor='#ecf0f1'),
-                    yaxis=dict(showgrid=True, gridcolor='#ecf0f1'),
-                    font=dict(size=11)
+                    plot_bgcolor='#000000',
+                    paper_bgcolor='#000000',
+                    xaxis=dict(showgrid=True, gridcolor='#444444', color='#FFFFFF'),
+                    yaxis=dict(showgrid=True, gridcolor='#444444', color='#FFFFFF'),
+                    font=dict(size=11, color='#FFFFFF'),
+                    legend=dict(font=dict(color='#FFFFFF'))
                 )
                 fig.update_traces(line=dict(width=3), marker=dict(size=8))
                 st.plotly_chart(fig, use_container_width=True, config={'displayModeBar': False})
@@ -373,9 +412,11 @@ def main():
                 fig.update_layout(
                     showlegend=False,
                     height=400,
-                    plot_bgcolor='white',
-                    xaxis=dict(title_font=dict(size=12)),
-                    yaxis=dict(title_font=dict(size=12))
+                    plot_bgcolor='#000000',
+                    paper_bgcolor='#000000',
+                    xaxis=dict(title_font=dict(size=12, color='#FFFFFF'), color='#FFFFFF', gridcolor='#444444'),
+                    yaxis=dict(title_font=dict(size=12, color='#FFFFFF'), color='#FFFFFF', gridcolor='#444444'),
+                    font=dict(color='#FFFFFF')
                 )
                 fig.update_xaxes(tickangle=45)
                 st.plotly_chart(fig, use_container_width=True, config={'displayModeBar': False})
@@ -393,9 +434,12 @@ def main():
                 )
                 fig.update_layout(
                     height=400,
-                    plot_bgcolor='white',
-                    xaxis=dict(title_font=dict(size=12)),
-                    yaxis=dict(title_font=dict(size=12))
+                    plot_bgcolor='#000000',
+                    paper_bgcolor='#000000',
+                    xaxis=dict(title_font=dict(size=12, color='#FFFFFF'), color='#FFFFFF', gridcolor='#444444'),
+                    yaxis=dict(title_font=dict(size=12, color='#FFFFFF'), color='#FFFFFF', gridcolor='#444444'),
+                    font=dict(color='#FFFFFF'),
+                    legend=dict(font=dict(color='#FFFFFF'))
                 )
                 st.plotly_chart(fig, use_container_width=True, config={'displayModeBar': False})
         
@@ -422,9 +466,11 @@ def main():
                 )
                 fig.update_layout(
                     height=500,
-                    yaxis={'categoryorder': 'total ascending'},
-                    plot_bgcolor='white',
-                    font=dict(size=11)
+                    yaxis={'categoryorder': 'total ascending', 'color': '#FFFFFF'},
+                    xaxis={'color': '#FFFFFF', 'gridcolor': '#444444'},
+                    plot_bgcolor='#000000',
+                    paper_bgcolor='#000000',
+                    font=dict(size=11, color='#FFFFFF')
                 )
                 fig.update_traces(marker_line_color='rgb(8,48,107)', marker_line_width=1)
                 st.plotly_chart(fig, use_container_width=True, config={'displayModeBar': False})
@@ -436,7 +482,7 @@ def main():
         st.header("Demand Forecasting")
         st.write("Predict future market demand for technology skills using time-series analysis")
         
-        col1, col2 = st.columns([2, 1])
+        col1, col2, col3 = st.columns([2, 1, 1])
         
         with col1:
             selected_skill_forecast = st.selectbox(
@@ -448,11 +494,37 @@ def main():
         with col2:
             months_ahead = st.slider("Forecast Period (months)", 3, 12, 6)
         
+        with col3:
+            forecast_engine_label = st.selectbox(
+                "Forecasting Engine",
+                options=[
+                    "Auto (SARIMAX → Prophet → Linear)",
+                    "SARIMAX",
+                    "Prophet",
+                    "Linear Regression"
+                ],
+                key="forecast_engine"
+            )
+        
+        engine_map = {
+            "Auto (SARIMAX → Prophet → Linear)": "auto",
+            "SARIMAX": "sarimax",
+            "Prophet": "prophet",
+            "Linear Regression": "linear"
+        }
+        
         if st.button("Generate Forecast", type="primary"):
             with st.spinner("Running predictive model..."):
-                forecast_df, status = forecast_skill_demand(df, selected_skill_forecast, months_ahead)
+                forecast_df, status = forecast_skill_demand(
+                    df,
+                    selected_skill_forecast,
+                    months_ahead,
+                    engine_map[forecast_engine_label]
+                )
                 
                 if forecast_df is not None:
+                    st.caption(f"Engine used: {forecast_df.attrs.get('engine', 'Unknown')}")
+                    
                     # Show professional chart
                     fig = create_professional_forecast_chart(forecast_df, selected_skill_forecast)
                     st.plotly_chart(fig, use_container_width=True, config={'displayModeBar': False})
@@ -572,9 +644,11 @@ def main():
             )
             fig.update_layout(
                 height=320,
-                plot_bgcolor='white',
-                xaxis=dict(title='Salary (LPA)', showgrid=True, gridcolor='#ecf0f1'),
-                yaxis=dict(title='Frequency', showgrid=True, gridcolor='#ecf0f1')
+                plot_bgcolor='#000000',
+                paper_bgcolor='#000000',
+                xaxis=dict(title='Salary (LPA)', showgrid=True, gridcolor='#444444', color='#FFFFFF'),
+                yaxis=dict(title='Frequency', showgrid=True, gridcolor='#444444', color='#FFFFFF'),
+                font=dict(color='#FFFFFF')
             )
             st.plotly_chart(fig, use_container_width=True, config={'displayModeBar': False})
     
@@ -646,8 +720,11 @@ def main():
                     )
                     fig.update_layout(
                         height=400,
-                        yaxis={'categoryorder': 'total ascending'},
-                        plot_bgcolor='white'
+                        yaxis={'categoryorder': 'total ascending', 'color': '#FFFFFF'},
+                        xaxis={'color': '#FFFFFF', 'gridcolor': '#444444'},
+                        plot_bgcolor='#000000',
+                        paper_bgcolor='#000000',
+                        font=dict(color='#FFFFFF')
                     )
                     st.plotly_chart(fig, use_container_width=True, config={'displayModeBar': False})
                     
@@ -685,9 +762,21 @@ def main():
                 if learning_path:
                     st.success(f"Recommended learning path to become {target_role}:")
                     
+                    # Show priority skills to develop
                     st.write("### Priority Skills to Develop:")
+                    missing_skills = []
                     for idx, skill in enumerate(learning_path[:10], 1):
                         st.write(f"{idx}. **{skill['skill']}** - {skill['frequency']} job openings, ₹{skill['avg_salary']:.1f}L average salary")
+                        missing_skills.append(skill['skill'])
+                    
+                    # Add learning resources section
+                    st.markdown("---")
+                    st.markdown("## Learning Resources Panel")
+                    st.info("Auto-suggested courses, tutorials, and videos to help you acquire these skills")
+                    
+                    # Generate learning path with resources for all missing skills
+                    get_learning_path_with_resources(missing_skills[:5])  # Show resources for top 5 skills
+                    
                 else:
                     st.warning(status)
     

@@ -9,6 +9,16 @@ dependencies = [
     "pandas>=2.3.3",
     "plotly>=6.3.1",
     "prophet>=1.2.1",
+    "python-dotenv>=1.0.0",
+    "psycopg2-binary>=2.9.9",
+    "requests>=2.31.0",
     "scikit-learn>=1.7.2",
+    "statsmodels>=0.14.0",
     "streamlit>=1.50.0",
 ]
+
+[project.optional-dependencies]
+# Optional: enables embedding-based skill matching (large download).
+embeddings = ["sentence-transformers>=3.0.0"]
+# Optional: opt-in Jobspy fallback scraper (ToS risk, off by default).
+scraper = ["python-jobspy>=1.1.70"]

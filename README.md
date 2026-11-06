@@ -1,285 +1,334 @@
-# 📊 Tech Skill Tracker - BI Dashboard
+# Tech Skill Tracker
 
-A comprehensive Business Intelligence dashboard for analyzing tech skill demand trends in the Indian job market, powered by Machine Learning.
+A business intelligence dashboard for exploring tech skill demand in the Indian job market. Built with Streamlit, it combines interactive analytics, time-series forecasting, salary prediction, and skill recommendations in one app.
 
-## 🌟 Features
-
-### 📈 Data Analytics
-- **Market Overview**: Real-time metrics on job openings, skills, companies, and salary trends
-- **Interactive Visualizations**: Dynamic charts and graphs using Plotly
-- **Skill Demand Trends**: Track how demand for different tech skills evolves over time
-- **Location Analysis**: Compare job markets across major Indian cities
-
-### 🤖 Machine Learning Models
-
-1. **Demand Forecasting (Prophet)**
-   - Time-series forecasting for skill demand
-   - 3-12 month predictions with confidence intervals
-   - Trend analysis and seasonality detection
-
-2. **Salary Prediction (Random Forest)**
-   - Predict salaries based on skill, location, and experience
-   - Market comparison and salary range insights
-   - Feature importance analysis
-
-3. **Skill Recommendations (Co-occurrence Analysis)**
-   - Find complementary skills that appear together in job postings
-   - Identify required skills for target job roles
-   - Generate personalized learning paths
-
-## 🚀 Quick Start
-
-### Prerequisites
-- Python 3.8 or higher
-- pip (Python package manager)
-
-### Installation
-
-1. **Clone or download the project**
-   ```bash
-   cd tech-skill-tracker
-   ```
-
-2. **Create a virtual environment** (Recommended)
-   ```bash
-   # On Windows
-   python -m venv venv
-   venv\Scripts\activate
-
-   # On macOS/Linux
-   python3 -m venv venv
-   source venv/bin/activate
-   ```
-
-3. **Install dependencies**
-   ```bash
-   pip install streamlit pandas numpy scikit-learn prophet joblib plotly
-   ```
-
-4. **Run the application**
-   ```bash
-   streamlit run app.py
-   ```
-
-5. **Open in browser**
-   - The app will automatically open at `http://localhost:8501`
-   - If not, manually navigate to the displayed URL
-
-## 📁 Project Structure
-
-```
-tech-skill-tracker/
-├── app.py                      # Main Streamlit application
-├── data/                       # Dataset folder
-│   └── job_listings.csv        # Job market data
-├── modules/                    # Modular components
-│   ├── __init__.py
-│   ├── data_loader.py          # Data loading utilities
-│   ├── data_cleaner.py         # Data cleaning and validation
-│   ├── ml_forecast.py          # Forecasting with Prophet
-│   ├── salary_predictor.py     # Salary prediction ML model
-│   └── recommendation_engine.py # Skill recommendation system
-├── models/                     # Trained ML models (auto-generated)
-├── logs/                       # Application logs
-└── README.md                   # This file
-```
-
-## 📊 Data Format
-
-The application expects CSV files in the `/data` folder with the following columns:
-
-| Column | Type | Description | Example |
-|--------|------|-------------|---------|
-| Job Title | String | Position name | "Data Scientist" |
-| Tech Skill | String | Required technology | "Python" |
-| Company | String | Hiring company | "Google" |
-| Location | String | Job location | "Bengaluru" |
-| Salary (in LPA) | Float | Annual salary in lakhs | 15.5 |
-| Experience Required (in years) | Integer | Years of experience | 3 |
-| Date Posted | Date | Posting date | "2024-01-15" |
-
-### Adding Your Own Data
-
-1. Place CSV files in the `/data` folder
-2. Ensure columns match the required format
-3. Restart the application
-4. The app will automatically load and clean the data
-
-## 🎯 How to Use
-
-### 1. Overview Tab
-- View key market metrics (total jobs, skills, companies, average salary)
-- See top in-demand skills and location distributions
-- Get a quick summary of the dataset
-
-### 2. Visualization Tab
-- **Skill Trends**: Track demand changes for top skills over time
-- **Salary Analysis**: Compare salary distributions across skills
-- **Skill Co-occurrence**: Discover which skills frequently appear together
-
-### 3. Forecast Tab
-- Select a skill to forecast
-- Choose prediction timeframe (3-12 months)
-- View predicted demand with confidence intervals
-- Get growth/decline insights
-
-### 4. Salary Insights Tab
-- **Salary Predictor**: Enter skill, location, and experience to get salary estimate
-- View market salary ranges (min, median, max)
-- Get insights on high-paying vs. average skills
-- See salary distributions for specific skills
-
-### 5. Recommendations Tab
-- **Complementary Skills**: Find skills that pair well with your current skill
-- **Job Role Skills**: Discover required skills for your dream job
-- **Learning Path**: Get a personalized roadmap from current skills to target role
-
-## 🔧 How It Works
-
-### Data Pipeline
-
-1. **Loading**: CSV files are loaded from `/data` folder using pandas
-2. **Cleaning**: Data is validated, duplicates removed, formats standardized
-3. **Caching**: Streamlit caches cleaned data for fast performance
-4. **Filtering**: Users can filter by date, skills, location, and experience
-
-### Machine Learning Models
-
-#### 1. Demand Forecasting (Prophet)
-```python
-from modules.ml_forecast import forecast_skill_demand
-
-# Forecast demand for Python over next 6 months
-forecast_df, status = forecast_skill_demand(df, "Python", months_ahead=6)
-```
-
-- Uses Facebook's Prophet library for time-series forecasting
-- Handles trend, seasonality, and holiday effects
-- Falls back to linear regression if Prophet unavailable
-- Provides confidence intervals for predictions
-
-#### 2. Salary Prediction (Random Forest)
-```python
-from modules.salary_predictor import train_salary_model, predict_salary
-
-# Train model
-model, le_skill, le_location, status = train_salary_model(df)
-
-# Predict salary
-salary, status = predict_salary(model, le_skill, le_location, 
-                                 "Python", "Bengaluru", 3)
-```
-
-- Random Forest Regressor with 100 estimators
-- Features: Encoded skill, location, and experience
-- Label encoding for categorical variables
-- Handles unseen categories gracefully
-
-#### 3. Skill Recommendations (Co-occurrence)
-```python
-from modules.recommendation_engine import recommend_skills
-
-# Get complementary skills
-recommendations, status = recommend_skills(df, "Python", top_n=5)
-```
-
-- Builds co-occurrence matrix from company hiring patterns
-- Analyzes which skills appear together in job postings
-- Scores skills based on frequency of co-occurrence
-- Provides salary and job count for each recommendation
-
-### Performance Optimizations
-
-- **@st.cache_data**: Caches loaded and cleaned data
-- **@st.cache_resource**: Caches trained ML models
-- **Lazy Loading**: Models trained only when needed
-- **Efficient Filtering**: Uses pandas vectorized operations
-
-## 🛠️ Troubleshooting
-
-### Common Issues
-
-**Problem**: "No data found! Please add CSV files to the `/data` folder"
-- **Solution**: Ensure CSV files exist in the `/data` directory with correct column names
-
-**Problem**: "Prophet not available, using linear regression"
-- **Solution**: Install Prophet: `pip install prophet`
-
-**Problem**: "Model not trained successfully"
-- **Solution**: Ensure dataset has at least 10 records with valid salary and experience data
-
-**Problem**: Charts not displaying
-- **Solution**: Update Plotly: `pip install --upgrade plotly`
-
-**Problem**: Slow performance
-- **Solution**: Clear Streamlit cache using "Clear Cache" in settings menu (⋮)
-
-## 📈 Extending the Project
-
-### Adding New Features
-
-1. **Custom Visualizations**: Add charts in `app.py` under respective tabs
-2. **New ML Models**: Create module in `/modules` folder
-3. **Additional Data Sources**: Add CSV files to `/data` folder
-4. **Export Functionality**: Use Streamlit's download buttons
-
-### Example: Adding a New Tab
-
-```python
-# In app.py
-tab1, tab2, tab3, tab4, tab5, tab6 = st.tabs([
-    "📈 Overview", "📊 Visualization", "🔮 Forecast", 
-    "💰 Salary Insights", "🎯 Recommendations", "📄 Your New Tab"
-])
-
-with tab6:
-    st.header("Your New Feature")
-    # Add your code here
-```
-
-## 🔒 Data Privacy
-
-- All data processing happens locally on your machine
-- No data is sent to external servers
-- ML models are trained and stored locally in `/models` folder
-
-## 📝 Technical Stack
-
-- **Frontend**: Streamlit
-- **Data Processing**: Pandas, NumPy
-- **ML Libraries**: Scikit-learn, Prophet
-- **Visualization**: Plotly
-- **Model Persistence**: Joblib
-
-## 🤝 Contributing
-
-To contribute to this project:
-
-1. Fork the repository
-2. Create a feature branch
-3. Make your changes
-4. Test thoroughly
-5. Submit a pull request
-
-## 📄 License
-
-This project is open source and available for educational and commercial use.
-
-## 💡 Tips for Best Results
-
-1. **Data Quality**: Ensure clean, complete data for accurate predictions
-2. **Regular Updates**: Update dataset regularly to capture market trends
-3. **Filtering**: Use filters to focus on specific segments
-4. **Combinations**: Explore skill co-occurrences for career planning
-5. **Context**: Consider predictions as guidance, not absolute truth
-
-## 🆘 Support
-
-For issues, questions, or suggestions:
-- Check the troubleshooting section above
-- Review the data format requirements
-- Ensure all dependencies are properly installed
+![Python](https://img.shields.io/badge/Python-3.11%2B-3776AB?logo=python&logoColor=white)
+![Streamlit](https://img.shields.io/badge/Streamlit-1.50%2B-FF4B4B?logo=streamlit&logoColor=white)
+![scikit-learn](https://img.shields.io/badge/scikit--learn-1.7%2B-F7931E?logo=scikitlearn&logoColor=white)
+![Plotly](https://img.shields.io/badge/Plotly-6.3%2B-3F4F75?logo=plotly&logoColor=white)
 
 ---
 
-**Built with ❤️ using Streamlit and Machine Learning**
+## Overview
+
+Tech Skill Tracker turns a CSV of job postings into a five-tab analytics workspace:
+
+- **Market Overview** — headline metrics, top skills, and hiring locations
+- **Data Visualization** — demand trends, salary distributions, and skill co-occurrence
+- **Demand Forecasting** — 3–12 month forecasts per skill with confidence intervals
+- **Salary Analysis** — market comparison plus a Random Forest salary estimator
+- **Skill Recommendations** — complementary skills, role requirements, and a learning roadmap
+
+The bundled dataset contains 1,000 job listings covering 50 technologies, 40 companies, and 10 Indian cities, posted between January 2023 and September 2024.
+
+---
+
+## Features
+
+| Area | What it does |
+| --- | --- |
+| Interactive filters | Filter by date range, technology, location, and experience from the sidebar |
+| Market metrics | Total openings, unique technologies, hiring companies, average salary |
+| Trend analysis | Monthly posting volume for the top five skills |
+| Salary analysis | Box plots by skill, salary vs. experience scatter, per-skill histograms |
+| Forecasting | Selectable SARIMAX or Prophet time-series models with confidence bands and growth/decline insights |
+| Salary prediction | Random Forest regression over skill, location, and experience |
+| Recommendations | Company-level skill co-occurrence, role-based skill analysis, personalized learning paths |
+| Learning resources | Curated links for popular skills plus YouTube, Udemy, Coursera, and freeCodeCamp searches |
+| PDF reports | Optional ReportLab script for a formatted career report |
+
+---
+
+## Tech Stack
+
+| Layer | Tools |
+| --- | --- |
+| UI | Streamlit |
+| Data | pandas, NumPy |
+| Visualization | Plotly |
+| Machine learning | scikit-learn (Random Forest), statsmodels (SARIMAX, exponential smoothing), Prophet (optional) |
+| Persistence | joblib |
+| Reporting | ReportLab (optional) |
+
+---
+
+## Project Structure
+
+```
+TechSkillTrackerWithML/
+├── app.py                          # Streamlit app: layout, filters, all five tabs
+├── main.py                         # Placeholder entry point
+├── pyproject.toml                  # Declared Python dependencies
+├── PROJECT_DOCUMENTATION.md        # Extended design and usage documentation
+├── data/
+│   └── job_listings.csv            # 1,000 sample job postings
+├── modules/
+│   ├── data_loader.py              # CSV ingestion and concatenation
+│   ├── data_cleaner.py             # Validation, deduplication, location normalization
+│   ├── ml_forecast.py              # SARIMAX/Prophet forecasting with fallbacks
+│   ├── salary_predictor.py         # Random Forest training and prediction
+│   ├── recommendation_engine.py    # Co-occurrence analysis and learning paths
+│   ├── learning_resources.py       # Curated and generated learning links
+│   └── report_generator.py         # PDF report builder (not wired into the app)
+├── reports/
+│   ├── generate_report.py          # CLI PDF report from JSON input
+│   ├── generate_report_simple.py   # Dependency-light fallback version
+│   └── output_report.pdf           # Example generated report
+├── logs/                           # Runtime logs
+└── .streamlit/
+    └── config.toml                 # Server binds to 0.0.0.0:5000
+```
+
+---
+
+## Getting Started
+
+### Prerequisites
+
+- Python 3.11 or newer
+- pip
+
+### 1. Create a virtual environment
+
+**Windows (PowerShell)**
+
+```powershell
+python -m venv venv
+.\venv\Scripts\Activate.ps1
+```
+
+**macOS / Linux**
+
+```bash
+python3 -m venv venv
+source venv/bin/activate
+```
+
+### 2. Install dependencies
+
+```bash
+pip install streamlit pandas numpy plotly scikit-learn joblib statsmodels
+```
+
+Prophet is optional; install it to enable the Prophet forecasting engine:
+
+```bash
+pip install prophet
+```
+
+The PDF report scripts additionally require:
+
+```bash
+pip install reportlab
+```
+
+> The forecasting tab lets you choose Auto, SARIMAX, Prophet, or Linear Regression. Auto tries SARIMAX first, then Prophet, then exponential smoothing, then linear regression.
+
+### 3. Run the app
+
+```bash
+streamlit run app.py
+```
+
+Open **http://localhost:5000**. The port comes from `.streamlit/config.toml`; if you prefer Streamlit's default, run `streamlit run app.py --server.port 8501`.
+
+---
+
+## Dataset
+
+The app loads every `*.csv` file in `data/` and concatenates them, so you can split or extend the data without changing code. Required columns:
+
+| Column | Type | Example |
+| --- | --- | --- |
+| `Job Title` | string | `Data Scientist` |
+| `Tech Skill` | string | `Python` |
+| `Company` | string | `Google` |
+| `Location` | string | `Bengaluru` |
+| `Salary (in LPA)` | numeric | `18.5` |
+| `Experience Required (in years)` | numeric | `4` |
+| `Date Posted` | date (`YYYY-MM-DD`) | `2024-01-15` |
+
+Cleaning rules applied on load:
+
+- Exact duplicate rows are dropped.
+- Dates are required; rows without a valid posting date are removed.
+- Salary and experience are coerced to numeric. Missing values are kept so live
+  postings still count toward skill demand, and charts that need those fields
+  ignore them.
+- Salaries must be between 0 and 200 LPA; experience between 0 and 50 years.
+- Text fields are trimmed, and city aliases are normalized (for example `bangalore` → `Bengaluru`, `bombay` → `Mumbai`, including `Mumbai, Maharashtra, India`).
+
+To use your own data, replace or add CSVs in `data/` and restart the app.
+
+---
+
+## How the Models Work
+
+### Demand forecasting — `modules/ml_forecast.py`
+
+1. Filters postings for the selected skill and aggregates them by month.
+2. Runs the selected engine — `Auto`, `SARIMAX`, `Prophet`, or `Linear Regression`.
+3. `Auto` fits `SARIMAX(1, 1, 1)` first, then Prophet, then Holt-Winters exponential smoothing, then linear regression as the final fallback.
+4. SARIMAX and Prophet return confidence intervals; forecasts are clipped at zero.
+5. Reports growth or decline versus the latest historical month over the selected horizon.
+
+The model needs at least two months of data for the selected skill, and at least four months to use SARIMAX.
+
+### Salary prediction — `modules/salary_predictor.py`
+
+- Features: label-encoded skill, label-encoded location, and years of experience.
+- Model: `RandomForestRegressor(n_estimators=100, max_depth=10, random_state=42)`.
+- Uses an 80/20 train-test split when there are more than 20 records; otherwise it scores on the training data.
+- Returns the R² score in the training status and rejects skill/location values not seen during training.
+
+### Skill recommendations — `modules/recommendation_engine.py`
+
+- Groups skills by company and counts pairs that appear together, producing a symmetric co-occurrence matrix.
+- **Complementary skills** ranks technologies that co-occur with the selected skill.
+- **Job role analysis** matches the entered title against `Job Title` and ranks skills by frequency and average salary.
+- **Learning path** compares your current skills with role requirements and sorts gaps by `frequency × 0.6 + average salary × 0.4`.
+
+Results are cached with `@st.cache_data` and `@st.cache_resource` so models and aggregations are not rebuilt on every interaction.
+
+---
+
+## Using the Dashboard
+
+1. Narrow the dataset with the sidebar filters.
+2. Start at **Market Overview** for the headline numbers.
+3. Use **Data Visualization** to inspect trends, salary spread, and skill combinations.
+4. Open **Demand Forecasting**, pick a skill and horizon, then click **Generate Forecast**.
+5. Use **Salary Analysis** to estimate a salary and compare it with the market range.
+6. In **Skill Recommendations**, try all three modes: complementary skills, a target role, and a full learning roadmap.
+
+---
+
+## PDF Reports
+
+The app itself does not export PDFs. Two standalone scripts generate a formatted report:
+
+```bash
+# Built-in example data
+python reports/generate_report.py --output reports/output_report.pdf
+
+# Custom JSON input
+python reports/generate_report.py --input reports/input.json --output reports/output_report.pdf
+```
+
+`reports/generate_report_simple.py` provides a lighter version, and `modules/report_generator.py` contains a reusable builder for integrating reports into the dashboard. All three require `reportlab`.
+
+The JSON input accepts fields such as `name`, `email`, `skills`, `target_role`, `missing_skills`, `demand_forecast`, `salary_prediction`, `short_term_plan`, and `long_term_plan`.
+
+---
+
+## Configuration
+
+`.streamlit/config.toml` currently sets:
+
+```toml
+[server]
+headless = true
+address = "0.0.0.0"
+port = 5000
+```
+
+Change `port` or `address` there, or override at launch with `--server.port`. The `headless` setting is useful for containers and remote servers; remove it if you want Streamlit to open a browser automatically.
+
+---
+
+## Troubleshooting
+
+| Symptom | Likely cause | Fix |
+| --- | --- | --- |
+| "No data found" | No CSV in `data/`, or columns renamed | Check the file and verify the required column names |
+| "Data validation failed" | Missing required columns | Compare the header with the schema above |
+| Forecast unavailable | Fewer than two months for that skill | Choose a skill with more history or widen the date filter |
+| Weak or flat forecast | Sparse monthly counts | Treat results as directional, not precise |
+| "Statsmodels not available" | Package not installed | `pip install statsmodels` |
+| PDF script fails on import | ReportLab missing | `pip install reportlab` |
+| Charts blank | Plotly version mismatch | `pip install --upgrade plotly` |
+| App opens on the wrong port | Config or CLI override | Check `.streamlit/config.toml` or pass `--server.port` |
+| Model refuses a prediction | Skill/location not in training data | Choose values present in the dataset |
+
+---
+
+## Limitations
+
+- The bundled data is a 1,000-row sample, not a live market feed. Forecasts and salary estimates reflect that sample only.
+- Salaries are annual figures in lakhs per annum (LPA) and apply to the Indian market.
+- Label encoding treats skills and locations as independent categories, so the salary model cannot generalize to unseen values.
+- Co-occurrence is computed at the company level, which is a proxy for skills hired together rather than a formal association-rule model.
+
+---
+
+## Documentation
+
+- `PROJECT_DOCUMENTATION.md` — architecture, data flow, and an extended walkthrough
+- `reports/README.md` — PDF report usage
+
+---
+
+## Live data pipeline (JSearch)
+
+The dashboard can read from a scheduled ingestion store instead of static CSVs.
+
+**Sources.** Postings come from the [JSearch](https://openwebninja.com) API (Google Jobs
+aggregation, includes LinkedIn/Indeed/Glassdoor listings through a licensed API). A
+Jobspy scraper exists as an **opt-in** fallback and is disabled by default
+(`ENABLE_JOBSPY=true` enables it; LinkedIn is never scraped unless explicitly allowed).
+
+**Storage.** `DATABASE_URL` selects Neon/Supabase Postgres in production; without it the
+pipeline writes to the local SQLite file `data/techskill.db`. Tables:
+
+| Table | Purpose |
+| --- | --- |
+| `job_postings` | One row per posting, deduped by `job_id`, with `first_seen` / `last_seen` |
+| `job_skills` | Extracted skills per posting (raw + canonical) |
+| `skill_taxonomy` | Canonical skills and their aliases |
+| `resume_jobs` | Skill-gap reports (used by the resume feature) |
+| `ingest_runs` | Per-run audit trail (fetched / inserted / updated / status) |
+
+**Skill normalisation.** `modules/normalizer.py` resolves variants such as
+`ReactJS` / `React.js` to `React` using a curated alias table, then a fuzzy match,
+then `all-MiniLM-L6-v2` embeddings when the model is available. Extraction from
+job descriptions uses the same taxonomy, so `Java` never matches inside `JavaScript`.
+
+**Cadence.** `.github/workflows/ingest.yml` runs every 6 hours
+(`0 */6 * * *`) and upserts by `job_id`. The JSearch free plan allows 200 requests
+per month; one search per run is about 120 searches per 30-day month, so the
+pipeline stays inside the quota. Set repository secrets `JSEARCH_API_KEY` and
+`DATABASE_URL`.
+
+**Local usage.**
+
+```bash
+cp .env.example .env          # add JSEARCH_API_KEY
+python -m modules.ingestion --dry-run     # fetch, print, write nothing
+python -m modules.ingestion              # fetch and upsert
+python -m modules.ingestion --jobspy     # also run the opt-in scraper
+```
+
+The app prefers the live store when it has rows and offers a sidebar
+**Data source** switch when both live and bundled CSV data are present.
+
+**What live data does and does not include.** JSearch returns titles, companies,
+locations, descriptions, and posting dates, but Indian listings frequently omit
+salary. Missing salaries are stored as `NULL` and the salary tab reports `N/A`
+instead of dropping the posting, so skill-demand counts stay complete.
+
+---
+
+## Team
+
+- Om Aravindhashan S (23MID0222)
+- Raghul (23MID0322)
+
+---
+
+## Acknowledgements
+
+Built with Streamlit, pandas, NumPy, scikit-learn, statsmodels, Plotly, joblib, and ReportLab.
+
+## License
+
+No license file is included in this repository. Contact the authors before redistributing or using the project commercially.

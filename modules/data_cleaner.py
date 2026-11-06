@@ -1,77 +1,98 @@
+import re
+
 import pandas as pd
-import numpy as np
 import streamlit as st
+
+
+# Maps any city alias found inside a location string to one canonical name.
+# The entries whose key equals the value (e.g. "mumbai": "Mumbai") are needed
+# because matching is substring-based: "Mumbai, Maharashtra, India" must still
+# collapse to "Mumbai".
+LOCATION_MAPPING = {
+    "bangalore": "Bengaluru",
+    "bengalore": "Bengaluru",
+    "bombay": "Mumbai",
+    "delhi": "New Delhi",
+    "ncr": "New Delhi",
+    "hyd": "Hyderabad",
+    "calcutta": "Kolkata",
+    "gurugram": "Gurgaon",
+    "gurgaon": "Gurgaon",
+    "noida": "Noida",
+    "mumbai": "Mumbai",
+    "hyderabad": "Hyderabad",
+    "chennai": "Chennai",
+    "pune": "Pune",
+    "kolkata": "Kolkata",
+    "bengaluru": "Bengaluru",
+    "new delhi": "New Delhi",
+}
+
+
+def _normalize_location(value) -> str:
+    """Map 'Bangalore, Karnataka, India' and 'bangalore' to 'Bengaluru'."""
+    if not isinstance(value, str) or not value.strip():
+        return "Unknown"
+    lowered = value.lower()
+    for alias, canonical in LOCATION_MAPPING.items():
+        if re.search(rf"(?<![a-z]){re.escape(alias)}(?![a-z])", lowered):
+            return canonical
+    return value.strip().title()
 
 
 @st.cache_data
 def clean_job_data(df):
     """
-    Clean and standardize job data
-    - Removes duplicates
-    - Handles missing values
-    - Standardizes formats
-    - Validates data types
+    Clean and standardize job data.
+
+    Live postings often have no salary or no stated experience, so those
+    fields are kept as NaN instead of dropping the whole posting. Charts that
+    need them filter them out locally; skill-demand views keep every row.
     """
     if df.empty:
         return df
-    
+
     df = df.copy()
     original_count = len(df)
-    
+
     # Remove exact duplicates
     df = df.drop_duplicates()
-    
+
     # Convert Date Posted to datetime
-    df['Date Posted'] = pd.to_datetime(df['Date Posted'], errors='coerce')
-    
-    # Convert Salary to numeric
-    df['Salary (in LPA)'] = pd.to_numeric(df['Salary (in LPA)'], errors='coerce')
-    
-    # Convert Experience to numeric
-    df['Experience Required (in years)'] = pd.to_numeric(
-        df['Experience Required (in years)'], errors='coerce'
+    df["Date Posted"] = pd.to_datetime(df["Date Posted"], errors="coerce")
+
+    # Convert numerics (invalid values become NaN, not crashes)
+    df["Salary (in LPA)"] = pd.to_numeric(df["Salary (in LPA)"], errors="coerce")
+    df["Experience Required (in years)"] = pd.to_numeric(
+        df["Experience Required (in years)"], errors="coerce"
     )
-    
-    # Remove rows with invalid critical fields
-    df = df.dropna(subset=['Date Posted', 'Salary (in LPA)', 'Experience Required (in years)'])
-    
-    # Remove invalid salaries (negative or extremely high)
-    df = df[(df['Salary (in LPA)'] > 0) & (df['Salary (in LPA)'] < 200)]
-    
-    # Remove invalid experience (negative or extremely high)
-    df = df[(df['Experience Required (in years)'] >= 0) & (df['Experience Required (in years)'] <= 50)]
-    
+
+    # Only the posting date is critical - everything else can be missing
+    df = df.dropna(subset=["Date Posted"])
+
+    # Drop impossible values but keep missing ones
+    df = df[df["Salary (in LPA)"].isna() | ((df["Salary (in LPA)"] > 0) & (df["Salary (in LPA)"] < 200))]
+    df = df[
+        df["Experience Required (in years)"].isna()
+        | ((df["Experience Required (in years)"] >= 0) & (df["Experience Required (in years)"] <= 50))
+    ]
+
     # Standardize text fields
-    df['Tech Skill'] = df['Tech Skill'].str.strip()
-    df['Location'] = df['Location'].str.strip()
-    df['Company'] = df['Company'].str.strip()
-    df['Job Title'] = df['Job Title'].str.strip()
-    
-    # Standardize location names
-    location_mapping = {
-        'bangalore': 'Bengaluru',
-        'bengalore': 'Bengaluru', 
-        'mumbai': 'Mumbai',
-        'bombay': 'Mumbai',
-        'delhi': 'New Delhi',
-        'ncr': 'New Delhi',
-        'hyderabad': 'Hyderabad',
-        'hyd': 'Hyderabad',
-        'chennai': 'Chennai',
-        'pune': 'Pune',
-        'kolkata': 'Kolkata',
-        'calcutta': 'Kolkata'
-    }
-    
-    df['Location'] = df['Location'].str.lower().replace(location_mapping)
-    df['Location'] = df['Location'].str.title()
-    
+    for column in ("Tech Skill", "Location", "Company", "Job Title"):
+        if column in df.columns:
+            df[column] = df[column].fillna("Unknown").astype(str).str.strip()
+
+    df["Location"] = df["Location"].map(_normalize_location)
+
     cleaned_count = len(df)
     removed_count = original_count - cleaned_count
-    
+
     if removed_count > 0:
-        st.info(f"Cleaned data: Removed {removed_count} invalid/duplicate records ({removed_count/original_count*100:.1f}%)")
-    
+        st.info(
+            f"Cleaned data: Removed {removed_count} invalid/duplicate records "
+            f"({removed_count / original_count * 100:.1f}%)"
+        )
+
     return df
 
 
@@ -99,13 +120,26 @@ def get_data_summary(df):
     """
     Get summary statistics of the dataset
     """
+    salary = df["Salary (in LPA)"].dropna()
+    experience = df["Experience Required (in years)"].dropna()
+
+    if salary.empty:
+        salary_range = "No salary data"
+    else:
+        salary_range = f"₹{salary.min():.1f}L - ₹{salary.max():.1f}L"
+
+    if experience.empty:
+        experience_range = "No experience data"
+    else:
+        experience_range = f"{experience.min():.0f} - {experience.max():.0f} years"
+
     summary = {
         'Total Records': len(df),
         'Unique Skills': df['Tech Skill'].nunique(),
         'Unique Companies': df['Company'].nunique(),
         'Unique Locations': df['Location'].nunique(),
         'Date Range': f"{df['Date Posted'].min().date()} to {df['Date Posted'].max().date()}",
-        'Salary Range': f"₹{df['Salary (in LPA)'].min():.1f}L - ₹{df['Salary (in LPA)'].max():.1f}L",
-        'Experience Range': f"{df['Experience Required (in years)'].min():.0f} - {df['Experience Required (in years)'].max():.0f} years"
+        'Salary Range': salary_range,
+        'Experience Range': experience_range
     }
     return summary
