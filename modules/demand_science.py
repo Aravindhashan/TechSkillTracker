@@ -41,9 +41,10 @@ except ImportError:
     _HAS_PHREG = False
 
 
-# ---------------------------------------------------------------------------
-# Survival analysis (Kaplan-Meier + Cox via statsmodels PHReg)
-# ---------------------------------------------------------------------------
+def _posting_groups(df: pd.DataFrame):
+    if "Job ID" in df.columns:
+        return df.groupby("Job ID", sort=False)
+    return df.groupby(["Job Title", "Company", "Location"], sort=False, dropna=False)
 
 
 def _posting_lifetimes(df: pd.DataFrame) -> pd.DataFrame:
@@ -94,16 +95,20 @@ def kaplan_meier(df: pd.DataFrame) -> pd.DataFrame:
         return pd.DataFrame(columns=["time", "at_risk", "events", "survival"])
 
     times = sorted(life["duration_days"].unique())
-    at_risk = len(life)
+    at_risk_count = len(life)
     survival = 1.0
     rows = []
-    for t in times:
-        d = int(((life["duration_days"] == t) & (life["event"] == 1)).sum())
-        n = int((life["duration_days"] >= t).sum())
-        if n <= 0:
+    for time_point in times:
+        events_at_t = int(((life["duration_days"] == time_point) & (life["event"] == 1)).sum())
+        if events_at_t == 0:
             continue
-        survival *= (n - d) / n
-        rows.append({"time": float(t), "at_risk": n, "events": d, "survival": round(survival, 4)})
+        at_risk = int((life["duration_days"] >= time_point).sum())
+        if at_risk <= 0:
+            continue
+        survival *= (at_risk - events_at_t) / at_risk
+        rows.append({"time": float(time_point), "at_risk": at_risk, "events": events_at_t, "survival": round(survival, 4)})
+    if not rows:
+        rows.append({"time": 0.0, "at_risk": len(life), "events": 0, "survival": 1.0})
     return pd.DataFrame(rows)
 
 
@@ -134,17 +139,16 @@ def cox_regression(df: pd.DataFrame) -> dict[str, Any]:
     if life.empty or life["event"].sum() < 3:
         return {"error": "not enough events for Cox regression"}
 
-    # Build covariate matrix from top skills and locations.
-    top_skills = life["Tech Skill"].value_counts().head(8).index.tolist() if "Tech Skill" in life.columns else []
-    top_locations = life["Location"].value_counts().head(5).index.tolist() if "Location" in life.columns else []
+    top_skills = life["Tech Skill"].value_counts().head(6).index.tolist() if "Tech Skill" in life.columns else []
+    top_locations = life["Location"].value_counts().head(4).index.tolist() if "Location" in life.columns else []
 
     cov_cols = []
     for skill in top_skills:
-        col = f"skill_{skill}"
+        col = "skill_" + _safe_name(skill)
         life[col] = (life["Tech Skill"] == skill).astype(int)
         cov_cols.append(col)
     for loc in top_locations:
-        col = f"loc_{loc}"
+        col = "loc_" + _safe_name(loc)
         life[col] = (life["Location"] == loc).astype(int)
         cov_cols.append(col)
 
@@ -152,26 +156,28 @@ def cox_regression(df: pd.DataFrame) -> dict[str, Any]:
         return {"error": "no covariates"}
 
     try:
-        model = PHReg.from_formula(
-            "duration_days ~ " + " + ".join(cov_cols),
-            data=life,
-            status=life["event"],
-        )
+        formula = "duration_days ~ " + " + ".join(cov_cols)
+        model = PHReg.from_formula(formula, data=life, status=life["event"])
         res = model.fit()
         params = res.params
         summary = []
         for name in cov_cols:
+            coef = float(params.get(name, 0))
             summary.append(
                 {
                     "covariate": name,
-                    "coef": round(float(params.get(name, 0)), 4),
-                    "exp_coef": round(float(np.exp(params.get(name, 0))), 4),
+                    "coef": round(coef, 4),
+                    "exp_coef": round(float(np.exp(coef)), 4),
                     "p_value": round(float(res.pvalues.get(name, 1)), 4),
                 }
             )
         return {"coefficients": summary, "n": len(life), "events": int(life["event"].sum())}
     except Exception as exc:
         return {"error": str(exc)}
+
+
+def _safe_name(value: Any) -> str:
+    return re.sub(r"[^A-Za-z0-9_]", "_", str(value))
 
 
 # ---------------------------------------------------------------------------
@@ -213,6 +219,31 @@ def anomaly_detection(df: pd.DataFrame) -> pd.DataFrame:
                     }
                 )
 
+    # Posting-count anomaly: skills whose monthly volume spikes.
+    if "Date Posted" in work.columns:
+        try:
+            work["_month"] = pd.to_datetime(work["Date Posted"]).dt.to_period("M").astype(str)
+            monthly = work.groupby(["Tech Skill", "_month"]).size().reset_index(name="count")
+            for skill, group in monthly.groupby("Tech Skill"):
+                counts = group["count"]
+                if counts.sum() < 5:
+                    continue
+                mean = counts.mean()
+                std = counts.std()
+                if std and std > 0:
+                    for _, row in group[(counts - mean).abs() / std > 2.5].iterrows():
+                        flagged.append(
+                            {
+                                "Job Title": f"{skill} (monthly spike)",
+                                "Tech Skill": skill,
+                                "Location": "multiple",
+                                "Experience Required (in years)": None,
+                                "reason": f"posting-count z-score {((row['count'] - mean) / std):.2f} in {row['_month']}",
+                            }
+                        )
+        except Exception:
+            pass
+
     # IsolationForest on experience (if enough data)
     if _HAS_IF and len(work) >= 20:
         features = work[["Experience Required (in years)"]].fillna(work["Experience Required (in years)"].median())
@@ -246,27 +277,36 @@ def _shingles(text: str, k: int = 3) -> set[str]:
     return set(" ".join(words[i : i + k]) for i in range(len(words) - k + 1))
 
 
-def _minhash_signature(shingles: set[str], num_perm: int = 128) -> list[int]:
+def _minhash_signature(shingles: set, num_perm: int = 128) -> list:
     if not shingles:
         return [0] * num_perm
     sig = []
     for i in range(num_perm):
-        min_hash = min(hash(f"{i}:{s}") & 0xFFFFFFFF for s in shingles)
+        min_hash = min(hash(str(i) + ':' + str(sh)) & 0xFFFFFFFF for sh in shingles)
         sig.append(min_hash)
     return sig
 
 
-def minhash_dedupe(records: list[dict], threshold: float = 0.7) -> list[dict]:
-    """Deduplicate records by MinHash similarity on title+company+description."""
+def minhash_dedupe(records: list[dict], threshold: float = 0.7, num_perm: int = 128,
+                   num_bands: int = 16) -> list[dict]:
     if not records:
         return []
 
     sigs = []
     for rec in records:
-        text = f"{rec.get('title', '')} {rec.get('company', '')} {rec.get('description', '')}"
-        sigs.append(_minhash_signature(_shingles(text)))
+        text = rec.get('title', '') + ' ' + rec.get('company', '') + ' ' + rec.get('description', '')
+        sigs.append(_minhash_signature(_shingles(text), num_perm=num_perm))
 
-    # Union-find over pairs above threshold.
+    rows_per_band = max(1, num_perm // num_bands)
+
+    buckets = {}
+    for idx, sig in enumerate(sigs):
+        for band in range(num_bands):
+            start = band * rows_per_band
+            end = start + rows_per_band
+            band_hash = hash(tuple(sig[start:end]))
+            buckets.setdefault((band, band_hash), []).append(idx)
+
     parent = list(range(len(records)))
 
     def find(x):
@@ -280,15 +320,17 @@ def minhash_dedupe(records: list[dict], threshold: float = 0.7) -> list[dict]:
         if ra != rb:
             parent[ra] = rb
 
-    for i in range(len(records)):
-        for j in range(i + 1, len(records)):
-            # Jaccard estimate from MinHash
-            matches = sum(1 for a, b in zip(sigs[i], sigs[j]) if a == b)
-            sim = matches / len(sigs[i])
-            if sim >= threshold:
-                union(i, j)
+    for bucket_members in buckets.values():
+        if len(bucket_members) < 2:
+            continue
+        for i in range(len(bucket_members)):
+            for j in range(i + 1, len(bucket_members)):
+                a, b = bucket_members[i], bucket_members[j]
+                matches = sum(1 for x, y in zip(sigs[a], sigs[b]) if x == y)
+                sim = matches / len(sigs[a])
+                if sim >= threshold:
+                    union(a, b)
 
-    # Keep one representative per cluster (first occurrence).
     seen_roots = set()
     result = []
     for i, rec in enumerate(records):
@@ -311,10 +353,7 @@ def skill_pmi(df: pd.DataFrame, min_count: int = 2) -> list[dict[str, Any]]:
         return []
 
     # Build per-posting skill sets.
-    if "Job ID" in df.columns:
-        grouped = df.groupby("Job ID")["Tech Skill"].apply(lambda s: set(s.dropna()))
-    else:
-        grouped = df.groupby(["Job Title", "Company", "Location"])["Tech Skill"].apply(lambda s: set(s.dropna()))
+    grouped = _posting_groups(df)["Tech Skill"].apply(lambda s: set(s.dropna()))
 
     skill_counts: Counter = Counter()
     pair_counts: Counter = Counter()
@@ -365,10 +404,7 @@ def skill_communities(df: pd.DataFrame) -> dict[str, int]:
         return {}
 
     # Per-posting co-occurrence edges.
-    if "Job ID" in df.columns:
-        grouped = df.groupby("Job ID")["Tech Skill"].apply(lambda s: list(set(s.dropna())))
-    else:
-        grouped = df.groupby(["Job Title", "Company", "Location"])["Tech Skill"].apply(lambda s: list(set(s.dropna())))
+    grouped = _posting_groups(df)["Tech Skill"].apply(lambda s: list(set(s.dropna())))
 
     G = nx.Graph()
     for skills in grouped:
@@ -406,10 +442,7 @@ def skill_relatedness(df: pd.DataFrame, top_n: int = 5) -> dict[str, list[tuple[
     if not _HAS_GENSIM or df is None or df.empty:
         return {}
 
-    if "Job ID" in df.columns:
-        grouped = df.groupby("Job ID")["Tech Skill"].apply(lambda s: [x for x in s.dropna().tolist()])
-    else:
-        grouped = df.groupby(["Job Title", "Company", "Location"])["Tech Skill"].apply(lambda s: [x for x in s.dropna().tolist()])
+    grouped = _posting_groups(df)["Tech Skill"].apply(lambda s: [x for x in s.dropna().tolist()])
 
     sentences = [list(skills) for skills in grouped if skills and len(skills) >= 2]
     if len(sentences) < 5:

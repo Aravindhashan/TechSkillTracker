@@ -364,7 +364,10 @@ def load_postings_dataframe(days: int = 365, active_only: bool = False):
             p.company AS "Company",
             p.location AS "Location",
             p.experience_years AS "Experience Required (in years)",
-            SUBSTR(COALESCE(p.posted_at, p.last_seen), 1, 10) AS "Date Posted"
+            SUBSTR(COALESCE(p.posted_at, p.last_seen), 1, 10) AS "Date Posted",
+            p.first_seen AS "first_seen",
+            p.last_seen AS "last_seen",
+            p.is_active AS "is_active"
         FROM job_postings p
         LEFT JOIN job_skills s ON s.job_id = p.job_id
         {where}

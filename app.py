@@ -781,6 +781,13 @@ def main():
                 st.plotly_chart(fig, use_container_width=True, config={"displayModeBar": False})
                 st.dataframe(km, use_container_width=True, hide_index=True)
 
+            st.subheader("Per-skill survival curves")
+            if "Tech Skill" in df.columns:
+                skill_pick = st.selectbox("Skill", sorted(df["Tech Skill"].unique()), key="km_skill")
+                sub_km = ds.kaplan_meier(df[df["Tech Skill"] == skill_pick])
+                if not sub_km.empty:
+                    st.dataframe(sub_km, use_container_width=True, hide_index=True)
+
             st.subheader("Cox regression (skill/location effects)")
             cox = ds.cox_regression(df)
             if "error" in cox:

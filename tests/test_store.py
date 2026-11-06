@@ -100,6 +100,9 @@ def test_load_dataframe_matches_legacy_columns(sqlite_db):
         "Location",
         "Experience Required (in years)",
         "Date Posted",
+        "first_seen",
+        "last_seen",
+        "is_active",
     ]
     assert len(frame) == 2  # one row per skill
     assert set(frame["Tech Skill"]) == {"Python", "PostgreSQL"}
