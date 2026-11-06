@@ -445,11 +445,12 @@ def forecast_skill_demand(df, skill_name, months_ahead=12, model_type="auto"):
         return None, f"Unknown forecasting engine '{model_type}'"
 
     mape_results = {}
+    holdout = min(3, len(monthly_data) - 2)
+    if holdout >= 1:
+        mape_results = backtest_engines(df, skill_name, holdout=holdout)
+
     if model_type == "auto":
         available = available - {'exponential_smoothing'}
-        holdout = min(3, len(monthly_data) - 2)
-        if holdout >= 1:
-            mape_results = backtest_engines(df, skill_name, holdout=holdout)
         chosen = _select_engine(mape_results, available)
         selected_by = 'mape' if mape_results else 'availability'
     else:
