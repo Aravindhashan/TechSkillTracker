@@ -1,6 +1,6 @@
 # Tech Skill Tracker
 
-A business intelligence dashboard for exploring tech skill demand in the Indian job market. Built with Streamlit, it combines interactive analytics, time-series forecasting, salary prediction, and skill recommendations in one app.
+A business intelligence dashboard for exploring tech skill demand in the Indian job market. Built with Streamlit, it combines interactive analytics, time-series forecasting, semantic job search, and skill recommendations in one app.
 
 ![Python](https://img.shields.io/badge/Python-3.11%2B-3776AB?logo=python&logoColor=white)
 ![Streamlit](https://img.shields.io/badge/Streamlit-1.50%2B-FF4B4B?logo=streamlit&logoColor=white)
@@ -11,12 +11,15 @@ A business intelligence dashboard for exploring tech skill demand in the Indian 
 
 ## Overview
 
-Tech Skill Tracker turns a CSV of job postings into a five-tab analytics workspace:
+Tech Skill Tracker turns live job postings into a seven-tab analytics workspace:
 
 - **Market Overview** — headline metrics, top skills, and hiring locations
-- **Data Visualization** — demand trends, salary distributions, and skill co-occurrence
+- **Data Visualization** — demand trends and skill co-occurrence
 - **Demand Forecasting** — 3–12 month forecasts per skill with confidence intervals
 - **Skill Recommendations** — complementary skills, role requirements, and a learning roadmap
+- **Resume Analysis** — PDF/DOCX skill-gap scoring
+- **Demand Science** — survival, anomaly, PMI, community, and relatedness analysis
+- **Search & ROI** — semantic job search plus demand-based skill ROI
 
 The app ingests live job postings from JSearch (and optionally Jobspy) on a 6-hour schedule and stores them in SQLite (local) or Postgres (production). There is no bundled static dataset.
 
@@ -27,10 +30,12 @@ The app ingests live job postings from JSearch (and optionally Jobspy) on a 6-ho
 | Area | What it does |
 | --- | --- |
 | Interactive filters | Filter by date range, technology, location, and experience from the sidebar |
-| Market metrics | Total openings, unique technologies, hiring companies, average salary |
+| Market metrics | Total openings, unique technologies, and hiring companies |
 | Trend analysis | Monthly posting volume for the top five skills |
 | Forecasting | Selectable SARIMAX or Prophet time-series models with confidence bands and growth/decline insights |
 | Recommendations | Company-level skill co-occurrence, role-based skill analysis, personalized learning paths |
+| Semantic search | Sentence-transformer embeddings, FAISS retrieval, optional cross-encoder reranking |
+| Skill ROI | Demand momentum + controlled OLS premium per skill (no salary inputs) |
 | Learning resources | Curated links for popular skills plus YouTube, Udemy, Coursera, and freeCodeCamp searches |
 | PDF reports | Optional ReportLab script for a formatted career report |
 
@@ -71,6 +76,9 @@ TechSkillTrackerWithML/
 │   ├── env.py                      # .env loader
 │   ├── resume_analyzer.py          # Resume skill-gap analysis
 │   ├── recommendation_engine.py    # Co-occurrence analysis and learning paths
+│   ├── demand_science.py           # Survival, anomaly, dedup, PMI, communities
+│   ├── semantic_search.py          # Embeddings + FAISS + cross-encoder reranking
+│   ├── skill_roi.py                # Demand-based skill ROI regression
 │   └── learning_resources.py       # Curated and generated learning links
 ├── tests/                          # pytest suite
 ├── reports/                        # PDF report scripts
@@ -134,9 +142,9 @@ Open **http://localhost:5000**. The port comes from `.streamlit/config.toml`; if
 
 ---
 
-## Dataset
+## Data
 
-The app loads every `*.csv` file in `data/` and concatenates them, so you can split or extend the data without changing code. Required columns:
+The app reads only from the live ingestion store (SQLite locally, Postgres in production). There is no bundled CSV. The store exposes one row per posting-skill pair with these fields:
 
 | Column | Type | Example |
 | --- | --- | --- |
@@ -144,7 +152,6 @@ The app loads every `*.csv` file in `data/` and concatenates them, so you can sp
 | `Tech Skill` | string | `Python` |
 | `Company` | string | `Google` |
 | `Location` | string | `Bengaluru` |
-| `Salary (in LPA)` | numeric | `18.5` |
 | `Experience Required (in years)` | numeric | `4` |
 | `Date Posted` | date (`YYYY-MM-DD`) | `2024-01-15` |
 
@@ -176,8 +183,8 @@ The model needs at least two months of data for the selected skill, and at least
 
 - Groups skills by company and counts pairs that appear together, producing a symmetric co-occurrence matrix.
 - **Complementary skills** ranks technologies that co-occur with the selected skill.
-- **Job role analysis** matches the entered title against `Job Title` and ranks skills by frequency and average salary.
-- **Learning path** compares your current skills with role requirements and sorts gaps by `frequency × 0.6 + average salary × 0.4`.
+- **Job role analysis** matches the entered title against `Job Title` and ranks skills by frequency.
+- **Learning path** compares your current skills with role requirements and sorts gaps by demand.
 
 Results are cached with `@st.cache_data` and `@st.cache_resource` so models and aggregations are not rebuilt on every interaction.
 
@@ -187,7 +194,7 @@ Results are cached with `@st.cache_data` and `@st.cache_resource` so models and 
 
 1. Narrow the dataset with the sidebar filters.
 2. Start at **Market Overview** for the headline numbers.
-3. Use **Data Visualization** to inspect trends, salary spread, and skill combinations.
+3. Use **Data Visualization** to inspect demand trends and skill combinations.
 4. Open **Demand Forecasting**, pick a skill and horizon, then click **Generate Forecast**.
 5. In **Skill Recommendations**, try all three modes: complementary skills, a target role, and a full learning roadmap.
 
@@ -207,7 +214,7 @@ python reports/generate_report.py --input reports/input.json --output reports/ou
 
 `reports/generate_report_simple.py` provides a lighter version, and `modules/report_generator.py` contains a reusable builder for integrating reports into the dashboard. All three require `reportlab`.
 
-The JSON input accepts fields such as `name`, `email`, `skills`, `target_role`, `missing_skills`, `demand_forecast`, `salary_prediction`, `short_term_plan`, and `long_term_plan`.
+The JSON input accepts fields such as `name`, `email`, `skills`, `target_role`, `missing_skills`, `demand_forecast`, `short_term_plan`, and `long_term_plan`.
 
 ---
 
@@ -244,9 +251,8 @@ Change `port` or `address` there, or override at launch with `--server.port`. Th
 
 ## Limitations
 
-- The bundled data is a 1,000-row sample, not a live market feed. Forecasts and salary estimates reflect that sample only.
-- Salaries are annual figures in lakhs per annum (LPA) and apply to the Indian market.
-- Label encoding treats skills and locations as independent categories, so the salary model cannot generalize to unseen values.
+- The corpus is whatever the scheduled ingestion run has collected so far; forecasts and ROI scores need several months of history to stabilise.
+- Skill ROI is an association in observed postings, not a causal effect.
 - Co-occurrence is computed at the company level, which is a proxy for skills hired together rather than a formal association-rule model.
 
 ---
@@ -269,7 +275,7 @@ The dashboard can read from a scheduled ingestion store instead of static CSVs.
 - **Jobspy** (Indeed + Glassdoor scraping) — a free, best-effort second source that
   runs locally and degrades gracefully when the boards block the runner. LinkedIn is
   never scraped. Both sources are deduplicated by a normalized title+company+location
-  key, preferring whichever record carries a salary.
+  key and by MinHash near-duplicate matching, preferring the record with the richest description.
 
 **Storage.** `DATABASE_URL` selects Neon/Supabase Postgres in production; without it the
 pipeline writes to the local SQLite file `data/techskill.db`. Tables:
@@ -305,9 +311,9 @@ python -m modules.ingestion --jobspy     # also run the opt-in scraper
 The app prefers the live store. If it is empty, the app shows a message with instructions to run ingestion.
 
 **What live data does and does not include.** JSearch returns titles, companies,
-locations, descriptions, and posting dates, but Indian listings frequently omit
-salary. Missing salaries are stored as `NULL` and the salary tab reports `N/A`
-instead of dropping the posting, so skill-demand counts stay complete.
+locations, descriptions, and posting dates. Salary is intentionally not collected or
+used anywhere in this project, so missing salary fields never block a posting and
+skill-demand counts stay complete.
 
 ---
 

@@ -332,6 +332,44 @@ def fetch_postings(
     return [dict(row) for row in rows]
 
 
+def fetch_postings_with_skills(
+    days: int | None = None,
+    active_only: bool = False,
+    limit: int | None = None,
+) -> list[dict]:
+    """Return postings with a ``skills`` list attached to each record.
+
+    Used by semantic search and skill-ROI views, which need the description and
+    canonical skills together but do not want the skill-expanded dataframe.
+    """
+    postings = fetch_postings(days=days, active_only=active_only, limit=limit)
+    if not postings:
+        return postings
+
+    ids = [posting["job_id"] for posting in postings if posting.get("job_id")]
+    if not ids:
+        return postings
+
+    placeholders = ", ".join([_ph()] * len(ids))
+    sql = (
+        "SELECT job_id, skill_canonical FROM job_skills"
+        f" WHERE job_id IN ({placeholders})"
+    )
+    skills_by_job: dict[str, set[str]] = {}
+    with get_connection() as conn:
+        cur = _cursor(conn)
+        cur.execute(sql, tuple(ids))
+        for row in cur.fetchall():
+            item = dict(row)
+            canonical = item.get("skill_canonical")
+            if canonical:
+                skills_by_job.setdefault(item["job_id"], set()).add(canonical)
+
+    for posting in postings:
+        posting["skills"] = sorted(skills_by_job.get(posting.get("job_id"), set()))
+    return postings
+
+
 def _posting_where(days: int | None, active_only: bool, alias: str = "") -> tuple[str, list]:
     """Shared WHERE builder for posting queries (SQLite and Postgres)."""
     prefix = f"{alias}." if alias else ""

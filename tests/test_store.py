@@ -122,6 +122,16 @@ def test_dataframe_keeps_postings_with_mixed_date_formats(sqlite_db):
     assert frame["Date Posted"].notna().all()
 
 
+def test_fetch_postings_with_skills_attaches_canonical_skills(sqlite_db):
+    store.upsert_postings([_record()], _skills())
+
+    rows = store.fetch_postings_with_skills()
+
+    assert len(rows) == 1
+    assert rows[0]["description"] == "Python and Postgres"
+    assert rows[0]["skills"] == ["PostgreSQL", "Python"]
+
+
 def test_close_stale_postings_marks_unseen_rows(sqlite_db):
     store.upsert_postings([_record()], _skills())
     old = (datetime.now(timezone.utc) - timedelta(days=30)).replace(microsecond=0).isoformat()

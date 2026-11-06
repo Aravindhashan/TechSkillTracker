@@ -7,6 +7,7 @@ data/techskill.db
 data/techskill.db-journal
 data/raw/
 data/skill_embeddings.npz
+data/semantic_index.npz
 
 # Python
 __pycache__/

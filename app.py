@@ -12,6 +12,28 @@ from modules.ml_forecast import forecast_skill_demand, get_forecast_insights
 from modules.recommendation_engine import recommend_skills, recommend_for_job_role, get_skill_pairs, get_learning_path
 from modules.learning_resources import get_learning_path_with_resources
 from modules.resume_analyzer import analyze_resume, extract_text, save_report
+from modules.semantic_search import SemanticSearchEngine, semantic_available
+from modules.skill_roi import compute_skill_roi
+
+
+@st.cache_data(ttl=300, show_spinner=False)
+def _load_search_postings():
+    """Postings with descriptions + canonical skills for semantic search."""
+    try:
+        from modules import store as job_store
+
+        if not job_store.store_available():
+            return []
+        return job_store.fetch_postings_with_skills(days=365, limit=500)
+    except Exception:
+        return []
+
+
+@st.cache_resource(show_spinner=False)
+def _search_engine(signature, _records):
+    engine = SemanticSearchEngine()
+    engine.build(_records)
+    return engine
 
 # Page configuration
 st.set_page_config(
@@ -238,13 +260,14 @@ def main():
         st.stop()
     
     # Navigation tabs
-    tab1, tab2, tab3, tab4, tab5, tab6 = st.tabs([
+    tab1, tab2, tab3, tab4, tab5, tab6, tab7 = st.tabs([
         "Market Overview",
         "Data Visualization",
         "Demand Forecasting",
         "Skill Recommendations",
         "Resume Analysis",
-        "Demand Science"
+        "Demand Science",
+        "Search & ROI"
     ])
     
     # TAB 1: MARKET OVERVIEW
@@ -845,6 +868,138 @@ def main():
                 # Show community sizes
                 sizes = pd.Series(list(communities.values())).value_counts().sort_index()
                 st.bar_chart(sizes)
+
+    # TAB 7: SEMANTIC SEARCH + SKILL ROI
+    with tab7:
+        st.header("Search & ROI")
+        st.write(
+            "Find postings by meaning, then rank skills by demand momentum. "
+            "All figures are demand-only — this project does not use salary data."
+        )
+
+        search_tab, roi_tab = st.tabs(["Semantic job search", "Skill ROI"])
+
+        with search_tab:
+            st.subheader("Semantic search")
+            records = _load_search_postings()
+
+            if not records:
+                st.info("No live postings yet. Run the ingestion job first: `python -m modules.ingestion`.")
+            else:
+                signature = (
+                    f"{len(records)}|"
+                    f"{max((str(r.get('posted_at') or '') for r in records), default='')}|"
+                    f"{max((str(r.get('last_seen') or '') for r in records), default='')}"
+                )
+                embeddings_ready = semantic_available()
+                if embeddings_ready:
+                    st.caption(
+                        f"{len(records)} postings ready. The index is built on your "
+                        "first search (embeddings + FAISS, with cross-encoder reranking)."
+                    )
+                else:
+                    st.caption(
+                        f"{len(records)} postings ready. Embedding model unavailable — "
+                        "search falls back to lexical matching."
+                    )
+
+                with st.form("semantic_search_form"):
+                    query = st.text_input(
+                        "Describe the role you want",
+                        placeholder="e.g. backend engineer with python and postgres",
+                    )
+                    col1, col2 = st.columns(2)
+                    with col1:
+                        top_k = st.slider("Results", 3, 25, 8)
+                    with col2:
+                        use_rerank = st.checkbox("Rerank with cross-encoder", value=True)
+                    submitted = st.form_submit_button("Search", type="primary")
+
+                if submitted and query.strip():
+                    with st.spinner("Indexing and searching..."):
+                        engine = _search_engine(signature, records)
+                        results = engine.search(query, top_k=top_k, rerank=use_rerank)
+
+                    backend = {"faiss": "FAISS", "numpy": "NumPy cosine"}.get(
+                        engine.backend, "lexical fallback"
+                    )
+                    st.caption(f"Retrieved with {backend}.")
+
+                    if not results:
+                        st.warning("No matching postings found. Try different wording.")
+                    for result in results:
+                        title = result.get("title") or "Untitled role"
+                        company = result.get("company") or "Unknown company"
+                        location = result.get("location") or "Unknown location"
+                        with st.expander(
+                            f"{title} · {company} · score {result['score']:.3f}"
+                        ):
+                            st.caption(f"{location} · posted {result.get('posted_at') or 'n/a'}")
+                            if result.get("description"):
+                                st.write(result["description"])
+                            if result.get("skills"):
+                                st.caption("Skills: " + ", ".join(result["skills"]))
+                            if result.get("url"):
+                                st.markdown(f"[View posting]({result['url']})")
+
+        with roi_tab:
+            st.subheader("Skill demand ROI")
+            st.caption(
+                "ROI here means demand momentum, not salary. Momentum is the monthly "
+                "slope of log postings; the premium is a pooled OLS coefficient "
+                "controlling for month, experience, location concentration, and role "
+                "diversity. Treat these as associations, not causal effects."
+            )
+
+            roi_rows = compute_skill_roi(df, top_n=25)
+            if not roi_rows:
+                st.info("Not enough dated postings to estimate skill ROI.")
+            else:
+                roi_df = pd.DataFrame(roi_rows)
+                display_columns = [
+                    "skill",
+                    "demand",
+                    "share_pct",
+                    "momentum",
+                    "monthly_growth_pct",
+                    "premium",
+                    "p_value",
+                    "roi_score",
+                    "confidence",
+                ]
+                st.dataframe(
+                    roi_df[[column for column in display_columns if column in roi_df.columns]],
+                    use_container_width=True,
+                    hide_index=True,
+                )
+
+                chart_df = roi_df.head(15).iloc[::-1]
+                fig = px.bar(
+                    chart_df,
+                    x="roi_score",
+                    y="skill",
+                    orientation="h",
+                    title="Top skills by demand ROI score",
+                    color="roi_score",
+                    color_continuous_scale="Blues",
+                )
+                fig.update_layout(
+                    height=450,
+                    yaxis={"categoryorder": "total ascending", "color": "#FFFFFF"},
+                    xaxis={"color": "#FFFFFF", "gridcolor": "#444444"},
+                    plot_bgcolor="#000000",
+                    paper_bgcolor="#000000",
+                    font=dict(color="#FFFFFF"),
+                    showlegend=False,
+                )
+                st.plotly_chart(fig, use_container_width=True, config={"displayModeBar": False})
+
+                low = roi_df[roi_df["confidence"] == "low"]
+                if not low.empty:
+                    st.caption(
+                        f"{len(low)} skill(s) have low-confidence estimates — "
+                        "more postings and months will stabilise the trend."
+                    )
 
     # Professional Footer
     st.markdown("---")

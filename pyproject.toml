@@ -21,6 +21,8 @@ dependencies = [
 [project.optional-dependencies]
 # Optional: enables embedding-based skill matching (large download).
 embeddings = ["sentence-transformers>=3.0.0"]
+# Optional: semantic job search with FAISS retrieval + cross-encoder reranking.
+search = ["sentence-transformers>=3.0.0", "faiss-cpu>=1.7.4"]
 # Optional: opt-in Jobspy fallback scraper (ToS risk, off by default).
 scraper = ["python-jobspy>=1.1.70"]
 # Optional: true LightGBM backend for the global forecaster (falls back to
