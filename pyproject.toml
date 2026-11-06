@@ -13,6 +13,7 @@ dependencies = [
     "psycopg2-binary>=2.9.9",
     "python-docx>=1.1.0",
     "requests>=2.31.0",
+    "scikit-learn>=1.7.2",
     "statsmodels>=0.14.0",
     "streamlit>=1.50.0",
 ]
@@ -22,3 +23,6 @@ dependencies = [
 embeddings = ["sentence-transformers>=3.0.0"]
 # Optional: opt-in Jobspy fallback scraper (ToS risk, off by default).
 scraper = ["python-jobspy>=1.1.70"]
+# Optional: true LightGBM backend for the global forecaster (falls back to
+# scikit-learn's HistGradientBoostingRegressor when absent).
+ml = ["lightgbm>=4.0.0"]

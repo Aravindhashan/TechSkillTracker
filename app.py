@@ -496,18 +496,24 @@ def main():
             forecast_engine_label = st.selectbox(
                 "Forecasting Engine",
                 options=[
-                    "Auto (SARIMAX → Prophet → Linear)",
+                    "Auto (best by backtest MAPE)",
+                    "Gradient Boosting",
                     "SARIMAX",
                     "Prophet",
+                    "Croston (intermittent)",
+                    "Exponential Smoothing",
                     "Linear Regression"
                 ],
                 key="forecast_engine"
             )
         
         engine_map = {
-            "Auto (SARIMAX → Prophet → Linear)": "auto",
+            "Auto (best by backtest MAPE)": "auto",
+            "Gradient Boosting": "gradient_boosting",
             "SARIMAX": "sarimax",
             "Prophet": "prophet",
+            "Croston (intermittent)": "croston",
+            "Exponential Smoothing": "exponential_smoothing",
             "Linear Regression": "linear"
         }
         
