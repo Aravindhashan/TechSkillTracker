@@ -422,6 +422,7 @@ def load_postings_dataframe(days: int = 365, active_only: bool = False):
             COALESCE(s.skill_canonical, s.skill_raw, 'General') AS "Tech Skill",
             p.company AS "Company",
             p.location AS "Location",
+            p.is_remote AS "Is Remote",
             p.experience_years AS "Experience Required (in years)",
             SUBSTR(COALESCE(p.posted_at, p.last_seen), 1, 10) AS "Date Posted",
             p.first_seen AS "first_seen",

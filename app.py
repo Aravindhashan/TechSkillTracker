@@ -19,6 +19,7 @@ from modules.semantic_search import (
     semantic_available,
 )
 from modules.skill_roi import compute_skill_roi
+from modules.demand_fairness import audit_demand_fairness
 
 
 @st.cache_data(ttl=300, show_spinner=False)
@@ -44,6 +45,11 @@ def _search_engine(signature, _records):
 @st.cache_data(show_spinner=False)
 def _cached_skill_roi(frame, top_n=25):
     return compute_skill_roi(frame, top_n=top_n)
+
+
+@st.cache_data(show_spinner=False)
+def _cached_fairness_audit(frame):
+    return audit_demand_fairness(frame)
 
 # Page configuration
 st.set_page_config(
@@ -270,14 +276,15 @@ def main():
         st.stop()
     
     # Navigation tabs
-    tab1, tab2, tab3, tab4, tab5, tab6, tab7 = st.tabs([
+    tab1, tab2, tab3, tab4, tab5, tab6, tab7, tab8 = st.tabs([
         "Market Overview",
         "Data Visualization",
         "Demand Forecasting",
         "Skill Recommendations",
         "Resume Analysis",
         "Demand Science",
-        "Search & ROI"
+        "Search & ROI",
+        "Fairness Audit"
     ])
     
     # TAB 1: MARKET OVERVIEW
@@ -1008,6 +1015,103 @@ def main():
                         "Premium estimates need at least three months of history; "
                         "momentum and demand rankings are still shown."
                     )
+
+    # TAB 8: DEMAND FAIRNESS AUDIT
+    with tab8:
+        st.header("Fairness Audit")
+        st.write(
+            "Demand gaps across locations, remote status, and company types, "
+            "after controlling for skill and experience. All figures are "
+            "associations in observed postings, not causal effects."
+        )
+
+        fairness = _cached_fairness_audit(df_filtered)
+
+        if fairness["confidence"] == "low":
+            st.caption(
+                "Low confidence — fewer than 10 postings or fewer than 3 months "
+                "of history. Descriptive shares are shown; adjusted gaps are "
+                "withheld until the corpus grows."
+            )
+
+        col1, col2, col3 = st.columns(3)
+        with col1:
+            st.metric("Postings audited", f"{fairness['overall']['postings']:,}")
+        with col2:
+            st.metric("Distinct skills", f"{fairness['overall']['skills']:,}")
+        with col3:
+            st.metric("Months of history", f"{fairness['overall']['months']}")
+
+        gap_cols = st.columns(3)
+        with gap_cols[0]:
+            st.metric(
+                "Location share range",
+                f"{fairness['gaps']['location_share_range_pp']:.1f} pp",
+            )
+        with gap_cols[1]:
+            st.metric(
+                "Remote share gap",
+                f"{fairness['gaps']['remote_share_gap_pp']:.1f} pp",
+            )
+        with gap_cols[2]:
+            st.metric(
+                "Company-type range",
+                f"{fairness['gaps']['company_type_share_range_pp']:.1f} pp",
+            )
+
+        for title, rows, adjusted in [
+            ("By location", fairness["by_location"], fairness["gaps"]["adjusted_by_location"]),
+            ("By remote status", fairness["by_remote"], fairness["gaps"]["adjusted_by_remote"]),
+            ("By company type", fairness["by_company_type"], fairness["gaps"]["adjusted_by_company_type"]),
+        ]:
+            st.subheader(title)
+            if not rows:
+                st.info("No postings in range for this breakdown.")
+                continue
+            table = pd.DataFrame(rows)
+            st.dataframe(
+                table[
+                    [
+                        column
+                        for column in [
+                            "group",
+                            "postings",
+                            "share_pct",
+                            "mean_experience",
+                            "distinct_skills",
+                            "top_skill",
+                            "median_momentum",
+                            "median_roi_score",
+                        ]
+                        if column in table.columns
+                    ]
+                ],
+                use_container_width=True,
+                hide_index=True,
+            )
+            if adjusted:
+                adjusted_rows = [
+                    {"group": group, "adjusted_gap": gap}
+                    for group, gap in adjusted.items()
+                ]
+                st.caption(
+                    "Adjusted gaps (log demand vs the largest group, holding "
+                    "skill, month, and experience fixed). None is the baseline group."
+                )
+                st.dataframe(
+                    pd.DataFrame(adjusted_rows),
+                    use_container_width=True,
+                    hide_index=True,
+                )
+            else:
+                st.caption(
+                    "Adjusted gaps need at least three months of history with "
+                    "skills overlapping across groups; descriptive shares above "
+                    "are still reported."
+                )
+
+        for note in fairness["notes"]:
+            st.caption(note)
 
     # Professional Footer
     st.markdown("---")

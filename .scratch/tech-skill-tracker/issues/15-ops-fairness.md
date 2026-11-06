@@ -6,7 +6,7 @@
 
 **Status:** in-progress
 
-- [ ] Demand fairness audit: group ROI/momentum by location, remote status, and company type, report gaps
+- [x] Demand fairness audit: group ROI/momentum by location, remote status, and company type, report gaps (`modules/demand_fairness.py`)
 - [x] Offline eval: Precision@k, NDCG, holdout splits for recommenders and semantic search (`modules/evaluation.py`)
 - [ ] Deploy Streamlit app on HF Spaces (free tier)
 - [x] Configure GitHub Actions cron for 6h ingestion (`.github/workflows/ingest.yml`)

@@ -11,7 +11,7 @@ A business intelligence dashboard for exploring tech skill demand in the Indian 
 
 ## Overview
 
-Tech Skill Tracker turns live job postings into a seven-tab analytics workspace:
+Tech Skill Tracker turns live job postings into an eight-tab analytics workspace:
 
 - **Market Overview** — headline metrics, top skills, and hiring locations
 - **Data Visualization** — demand trends and skill co-occurrence
@@ -19,7 +19,8 @@ Tech Skill Tracker turns live job postings into a seven-tab analytics workspace:
 - **Skill Recommendations** — complementary skills, role requirements, and a learning roadmap
 - **Resume Analysis** — PDF/DOCX skill-gap scoring
 - **Demand Science** — survival, anomaly, PMI, community, and relatedness analysis
-- **Search & ROI** — semantic job search plus demand-based skill ROI
+- **Search & ROI** - semantic job search plus demand-based skill ROI
+- **Fairness Audit** - demand gaps by location, remote status, and company type (controlled for skill and experience)
 
 The app ingests live job postings from JSearch (and optionally Jobspy) on a 6-hour schedule and stores them in SQLite (local) or Postgres (production). There is no bundled static dataset.
 

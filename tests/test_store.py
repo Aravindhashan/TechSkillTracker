@@ -93,6 +93,7 @@ def test_load_dataframe_matches_legacy_columns(sqlite_db):
         "Tech Skill",
         "Company",
         "Location",
+        "Is Remote",
         "Experience Required (in years)",
         "Date Posted",
         "first_seen",
@@ -101,6 +102,19 @@ def test_load_dataframe_matches_legacy_columns(sqlite_db):
     ]
     assert len(frame) == 2  # one row per skill
     assert set(frame["Tech Skill"]) == {"Python", "PostgreSQL"}
+
+
+def test_load_dataframe_exposes_remote_flag(sqlite_db):
+    store.upsert_postings(
+        [_record("job-1", is_remote=True), _record("job-2", is_remote=False)],
+        {},
+    )
+    frame = store.load_postings_dataframe()
+
+    assert "Is Remote" in frame.columns
+    remote_by_job = dict(zip(frame["Job ID"], frame["Is Remote"]))
+    assert remote_by_job["job-1"] in (True, 1, "1")
+    assert remote_by_job["job-2"] in (False, 0, "0", None) or not remote_by_job["job-2"]
 
 
 def test_dataframe_keeps_postings_with_mixed_date_formats(sqlite_db):
