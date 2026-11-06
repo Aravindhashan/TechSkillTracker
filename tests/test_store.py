@@ -24,11 +24,6 @@ def _record(job_id: str = "job-1", **overrides) -> dict:
         "url": "https://example.com/job",
         "employment_type": "FULLTIME",
         "is_remote": False,
-        "salary_min": 1200000,
-        "salary_max": 1800000,
-        "salary_currency": "INR",
-        "salary_period": "YEAR",
-        "salary_lpa": 18.0,
         "experience_years": 3.0,
         "posted_at": "2026-11-01",
     }
@@ -120,6 +115,29 @@ def test_dataframe_keeps_postings_with_mixed_date_formats(sqlite_db):
 
     assert set(frame["Job ID"]) == {"job-date", "job-timestamp"}
     assert frame["Date Posted"].notna().all()
+
+
+def test_init_db_drops_legacy_salary_columns(sqlite_db):
+    with store.get_connection() as conn:
+        conn.cursor().execute(
+            "ALTER TABLE job_postings ADD COLUMN salary_lpa DOUBLE PRECISION"
+        )
+
+    store.init_db()
+
+    with store.get_connection() as conn:
+        cur = conn.cursor()
+        cur.execute("PRAGMA table_info(job_postings)")
+        columns = {row[1] for row in cur.fetchall()}
+    assert "salary_lpa" not in columns
+
+
+def test_fetch_postings_has_no_salary_fields(sqlite_db):
+    store.upsert_postings([_record()], _skills())
+
+    row = store.fetch_postings()[0]
+
+    assert not any("salary" in key.lower() for key in row)
 
 
 def test_fetch_postings_with_skills_attaches_canonical_skills(sqlite_db):

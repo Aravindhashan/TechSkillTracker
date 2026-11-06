@@ -58,7 +58,6 @@ def recommend_skills(df, current_skill, top_n=5):
             recs.append({
                 'skill': skill,
                 'co_occurrence_score': int(score),
-                'avg_salary': None,
                 'job_count': len(skill_data)
             })
     
@@ -95,7 +94,6 @@ def recommend_for_job_role(df, job_role, top_n=10):
         recommendations.append({
             'skill': row['skill'],
             'frequency': int(row['frequency']),
-            'avg_salary': None,
             'percentage': (row['frequency'] / len(matching_jobs)) * 100
         })
     

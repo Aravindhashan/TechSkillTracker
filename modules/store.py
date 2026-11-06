@@ -104,11 +104,6 @@ SCHEMA_STATEMENTS = [
         url TEXT,
         employment_type TEXT,
         is_remote BOOLEAN DEFAULT FALSE,
-        salary_min DOUBLE PRECISION,
-        salary_max DOUBLE PRECISION,
-        salary_currency TEXT,
-        salary_period TEXT,
-        salary_lpa DOUBLE PRECISION,
         experience_years DOUBLE PRECISION,
         posted_at TEXT,
         first_seen TEXT NOT NULL,
@@ -169,6 +164,45 @@ def init_db() -> None:
         cur = _cursor(conn)
         for statement in SCHEMA_STATEMENTS:
             cur.execute(statement)
+    _drop_legacy_salary_columns()
+
+
+LEGACY_SALARY_COLUMNS = (
+    "salary_min",
+    "salary_max",
+    "salary_currency",
+    "salary_period",
+    "salary_lpa",
+)
+
+
+def _drop_legacy_salary_columns() -> None:
+    """Remove salary columns left behind by older schemas.
+
+    Salary was removed from the product; the app must not read, write, or
+    expose it.  The operation is best-effort so an older SQLite build cannot
+    block initialisation.
+    """
+    try:
+        if use_postgres():
+            with get_connection() as conn:
+                cur = _cursor(conn)
+                for column in LEGACY_SALARY_COLUMNS:
+                    cur.execute(
+                        f"ALTER TABLE job_postings DROP COLUMN IF EXISTS {column}"
+                    )
+            return
+
+        with get_connection() as conn:
+            cur = conn.cursor()
+            cur.execute("PRAGMA table_info(job_postings)")
+            existing = {row[1] for row in cur.fetchall()}
+            for column in LEGACY_SALARY_COLUMNS:
+                if column in existing:
+                    cur.execute(f"ALTER TABLE job_postings DROP COLUMN {column}")
+    except Exception:
+        # Legacy databases keep working even if the backend cannot drop columns.
+        pass
 
 
 # ---------------------------------------------------------------------------
@@ -185,11 +219,6 @@ _POSTING_COLUMNS = [
     "url",
     "employment_type",
     "is_remote",
-    "salary_min",
-    "salary_max",
-    "salary_currency",
-    "salary_period",
-    "salary_lpa",
     "experience_years",
     "posted_at",
     "first_seen",
@@ -213,11 +242,6 @@ def _posting_row(record: dict, seen_at: str) -> list:
         record.get("url"),
         record.get("employment_type"),
         bool(record.get("is_remote", False)),
-        record.get("salary_min"),
-        record.get("salary_max"),
-        record.get("salary_currency"),
-        record.get("salary_period"),
-        record.get("salary_lpa"),
         record.get("experience_years"),
         record.get("posted_at"),
         record.get("first_seen") or seen_at,
@@ -239,11 +263,6 @@ ON CONFLICT (job_id) DO UPDATE SET
     description = COALESCE(EXCLUDED.description, job_postings.description),
     url = COALESCE(EXCLUDED.url, job_postings.url),
     employment_type = COALESCE(EXCLUDED.employment_type, job_postings.employment_type),
-    salary_min = COALESCE(EXCLUDED.salary_min, job_postings.salary_min),
-    salary_max = COALESCE(EXCLUDED.salary_max, job_postings.salary_max),
-    salary_currency = COALESCE(EXCLUDED.salary_currency, job_postings.salary_currency),
-    salary_period = COALESCE(EXCLUDED.salary_period, job_postings.salary_period),
-    salary_lpa = COALESCE(EXCLUDED.salary_lpa, job_postings.salary_lpa),
     experience_years = COALESCE(EXCLUDED.experience_years, job_postings.experience_years),
     posted_at = COALESCE(EXCLUDED.posted_at, job_postings.posted_at),
     raw = COALESCE(EXCLUDED.raw, job_postings.raw)
@@ -348,6 +367,8 @@ def fetch_postings_with_skills(
 
     ids = [posting["job_id"] for posting in postings if posting.get("job_id")]
     if not ids:
+        for posting in postings:
+            posting["skills"] = []
         return postings
 
     placeholders = ", ".join([_ph()] * len(ids))

@@ -67,44 +67,6 @@ def _stable_job_id(*parts: str) -> str:
     return hashlib.sha1(payload.encode("utf-8")).hexdigest()[:20]
 
 
-def _annual_amount(amount: float | None, period: str | None) -> float | None:
-    if amount is None:
-        return None
-    period = (period or "YEAR").upper()
-    multipliers = {
-        "HOUR": 2080,
-        "DAY": 260,
-        "WEEK": 52,
-        "MONTH": 12,
-        "YEAR": 1,
-    }
-    for key, multiplier in multipliers.items():
-        if period.startswith(key):
-            return float(amount) * multiplier
-    return float(amount)
-
-
-def salary_to_lpa(
-    min_amount: float | None,
-    max_amount: float | None,
-    currency: str | None,
-    period: str | None,
-) -> float | None:
-    """Convert a salary range to LPA when the currency is INR.
-
-    Non-INR salaries are stored in their original currency with
-    ``salary_lpa`` left empty rather than guessing an exchange rate.
-    """
-    if (currency or "").upper() != "INR":
-        return None
-    low = _annual_amount(min_amount, period)
-    high = _annual_amount(max_amount, period)
-    value = high if high is not None else low
-    if value is None:
-        return None
-    return round(value / 100_000, 2)
-
-
 def parse_experience_years(text: str) -> float | None:
     """Best-effort extraction of required experience from a description."""
     if not text:
@@ -170,10 +132,6 @@ def normalize_jsearch_item(item: dict) -> dict:
         posted_at = str(posted_at)[:10]
 
     job_id = item.get("job_id") or _stable_job_id(title, company, location, posted_at or "")
-    currency = item.get("job_salary_currency")
-    period = item.get("job_salary_period")
-    min_amount = item.get("job_min_salary")
-    max_amount = item.get("job_max_salary")
 
     return {
         "job_id": str(job_id),
@@ -459,7 +417,7 @@ def run_ingest(
             print(f"[ingest] Jobspy adapter skipped: {exc}", file=sys.stderr)
 
     # Cross-source dedup: the same posting on JSearch and Jobspy must not be
-    # counted twice.  Both sources now omit salary, so just keep the first.
+    # counted twice.  Keep the first record for each key.
     by_key: dict[str, tuple[dict, list[dict]]] = {}
     for record in records:
         key = _cross_source_key(record)

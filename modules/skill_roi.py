@@ -54,29 +54,34 @@ def _prepare(df: pd.DataFrame) -> pd.DataFrame:
     return work
 
 
-def _monthly_controls(work: pd.DataFrame) -> pd.DataFrame:
-    postings = work.drop_duplicates(subset=["_posting"]).copy()
-    postings[EXPERIENCE_COLUMN] = pd.to_numeric(
-        postings.get(EXPERIENCE_COLUMN), errors="coerce"
-    )
+def _panel_controls(work: pd.DataFrame) -> pd.DataFrame:
+    """Controls computed inside each (skill, month) cell.
 
-    overall_experience = postings[EXPERIENCE_COLUMN].mean()
-    if math.isnan(overall_experience):
-        overall_experience = 0.0
-
+    These are the posting-level experience, location concentration, and role
+    diversity of the postings that actually require each skill, so they vary
+    across skills rather than only over time.
+    """
     rows = []
-    for month, group in postings.groupby("_month", sort=True):
-        location_share = 0.0
-        if LOCATION_COLUMN in group.columns and group[LOCATION_COLUMN].notna().any():
-            location_share = float(group[LOCATION_COLUMN].value_counts(normalize=True).iloc[0])
-        role_diversity = 0.0
-        if TITLE_COLUMN in group.columns and len(group):
-            role_diversity = float(group[TITLE_COLUMN].nunique() / len(group))
-        mean_experience = group[EXPERIENCE_COLUMN].mean()
+    for (skill, month), group in work.groupby([SKILL_COLUMN, "_month"], sort=True):
+        postings = group.drop_duplicates(subset=["_posting"])
+        experience = pd.to_numeric(postings.get(EXPERIENCE_COLUMN), errors="coerce")
+        mean_experience = experience.mean()
         if math.isnan(mean_experience):
-            mean_experience = overall_experience
+            mean_experience = 0.0
+
+        location_share = 0.0
+        if LOCATION_COLUMN in postings.columns and postings[LOCATION_COLUMN].notna().any():
+            location_share = float(
+                postings[LOCATION_COLUMN].value_counts(normalize=True).iloc[0]
+            )
+
+        role_diversity = 0.0
+        if TITLE_COLUMN in postings.columns and len(postings):
+            role_diversity = float(postings[TITLE_COLUMN].nunique() / len(postings))
+
         rows.append(
             {
+                SKILL_COLUMN: skill,
                 "_month": month,
                 "mean_experience": float(mean_experience),
                 "location_share": location_share,
@@ -99,7 +104,7 @@ def _momentum(month_counts: pd.DataFrame) -> float:
 
 
 def _fit_premium(panel: pd.DataFrame, skills: list[str]) -> dict[str, dict[str, float | None]]:
-    """Pooled OLS with skill dummies and monthly controls.
+    """Pooled OLS with skill dummies and skill-month controls.
 
     Returns ``{skill: {"premium", "p_value"}}``.  The top-demand skill is the
     baseline, so its premium is 0 by construction.
@@ -147,7 +152,9 @@ def _fit_premium(panel: pd.DataFrame, skills: list[str]) -> dict[str, dict[str, 
     try:
         # Drop controls that make the design matrix rank-deficient.
         while True:
-            design = patsy.dmatrix(formula, model_df, return_type="dataframe")
+            design = patsy.dmatrix(
+                formula.split("~", 1)[1], model_df, return_type="dataframe"
+            )
             if np.linalg.matrix_rank(design.to_numpy()) >= design.shape[1]:
                 break
             if not usable_controls:
@@ -207,7 +214,7 @@ def compute_skill_roi(
     if work.empty:
         return []
 
-    controls = _monthly_controls(work)
+    controls = _panel_controls(work)
     total_postings = work["_posting"].nunique()
     if total_postings == 0:
         return []
@@ -249,7 +256,7 @@ def compute_skill_roi(
         .groupby([SKILL_COLUMN, "_month"])["_posting"]
         .nunique()
         .reset_index(name="count")
-        .merge(controls, on="_month", how="left")
+        .merge(controls, on=[SKILL_COLUMN, "_month"], how="left")
     )
     fitted = _fit_premium(panel, skills)
 

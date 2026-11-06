@@ -1,10 +1,14 @@
 # Tech Skill Tracker - Complete Project Documentation
 
-## 📋 Project Overview
+> **Status note (2026-11):** This document predates the move to live-only data and
+> the removal of salary features. Treat `README.md` as the current source of truth;
+> sections below that mention CSV files or salary prediction are historical.
+
+## Project Overview
 
 Tech Skill Tracker is a comprehensive Business Intelligence dashboard for analyzing tech skill demand trends in the Indian job market. It combines data analytics with machine learning to provide actionable insights for career planning and market analysis.
 
-## 🏗️ Architecture
+## Architecture
 
 ### High-Level Architecture
 
@@ -68,36 +72,48 @@ tech-skill-tracker/
 
 ---
 
-## 🔬 Machine Learning Implementation
+## Machine Learning Implementation
 
 ### 1. Demand Forecasting (Time-Series)
 
 **File**: `modules/ml_forecast.py`
 
-**Algorithm**: Facebook Prophet (with Linear Regression fallback)
+**Algorithms**: SARIMAX (statsmodels), Facebook Prophet, Exponential Smoothing, and Linear Regression fallback
 
 **Purpose**: Predict future demand for tech skills over 3-12 months
 
 **How it works**:
+
 ```python
 # Data Preparation
 skill_data = df[df['Tech Skill'] == skill_name]
 monthly_data = skill_data.groupby('Month').size()
 
-# Prophet Model
-model = Prophet(yearly_seasonality=True)
-model.fit(monthly_data)
+# Engine is selectable in the UI: Auto | SARIMAX | Prophet | Linear Regression
+# Auto mode tries SARIMAX first, then Prophet, then Exponential Smoothing, then Linear.
+result_df = forecast_skill_demand(df, skill_name, months_ahead, model_type="auto")
+
+# SARIMAX branch (statsmodels)
+model = SARIMAX(monthly_data['Count'], order=(1, 1, 1),
+                seasonal_order=(0, 0, 0, 0))
+forecast = model.fit(disp=False).get_forecast(steps=months_ahead)
+
+# Prophet branch (prophet)
+model = Prophet(yearly_seasonality='auto', weekly_seasonality=False,
+                daily_seasonality=False)
+model.fit(monthly_data.rename(columns={'Date': 'ds', 'Count': 'y'}))
 future = model.make_future_dataframe(periods=months_ahead, freq='MS')
 forecast = model.predict(future)
-
-# Output: Historical + Forecast with confidence intervals
 ```
 
 **Features**:
-- Handles trend, seasonality, and holiday effects
-- Provides confidence intervals (upper/lower bounds)
-- Fallback to linear regression if Prophet unavailable
-- Automatic growth/decline insights
+
+- Selectable forecasting engine (Auto, SARIMAX, Prophet, Linear Regression)
+- SARIMAX and Prophet both return confidence intervals (upper/lower bounds)
+- Exponential Smoothing fallback when SARIMAX is unavailable or fails
+- Linear regression as the final fallback when statsmodels/Prophet are unavailable
+- Automatic growth/decline insights based on the actual forecast horizon
+- The UI reports which engine produced the result
 
 **Use Case**: "Will demand for Python increase next quarter?"
 
@@ -112,6 +128,7 @@ forecast = model.predict(future)
 **Purpose**: Predict salary based on skill, location, and experience
 
 **How it works**:
+
 ```python
 # Feature Engineering
 X = [Skill_Encoded, Location_Encoded, Experience_Years]
@@ -126,6 +143,7 @@ predicted_salary = model.predict([[skill, location, exp]])[0]
 ```
 
 **Features**:
+
 - Label encoding for categorical variables (skill, location)
 - Handles unseen categories gracefully
 - Provides R² score for model accuracy
@@ -145,6 +163,7 @@ predicted_salary = model.predict([[skill, location, exp]])[0]
 **Purpose**: Recommend complementary skills based on job market patterns
 
 **How it works**:
+
 ```python
 # Build Co-occurrence Matrix
 company_skills = df.groupby('Company')['Tech Skill'].apply(list)
@@ -159,6 +178,7 @@ recommendations = cooccurrence[current_skill].sort_values()
 ```
 
 **Features**:
+
 - Identifies skills that companies hire together
 - Scores based on frequency of co-occurrence
 - Provides salary and job count for recommendations
@@ -171,28 +191,32 @@ recommendations = cooccurrence[current_skill].sort_values()
 
 ---
 
-## 📊 Dashboard Features
+## Dashboard Features
 
 ### Tab 1: Overview
+
 - **Metrics**: Total jobs, unique skills, companies, average salary
 - **Top Skills**: Bar chart of 10 most in-demand skills
 - **Location Distribution**: Pie chart of job openings by city
 - **Dataset Summary**: Key statistics and date ranges
 
 ### Tab 2: Visualization
+
 - **Skill Trends**: Line charts showing demand over time for top 5 skills
-- **Salary Analysis**: 
+- **Salary Analysis**:
   - Box plots comparing salaries across skills
   - Scatter plot of salary vs. experience
 - **Co-occurrence**: Bar chart of skill combinations that appear together
 
 ### Tab 3: Forecast
+
 - **Skill Selection**: Choose any skill from dataset
 - **Time Range**: Predict 3-12 months ahead
 - **Visualization**: Line chart with historical data + forecast
 - **Insights**: Growth/decline percentage, average monthly openings
 
 ### Tab 4: Salary Insights
+
 - **Salary Predictor**: Interactive form (skill, location, experience)
 - **Market Comparison**: Min, median, max salary ranges
 - **Skill Analysis**: Select skill to see:
@@ -202,20 +226,23 @@ recommendations = cooccurrence[current_skill].sort_values()
   - Salary distribution histogram
 
 ### Tab 5: Recommendations
+
 - **Complementary Skills**: Find skills that pair well with current skill
 - **Job Role Analysis**: Discover required skills for target role
 - **Learning Path**: Personalized roadmap from current skills to dream job
 
 ---
 
-## 🚀 Setup Instructions (Local PC)
+## Setup Instructions (Local PC)
 
 ### Step 1: Prerequisites
+
 - Python 3.8 or higher installed
 - pip (comes with Python)
 - Terminal/Command Prompt access
 
 ### Step 2: Download Project
+
 1. Download or clone the project to your local machine
 2. Navigate to project folder:
    ```bash
@@ -225,29 +252,35 @@ recommendations = cooccurrence[current_skill].sort_values()
 ### Step 3: Create Virtual Environment (Recommended)
 
 **Windows:**
+
 ```bash
 python -m venv venv
 venv\Scripts\activate
 ```
 
 **macOS/Linux:**
+
 ```bash
 python3 -m venv venv
 source venv/bin/activate
 ```
 
 ### Step 4: Install Dependencies
+
 ```bash
-pip install streamlit pandas numpy scikit-learn prophet joblib plotly
+pip install streamlit pandas numpy scikit-learn statsmodels prophet joblib plotly
 ```
 
 **Alternative** (if you have requirements.txt):
+
 ```bash
 pip install -r requirements.txt
 ```
 
 ### Step 5: Verify Data
+
 Ensure `/data` folder exists with `job_listings.csv`:
+
 ```bash
 # On Windows
 dir data
@@ -257,24 +290,28 @@ ls data/
 ```
 
 ### Step 6: Run Application
+
 ```bash
 streamlit run app.py
 ```
 
 ### Step 7: Access Dashboard
+
 - Browser should auto-open to `http://localhost:8501`
 - If not, manually open the URL shown in terminal
 
 ### Step 8: Explore!
+
 - Try different filters in sidebar
 - Navigate through all 5 tabs
 - Test forecasting, salary prediction, and recommendations
 
 ---
 
-## 🔄 How the System Works (Data Flow)
+## How the System Works (Data Flow)
 
 ### 1. Data Loading Phase
+
 ```
 User starts app
     ↓
@@ -286,6 +323,7 @@ Cached by Streamlit (@st.cache_data)
 ```
 
 ### 2. Data Cleaning Phase
+
 ```
 Raw DataFrame
     ↓
@@ -303,6 +341,7 @@ validate_data() checks required columns
 ```
 
 ### 3. ML Model Training Phase
+
 ```
 Clean DataFrame
     ↓
@@ -318,6 +357,7 @@ Cached (@st.cache_resource)
 ```
 
 ### 4. User Interaction Phase
+
 ```
 User selects filters (sidebar)
     ↓
@@ -333,6 +373,7 @@ Results displayed to user
 ```
 
 ### 5. Prediction Phase (Example: Forecast)
+
 ```
 User selects skill + months
     ↓
@@ -353,19 +394,22 @@ Results shown to user
 
 ---
 
-## 📈 Performance Optimizations
+## Performance Optimizations
 
 ### Caching Strategy
+
 1. **@st.cache_data** (data-related):
+
    - `load_job_data()`: Prevents re-reading CSV files
    - `clean_job_data()`: Avoids re-cleaning on filter changes
    - `predict_salary()`: Caches prediction results
-
 2. **@st.cache_resource** (model-related):
+
    - `train_salary_model()`: Prevents re-training on every run
    - `forecast_skill_demand()`: Caches forecast models
 
 ### Efficiency Techniques
+
 - Pandas vectorized operations (no loops)
 - Lazy loading (models trained only when needed)
 - Filtered dataframes passed to functions (smaller data)
@@ -373,42 +417,48 @@ Results shown to user
 
 ---
 
-## 🎯 Use Cases
+## Use Cases
 
 ### For Job Seekers
+
 1. **Skill Planning**: See which skills are growing in demand
 2. **Salary Negotiation**: Know market rates for your profile
 3. **Career Roadmap**: Get learning path from current skills to dream job
 4. **Location Decisions**: Compare salary ranges across cities
 
 ### For Recruiters
+
 1. **Market Intelligence**: Understand demand trends
 2. **Salary Benchmarking**: Set competitive compensation
 3. **Skill Gaps**: Identify hard-to-find skill combinations
 
 ### For Educators
+
 1. **Curriculum Planning**: Teach in-demand skills
 2. **Student Guidance**: Show career paths and requirements
 3. **Industry Alignment**: Track what industry needs
 
 ---
 
-## 🔧 Customization Guide
+## Customization Guide
 
 ### Adding Your Own Data
 
 **Option 1: Replace existing data**
+
 1. Navigate to `/data` folder
 2. Replace `job_listings.csv` with your file
 3. Ensure same column structure
 4. Restart app
 
 **Option 2: Add more data**
+
 1. Add new CSV files to `/data` folder
 2. Must have same columns
 3. App automatically combines all files
 
 ### Required CSV Format
+
 ```csv
 Job Title,Tech Skill,Company,Location,Salary (in LPA),Experience Required (in years),Date Posted
 Data Scientist,Python,Google,Bengaluru,18.5,4,2024-01-15
@@ -418,6 +468,7 @@ Backend Developer,Java,Amazon,Hyderabad,15.0,3,2024-01-12
 ### Extending Functionality
 
 **Add new visualization**:
+
 ```python
 # In app.py, under Visualization tab
 with viz_tab4:  # Create new sub-tab
@@ -427,6 +478,7 @@ with viz_tab4:  # Create new sub-tab
 ```
 
 **Add new ML model**:
+
 1. Create `modules/your_model.py`
 2. Implement train/predict functions
 3. Import in `app.py`
@@ -434,78 +486,92 @@ with viz_tab4:  # Create new sub-tab
 
 ---
 
-## 🐛 Troubleshooting
+## Troubleshooting
 
 ### Issue: "No data found"
+
 **Cause**: CSV file missing or wrong location
-**Solution**: 
+**Solution**:
+
 1. Check `/data` folder exists
 2. Ensure CSV file is present
 3. Verify file has correct columns
 
 ### Issue: "Prophet not available"
+
 **Cause**: Prophet not installed
 **Solution**: `pip install prophet`
 **Note**: App falls back to linear regression automatically
 
 ### Issue: Charts not showing
+
 **Cause**: Plotly not installed or outdated
 **Solution**: `pip install --upgrade plotly`
 
 ### Issue: Slow performance
+
 **Cause**: Large dataset or cache issues
 **Solution**:
+
 1. Clear cache: Settings (⋮) → Clear cache
 2. Reduce dataset size for testing
 3. Filter data to smaller subset
 
 ### Issue: Model prediction errors
+
 **Cause**: Insufficient training data
 **Solution**: Ensure at least 10-20 records in dataset
 
 ---
 
-## 💡 Best Practices
+## Best Practices
 
 ### Data Quality
-- ✅ Clean, complete data (no missing critical fields)
-- ✅ Realistic salary ranges (6-50 LPA typical in India)
-- ✅ Valid dates (YYYY-MM-DD format)
-- ✅ Consistent location names (use data_cleaner.py mappings)
+
+- Clean, complete data (no missing critical fields)
+- Realistic salary ranges (6-50 LPA typical in India)
+- Valid dates (YYYY-MM-DD format)
+- Consistent location names (use data_cleaner.py mappings)
 
 ### Usage Tips
+
 1. **Start with filters**: Narrow down to relevant data segment
 2. **Explore tabs sequentially**: Overview → Viz → Forecast → Salary → Rec
 3. **Cross-reference insights**: Compare forecasts with current trends
 4. **Use learning paths**: Combine recommendations from multiple sources
 
 ### Performance
+
 - Keep dataset under 10,000 records for smooth performance
 - Clear cache occasionally
 - Restart app after adding new data
 
 ---
 
-## 📚 Technical Details
+## Technical Details
 
 ### Dependencies
-| Package | Version | Purpose |
-|---------|---------|---------|
-| streamlit | ≥1.28 | Web framework |
-| pandas | ≥2.0 | Data manipulation |
-| numpy | ≥1.24 | Numerical operations |
-| scikit-learn | ≥1.3 | Random Forest model |
-| prophet | ≥1.1.4 | Time-series forecasting |
-| plotly | ≥5.17 | Interactive charts |
-| joblib | ≥1.3 | Model persistence |
+
+| Package      | Version | Purpose                 |
+| ------------ | ------- | ----------------------- |
+| streamlit    | ≥1.28  | Web framework           |
+| pandas       | ≥2.0   | Data manipulation       |
+| numpy        | ≥1.24  | Numerical operations    |
+| scikit-learn | ≥1.3   | Random Forest model     |
+| statsmodels   | ≥0.14  | SARIMAX / Exponential Smoothing |
+| prophet      | ≥1.1.4 | Time-series forecasting |
+| plotly       | ≥5.17  | Interactive charts      |
+| joblib       | ≥1.3   | Model persistence       |
 
 ### Browser Compatibility
-- Chrome ✅
-- Firefox ✅
-- Safari ✅
-- Edge ✅
+
+- Chrome
+- Firefox
+- Safari
+- Edge
 
 ### System Requirements
+
 - RAM: 2GB minimum, 4GB recommended
 - Storage: 500MB for app + data
 - CPU: Any modern processor
@@ -513,15 +579,17 @@ with viz_tab4:  # Create new sub-tab
 
 ---
 
-## 🎓 Learning Resources
+## Learning Resources
 
 ### Understanding the ML Models
 
 **Prophet Documentation**: https://facebook.github.io/prophet/
+
 - Time-series forecasting basics
 - Understanding trend + seasonality
 
 **Random Forest Guide**: https://scikit-learn.org/stable/modules/ensemble.html
+
 - How ensemble methods work
 - Feature importance
 
@@ -529,9 +597,10 @@ with viz_tab4:  # Create new sub-tab
 
 ---
 
-## 📞 Support
+## Support
 
 For issues or questions:
+
 1. Check this documentation
 2. Review README.md
 3. Inspect error messages in app
@@ -539,6 +608,4 @@ For issues or questions:
 
 ---
 
-**Built with ❤️ using Streamlit, Pandas, and Machine Learning**
-
-*Last Updated: October 2024*
+*Last Updated: October 2025*

@@ -2,7 +2,7 @@
 
 Extracts text from a PDF or DOCX resume, pulls out skills/experience/education,
 and scores the resume against live job postings: a match percentage plus the
-top missing skills ranked by market demand (and salary where available).
+top missing skills ranked by market demand.
 """
 
 from __future__ import annotations

@@ -126,11 +126,13 @@ def test_embeddings_are_cached_between_builds(tmp_path):
     engine = _engine(tmp_path, embedder=embedder, allow_models=False)
 
     engine.build(RECORDS)
+    calls_after_first_build = embedder.calls
 
     second = _engine(tmp_path, embedder=embedder, allow_models=False)
     second.build(RECORDS)
 
     assert (tmp_path / "index.npz").exists()
+    assert embedder.calls == calls_after_first_build  # cache hit, no re-embedding
     assert second.search("sql", top_k=1)[0]["job_id"] == "python-job"
 
 

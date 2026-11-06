@@ -18,7 +18,7 @@ import hashlib
 import os
 import re
 from functools import lru_cache
-from typing import Any, Callable, Iterable, Sequence
+from typing import Any, Callable, Iterable
 
 import numpy as np
 
@@ -43,12 +43,14 @@ def posting_text(record: dict[str, Any]) -> str:
     if isinstance(skills, str):
         skills = [skills]
     description = str(record.get("description") or "")[:MAX_DESCRIPTION_CHARS]
+    # Title first for exact-title matches, description next so it survives the
+    # model's 256-token window; company/location are short and go last.
     parts = [
         str(record.get("title") or ""),
+        description,
+        " ".join(str(skill) for skill in skills if skill),
         str(record.get("company") or ""),
         str(record.get("location") or ""),
-        " ".join(str(skill) for skill in skills if skill),
-        description,
     ]
     return " ".join(part for part in parts if part).strip()
 
@@ -80,6 +82,13 @@ def _records_signature(records: list[dict], texts: list[str], embedder_key: str)
     return digest.hexdigest()
 
 
+def corpus_signature(records: list[dict]) -> str:
+    """Content-based signature for caching an index outside the engine."""
+    records = [record for record in records if record.get("job_id")]
+    texts = [posting_text(record) for record in records]
+    return _records_signature(records, texts, "corpus")
+
+
 # ---------------------------------------------------------------------------
 # Model loading (lazy, cached, optional)
 # ---------------------------------------------------------------------------
@@ -108,6 +117,16 @@ def semantic_available() -> bool:
         return False
 
 
+def retrieval_available() -> str:
+    """Name the retrieval backend that will be used ("faiss" or "numpy")."""
+    try:
+        import faiss  # noqa: F401
+
+        return "faiss"
+    except Exception:
+        return "numpy"
+
+
 # ---------------------------------------------------------------------------
 # Lexical fallback
 # ---------------------------------------------------------------------------
@@ -133,14 +152,14 @@ def lexical_search(
         scored.append((score, record))
 
     scored.sort(key=lambda item: item[0], reverse=True)
-    return [_result(record, score, score, None) for score, record in scored[:top_k]]
+    return [_result(record, score) for score, record in scored[:top_k]]
 
 
 def _result(
     record: dict,
     score: float,
-    semantic_score: float,
-    rerank_score: float | None,
+    semantic_score: float | None = None,
+    rerank_score: float | None = None,
 ) -> dict[str, Any]:
     description = str(record.get("description") or "")
     return {
@@ -153,9 +172,8 @@ def _result(
         "skills": list(record.get("skills") or []),
         "description": description[:400],
         "score": round(float(score), 4),
-        "semantic_score": round(float(semantic_score), 4),
+        "semantic_score": round(float(score if semantic_score is None else semantic_score), 4),
         "rerank_score": None if rerank_score is None else round(float(rerank_score), 4),
-        "record": record,
     }
 
 
@@ -177,6 +195,7 @@ class SemanticSearchEngine:
         allow_models: bool = True,
     ):
         self.embedder = embedder
+        self._custom_embedder = embedder is not None
         self.reranker = reranker
         self.cache_path = os.fspath(cache_path) if cache_path else None
         self.model_name = model_name
@@ -225,7 +244,7 @@ class SemanticSearchEngine:
         return self
 
     def _embedder_key(self) -> str:
-        if self.embedder is not None:
+        if self._custom_embedder:
             return f"custom:{type(self.embedder).__name__}"
         return f"st:{self.model_name}"
 
@@ -345,7 +364,7 @@ class SemanticSearchEngine:
             return lexical_search(self.records, query, top_k=top_k)
         query_vector = _normalise_rows(query_vector)[0]
 
-        candidate_k = min(len(self.records), max(top_k * 4, top_k))
+        candidate_k = min(len(self.records), top_k * 4)
         if self._faiss_index is not None:
             scores, indices = self._faiss_index.search(
                 query_vector.reshape(1, -1), candidate_k
@@ -371,12 +390,14 @@ class SemanticSearchEngine:
 
         results = []
         for index, score in candidates[:top_k]:
+            rerank_score = rerank_scores.get(index)
+            effective_score = rerank_score if rerank_score is not None else score
             results.append(
                 _result(
                     self.records[index],
-                    score,
-                    score,
-                    rerank_scores.get(index),
+                    effective_score,
+                    semantic_score=score,
+                    rerank_score=rerank_score,
                 )
             )
         return results
@@ -397,15 +418,3 @@ class SemanticSearchEngine:
         if len(values) != len(indices):
             return {}
         return dict(zip(indices, values))
-
-
-def search_postings(
-    records: list[dict],
-    query: str,
-    top_k: int = 10,
-    rerank: bool = True,
-    engine: SemanticSearchEngine | None = None,
-) -> list[dict]:
-    """Convenience wrapper for one-off searches."""
-    engine = engine or SemanticSearchEngine().build(records)
-    return engine.search(query, top_k=top_k, rerank=rerank)

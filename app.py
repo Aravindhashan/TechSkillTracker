@@ -12,7 +12,12 @@ from modules.ml_forecast import forecast_skill_demand, get_forecast_insights
 from modules.recommendation_engine import recommend_skills, recommend_for_job_role, get_skill_pairs, get_learning_path
 from modules.learning_resources import get_learning_path_with_resources
 from modules.resume_analyzer import analyze_resume, extract_text, save_report
-from modules.semantic_search import SemanticSearchEngine, semantic_available
+from modules.semantic_search import (
+    SemanticSearchEngine,
+    corpus_signature,
+    retrieval_available,
+    semantic_available,
+)
 from modules.skill_roi import compute_skill_roi
 
 
@@ -34,6 +39,11 @@ def _search_engine(signature, _records):
     engine = SemanticSearchEngine()
     engine.build(_records)
     return engine
+
+
+@st.cache_data(show_spinner=False)
+def _cached_skill_roi(frame, top_n=25):
+    return compute_skill_roi(frame, top_n=top_n)
 
 # Page configuration
 st.set_page_config(
@@ -534,12 +544,7 @@ def main():
                     
                     for idx, rec in enumerate(recs, 1):
                         with st.expander(f"{idx}. {rec['skill']} ({rec['co_occurrence_score']} co-occurrences)"):
-                            col1, col2 = st.columns(2)
-                            with col1:
-                                avg = rec.get('avg_salary')
-                                st.metric("Average Salary", f"₹{avg:.1f}L" if pd.notna(avg) else "N/A")
-                            with col2:
-                                st.metric("Job Openings", f"{rec['job_count']}")
+                            st.metric("Job Openings", f"{rec['job_count']}")
                 else:
                     st.warning(status)
         
@@ -569,7 +574,7 @@ def main():
                         orientation='h',
                         title=f"Skill Requirements for {dream_job}",
                         labels={'frequency': 'Number of Jobs', 'skill': 'Technology'},
-                        color='avg_salary',
+                        color='frequency',
                         color_continuous_scale='Viridis',
                         hover_data=['percentage']
                     )
@@ -585,7 +590,7 @@ def main():
                     
                     # Show detailed list
                     for idx, rec in enumerate(recs, 1):
-                        st.write(f"{idx}. **{rec['skill']}** - {rec['frequency']} jobs ({rec['percentage']:.1f}%), Average Salary: {'₹' + format(rec['avg_salary'], '.1f') + 'L' if pd.notna(rec.get('avg_salary')) else 'N/A'}")
+                        st.write(f"{idx}. **{rec['skill']}** - {rec['frequency']} jobs ({rec['percentage']:.1f}%)")
                 else:
                     st.warning(status)
         
@@ -621,7 +626,7 @@ def main():
                     st.write("### Priority Skills to Develop:")
                     missing_skills = []
                     for idx, skill in enumerate(learning_path[:10], 1):
-                        st.write(f"{idx}. **{skill['skill']}** - {skill['frequency']} job openings, {'₹' + format(skill['avg_salary'], '.1f') + 'L average salary' if pd.notna(skill.get('avg_salary')) else 'N/A average salary'}")
+                        st.write(f"{idx}. **{skill['skill']}** - {skill['frequency']} job openings")
                         missing_skills.append(skill['skill'])
                     
                     # Add learning resources section
@@ -886,16 +891,14 @@ def main():
             if not records:
                 st.info("No live postings yet. Run the ingestion job first: `python -m modules.ingestion`.")
             else:
-                signature = (
-                    f"{len(records)}|"
-                    f"{max((str(r.get('posted_at') or '') for r in records), default='')}|"
-                    f"{max((str(r.get('last_seen') or '') for r in records), default='')}"
-                )
+                signature = corpus_signature(records)
                 embeddings_ready = semantic_available()
                 if embeddings_ready:
+                    backend = "FAISS" if retrieval_available() == "faiss" else "NumPy cosine"
                     st.caption(
                         f"{len(records)} postings ready. The index is built on your "
-                        "first search (embeddings + FAISS, with cross-encoder reranking)."
+                        f"first search ({backend} retrieval, cross-encoder reranking "
+                        "when available)."
                     )
                 else:
                     st.caption(
@@ -951,7 +954,7 @@ def main():
                 "diversity. Treat these as associations, not causal effects."
             )
 
-            roi_rows = compute_skill_roi(df, top_n=25)
+            roi_rows = _cached_skill_roi(df_filtered, top_n=25)
             if not roi_rows:
                 st.info("Not enough dated postings to estimate skill ROI.")
             else:
@@ -999,6 +1002,11 @@ def main():
                     st.caption(
                         f"{len(low)} skill(s) have low-confidence estimates — "
                         "more postings and months will stabilise the trend."
+                    )
+                if roi_df["premium"].isna().all():
+                    st.caption(
+                        "Premium estimates need at least three months of history; "
+                        "momentum and demand rankings are still shown."
                     )
 
     # Professional Footer

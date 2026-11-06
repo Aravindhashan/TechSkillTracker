@@ -43,6 +43,14 @@ def test_growing_skill_has_positive_momentum():
     assert python["momentum"] > 0
 
 
+def test_premium_is_estimated_when_enough_months_exist():
+    result = skill_roi.compute_skill_roi(_growing_frame())
+    premiums = {row["skill"]: row["premium"] for row in result}
+
+    assert premiums["Python"] == 0.0  # baseline skill
+    assert premiums["React"] is not None
+
+
 def test_roi_output_contains_no_salary_terms():
     result = skill_roi.compute_skill_roi(_growing_frame())
 
