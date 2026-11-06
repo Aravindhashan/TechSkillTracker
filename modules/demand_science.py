@@ -42,8 +42,9 @@ except ImportError:
 
 
 def _posting_groups(df: pd.DataFrame):
-    if "Job ID" in df.columns:
-        return df.groupby("Job ID", sort=False)
+    if "Job ID" in df.columns and df["Job ID"].notna().any():
+        ids = df["Job ID"].fillna(pd.Series(df.index.astype(str), index=df.index))
+        return df.assign(_gid=ids).groupby("_gid", sort=False)
     return df.groupby(["Job Title", "Company", "Location"], sort=False, dropna=False)
 
 
@@ -53,8 +54,10 @@ def _posting_lifetimes(df: pd.DataFrame) -> pd.DataFrame:
         return pd.DataFrame()
 
     # Collapse skill-expanded rows to one row per posting.
-    if "Job ID" in df.columns:
+    if "Job ID" in df.columns and df["Job ID"].notna().any():
         base = df.drop_duplicates(subset=["Job ID"]).copy()
+    elif "Job ID" in df.columns:
+        base = df.drop_duplicates(subset=["Job Title", "Company", "Location"]).copy()
     else:
         base = df.drop_duplicates(subset=["Job Title", "Company", "Location"]).copy()
 
@@ -70,20 +73,27 @@ def _posting_lifetimes(df: pd.DataFrame) -> pd.DataFrame:
     # Right-censoring: postings still active are censored at the observation end.
     observation_end = last.max() if not last.isna().all() else pd.Timestamp.now(tz="UTC")
     duration = (last - first).dt.total_seconds() / 86400.0
-    duration = duration.fillna(0).clip(lower=0)
-    # If first==last (seen once) treat as censored at observation end.
-    censored = (duration <= 0)
-    duration = duration.where(~censored, (observation_end - first).dt.total_seconds() / 86400.0)
-    duration = duration.fillna(1.0).clip(lower=1.0)
+    duration = duration.fillna(0)
 
-    event = (~censored).astype(int)
-    # Also mark inactive postings as events (they were observed to close).
+    # Event indicator: inactive postings were observed to close.
     if "is_active" in base.columns:
         inactive = ~base["is_active"].fillna(True).astype(bool)
-        event = (event | inactive.astype(int)).clip(upper=1)
+    else:
+        inactive = pd.Series(False, index=base.index)
+
+    event = inactive.astype(int)
+
+    # Duration for events: last_seen - first_seen (min 1 day).
+    # Duration for censored (active): observation_end - first_seen.
+    event_duration = duration.clip(lower=1.0)
+    censored_duration = (observation_end - first).dt.total_seconds() / 86400.0
+    censored_duration = censored_duration.fillna(1.0).clip(lower=1.0)
+
+    final_duration = event_duration.where(event.astype(bool), censored_duration)
+    final_duration = final_duration.fillna(1.0).clip(lower=1.0)
 
     base = base.copy()
-    base["duration_days"] = duration.values
+    base["duration_days"] = final_duration.values
     base["event"] = event.values
     return base
 

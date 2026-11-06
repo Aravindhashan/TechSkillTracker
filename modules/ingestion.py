@@ -392,7 +392,7 @@ def run_ingest(
     num_pages: int | None = None,
     date_posted: str | None = None,
     use_jobspy: bool | None = None,
-    close_after_days: int = 0,
+    close_after_days: int = 14,
     dry_run: bool = False,
     check_quota: bool | None = None,
     client: JSearchClient | None = None,
@@ -468,6 +468,19 @@ def run_ingest(
             by_key[key] = (record, skills)
     records = [value[0] for value in by_key.values()]
     skills_by_job = {value[0]["job_id"]: value[1] for value in by_key.values()}
+
+    # MinHash LSH dedup: collapse near-duplicate postings (paraphrased titles).
+    try:
+        from modules.demand_science import minhash_dedupe
+
+        before = len(records)
+        deduped_records = minhash_dedupe(records, threshold=0.85)
+        if len(deduped_records) < before:
+            kept_ids = {r["job_id"] for r in deduped_records}
+            records = deduped_records
+            skills_by_job = {jid: sk for jid, sk in skills_by_job.items() if jid in kept_ids}
+    except Exception:
+        pass
 
     summary["fetched"] = len(records)
 
