@@ -9,7 +9,6 @@ from datetime import datetime
 from modules.data_loader import load_job_data, get_data_source_info, available_sources
 from modules.data_cleaner import clean_job_data, validate_data, get_data_summary
 from modules.ml_forecast import forecast_skill_demand, get_forecast_insights
-from modules.salary_predictor import train_salary_model, predict_salary, get_salary_distribution, get_salary_insights
 from modules.recommendation_engine import recommend_skills, recommend_for_job_role, get_skill_pairs, get_learning_path
 from modules.learning_resources import get_learning_path_with_resources
 
@@ -189,11 +188,9 @@ def main():
                 f"source: {source_info['source']}"
             )
     
-    # Train ML models (cached)
+    # Train ML models (cached) - forecasting only
     with st.spinner("Initializing machine learning models..."):
-        salary_model, le_skill, le_location, model_status = train_salary_model(df)
-        if "successfully" in model_status:
-            st.success(model_status)
+        st.success("Forecasting models ready")
     
     # Sidebar filters
     st.sidebar.header("Filter Options")
@@ -256,11 +253,10 @@ def main():
         st.stop()
     
     # Navigation tabs
-    tab1, tab2, tab3, tab4, tab5 = st.tabs([
+    tab1, tab2, tab3, tab4 = st.tabs([
         "Market Overview",
         "Data Visualization",
         "Demand Forecasting",
-        "Salary Analysis",
         "Skill Recommendations"
     ])
     
@@ -550,110 +546,8 @@ def main():
             with cols[idx]:
                 st.metric(skill, f"{count} openings")
     
-    # TAB 4: SALARY ANALYSIS
+    # TAB 4: SKILL RECOMMENDATIONS
     with tab4:
-        st.header("Salary Analysis & Prediction")
-        
-        st.subheader("Salary Estimator")
-        st.write("Enter your profile details to estimate potential salary range")
-        
-        col1, col2, col3 = st.columns(3)
-        
-        with col1:
-            pred_skill = st.selectbox(
-                "Technology Skill",
-                options=sorted(df['Tech Skill'].unique()),
-                key="pred_skill"
-            )
-        
-        with col2:
-            pred_location = st.selectbox(
-                "Work Location",
-                options=sorted(df['Location'].unique()),
-                key="pred_location"
-            )
-        
-        with col3:
-            pred_experience = st.number_input(
-                "Years of Experience",
-                min_value=0,
-                max_value=30,
-                value=3,
-                key="pred_exp"
-            )
-        
-        if st.button("Estimate Salary", type="primary"):
-            if salary_model:
-                # Count records used for prediction
-                training_records = df[
-                    (df['Tech Skill'] == pred_skill) &
-                    (df['Location'] == pred_location)
-                ]
-                record_count = len(training_records)
-                
-                predicted_salary, status = predict_salary(
-                    salary_model, le_skill, le_location,
-                    pred_skill, pred_location, pred_experience
-                )
-                
-                if predicted_salary:
-                    st.success(f"### Estimated Salary: ₹{predicted_salary:.1f} LPA")
-                    st.info(f"This estimation is based on analysis of {record_count} similar job postings for {pred_skill} professionals in {pred_location}. The predicted salary is calculated using machine learning analysis of market data including experience level, location, and skill requirements.")
-                    
-                    # Show market comparison
-                    dist = get_salary_distribution(df, pred_skill, pred_location)
-                    if dist:
-                        st.markdown("**Market Salary Range for Comparison:**")
-                        col1, col2, col3 = st.columns(3)
-                        with col1:
-                            st.metric("Minimum", f"₹{dist['min']:.1f}L")
-                        with col2:
-                            st.metric("Median", f"₹{dist['median']:.1f}L")
-                        with col3:
-                            st.metric("Maximum", f"₹{dist['max']:.1f}L")
-                else:
-                    st.error(f"Unable to predict: {status}")
-            else:
-                st.error("Prediction model is not available.")
-        
-        # Salary insights
-        st.markdown("---")
-        st.subheader("Market Salary Insights")
-        
-        insight_skill = st.selectbox(
-            "Select Technology for Analysis",
-            options=sorted(df['Tech Skill'].unique()),
-            key="insight_skill"
-        )
-        
-        insights = get_salary_insights(df, insight_skill)
-        for insight in insights:
-            # Remove emojis from insights
-            clean_insight = insight.replace('💰', '').replace('📊', '').replace('💼', '').replace('📈', '').replace('📍', '')
-            st.markdown(clean_insight)
-        
-        # Salary distribution chart
-        skill_data = df[df['Tech Skill'] == insight_skill]
-        if len(skill_data) > 0:
-            fig = px.histogram(
-                skill_data,
-                x='Salary (in LPA)',
-                nbins=20,
-                title=f"Salary Distribution: {insight_skill}",
-                color_discrete_sequence=['#3498db']
-            )
-            fig.update_layout(
-                height=320,
-                plot_bgcolor='#000000',
-                paper_bgcolor='#000000',
-                xaxis=dict(title='Salary (LPA)', showgrid=True, gridcolor='#444444', color='#FFFFFF'),
-                yaxis=dict(title='Frequency', showgrid=True, gridcolor='#444444', color='#FFFFFF'),
-                font=dict(color='#FFFFFF')
-            )
-            st.plotly_chart(fig, use_container_width=True, config={'displayModeBar': False})
-    
-    # TAB 5: SKILL RECOMMENDATIONS
-    with tab5:
         st.header("Skill Recommendations")
         
         rec_tab1, rec_tab2, rec_tab3 = st.tabs([
@@ -682,7 +576,8 @@ def main():
                         with st.expander(f"{idx}. {rec['skill']} ({rec['co_occurrence_score']} co-occurrences)"):
                             col1, col2 = st.columns(2)
                             with col1:
-                                st.metric("Average Salary", f"₹{rec['avg_salary']:.1f}L")
+                                avg = rec.get('avg_salary')
+                                st.metric("Average Salary", f"₹{avg:.1f}L" if pd.notna(avg) else "N/A")
                             with col2:
                                 st.metric("Job Openings", f"{rec['job_count']}")
                 else:
@@ -730,7 +625,7 @@ def main():
                     
                     # Show detailed list
                     for idx, rec in enumerate(recs, 1):
-                        st.write(f"{idx}. **{rec['skill']}** - {rec['frequency']} jobs ({rec['percentage']:.1f}%), Average Salary: ₹{rec['avg_salary']:.1f}L")
+                        st.write(f"{idx}. **{rec['skill']}** - {rec['frequency']} jobs ({rec['percentage']:.1f}%), Average Salary: {'₹' + format(rec['avg_salary'], '.1f') + 'L' if pd.notna(rec.get('avg_salary')) else 'N/A'}")
                 else:
                     st.warning(status)
         
@@ -766,7 +661,7 @@ def main():
                     st.write("### Priority Skills to Develop:")
                     missing_skills = []
                     for idx, skill in enumerate(learning_path[:10], 1):
-                        st.write(f"{idx}. **{skill['skill']}** - {skill['frequency']} job openings, ₹{skill['avg_salary']:.1f}L average salary")
+                        st.write(f"{idx}. **{skill['skill']}** - {skill['frequency']} job openings, {'₹' + format(skill['avg_salary'], '.1f') + 'L average salary' if pd.notna(skill.get('avg_salary')) else 'N/A average salary'}")
                         missing_skills.append(skill['skill'])
                     
                     # Add learning resources section

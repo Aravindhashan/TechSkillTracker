@@ -16,7 +16,6 @@ Tech Skill Tracker turns a CSV of job postings into a five-tab analytics workspa
 - **Market Overview** — headline metrics, top skills, and hiring locations
 - **Data Visualization** — demand trends, salary distributions, and skill co-occurrence
 - **Demand Forecasting** — 3–12 month forecasts per skill with confidence intervals
-- **Salary Analysis** — market comparison plus a Random Forest salary estimator
 - **Skill Recommendations** — complementary skills, role requirements, and a learning roadmap
 
 The bundled dataset contains 1,000 job listings covering 50 technologies, 40 companies, and 10 Indian cities, posted between January 2023 and September 2024.
@@ -32,7 +31,6 @@ The bundled dataset contains 1,000 job listings covering 50 technologies, 40 com
 | Trend analysis | Monthly posting volume for the top five skills |
 | Salary analysis | Box plots by skill, salary vs. experience scatter, per-skill histograms |
 | Forecasting | Selectable SARIMAX or Prophet time-series models with confidence bands and growth/decline insights |
-| Salary prediction | Random Forest regression over skill, location, and experience |
 | Recommendations | Company-level skill co-occurrence, role-based skill analysis, personalized learning paths |
 | Learning resources | Curated links for popular skills plus YouTube, Udemy, Coursera, and freeCodeCamp searches |
 | PDF reports | Optional ReportLab script for a formatted career report |
@@ -174,13 +172,6 @@ To use your own data, replace or add CSVs in `data/` and restart the app.
 
 The model needs at least two months of data for the selected skill, and at least four months to use SARIMAX.
 
-### Salary prediction — `modules/salary_predictor.py`
-
-- Features: label-encoded skill, label-encoded location, and years of experience.
-- Model: `RandomForestRegressor(n_estimators=100, max_depth=10, random_state=42)`.
-- Uses an 80/20 train-test split when there are more than 20 records; otherwise it scores on the training data.
-- Returns the R² score in the training status and rejects skill/location values not seen during training.
-
 ### Skill recommendations — `modules/recommendation_engine.py`
 
 - Groups skills by company and counts pairs that appear together, producing a symmetric co-occurrence matrix.
@@ -198,8 +189,7 @@ Results are cached with `@st.cache_data` and `@st.cache_resource` so models and 
 2. Start at **Market Overview** for the headline numbers.
 3. Use **Data Visualization** to inspect trends, salary spread, and skill combinations.
 4. Open **Demand Forecasting**, pick a skill and horizon, then click **Generate Forecast**.
-5. Use **Salary Analysis** to estimate a salary and compare it with the market range.
-6. In **Skill Recommendations**, try all three modes: complementary skills, a target role, and a full learning roadmap.
+5. In **Skill Recommendations**, try all three modes: complementary skills, a target role, and a full learning roadmap.
 
 ---
 
