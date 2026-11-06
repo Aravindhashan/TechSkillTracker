@@ -279,6 +279,25 @@ per month; one search per run is about 120 searches per 30-day month, so the
 pipeline stays inside the quota. Set repository secrets `JSEARCH_API_KEY` and
 `DATABASE_URL`.
 
+## Deploy on Hugging Face Spaces (free)
+
+The app runs as a Streamlit Space with no code changes required beyond
+`requirements.txt` (mirrors `pyproject.toml` + the `search` extra).
+
+1. Push `main` to GitHub, then create a Space at <https://huggingface.co/new-space>
+   with SDK **Streamlit** and this repo.
+2. Set **Space variables** (Settings → Variables and secrets):
+   - `DATABASE_URL` — Neon free Postgres pooler URL
+     (`postgresql://user:password@host/dbname?sslmode=require`)
+   - `JSEARCH_API_KEY` — JSearch (OpenWebNinja) key, 200 free requests/month
+   - `PYTHON_VERSION` — `3.11` (Spaces supports 3.11/3.12; 3.13 wheels for
+     `torch` / `faiss-cpu` are unreliable)
+3. Set the **same two secrets** on the GitHub repo (`JSEARCH_API_KEY`,
+   `DATABASE_URL`) so the 6-hour Actions cron writes to Neon too.
+4. The Space boots against Neon via `prod.py` root; Actions keeps the store
+   fresh. Spaces disk is ephemeral, so Postgres (not the local SQLite file)
+   is the source of truth in production.
+
 **Local usage.**
 
 ```bash

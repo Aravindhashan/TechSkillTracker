@@ -1,0 +1,17 @@
+# Hugging Face Spaces (Streamlit SDK) — full app dependencies.
+# Mirrors pyproject.toml base deps + the `search` extra so the live Space
+# supports semantic search and FAISS retrieval out of the box.
+numpy>=2.3.4
+pandas>=2.3.3
+plotly>=6.3.1
+prophet>=1.2.1
+python-dotenv>=1.0.0
+pdfplumber>=0.11.0
+psycopg2-binary>=2.9.9
+python-docx>=1.1.0
+requests>=2.31.0
+scikit-learn>=1.7.2
+statsmodels>=0.14.0
+streamlit>=1.50.0
+sentence-transformers>=3.0.0
+faiss-cpu>=1.7.4
