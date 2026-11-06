@@ -12,8 +12,12 @@ SUPPORTED_ENGINES = (
     "linear",
     "exponential_smoothing",
     "gradient_boosting",
+    "lightgbm",
     "croston",
 )
+
+# Trained global models, keyed by a hash of the training data.
+_GB_CACHE: dict = {}
 
 
 def _has_statsmodels():
@@ -85,8 +89,13 @@ def _mape(actual, predicted):
     return float(np.mean(np.abs((actual[mask] - predicted[mask]) / actual[mask])) * 100)
 
 
+def _forecast_values(forecast_df):
+    """Extract the predicted values from an assembled forecast frame."""
+    return forecast_df[forecast_df['Forecast'].notna()]['Forecast'].values
+
+
 # ---------------------------------------------------------------------------
-# Per-skill engines
+# Per-skill monthly series
 # ---------------------------------------------------------------------------
 
 
@@ -99,6 +108,11 @@ def _monthly_series(df, skill_name):
     monthly_data['Date Posted'] = monthly_data['Date Posted'].dt.to_timestamp()
     monthly_data.columns = ['Date', 'Count']
     return monthly_data
+
+
+# ---------------------------------------------------------------------------
+# Per-skill engines
+# ---------------------------------------------------------------------------
 
 
 def _linear_forecast(monthly_data, months_ahead):
@@ -191,25 +205,25 @@ def _croston_forecast(monthly_data, months_ahead, alpha=0.1):
     """Croston / SBA for intermittent (zero-heavy) demand series."""
     y = monthly_data['Count'].values.astype(float)
 
-    z = None  # demand size estimate
-    p = None  # inter-arrival estimate
-    q = 0
+    demand_size = None  # smoothed non-zero demand size
+    interval = None     # smoothed inter-arrival interval
+    periods_since = 0
     for val in y:
-        q += 1
+        periods_since += 1
         if val > 0:
-            if z is None:
-                z = val
-                p = q
+            if demand_size is None:
+                demand_size = val
+                interval = periods_since
             else:
-                z = z + alpha * (val - z)
-                p = p + alpha * (q - p)
-            q = 0
+                demand_size = demand_size + alpha * (val - demand_size)
+                interval = interval + alpha * (periods_since - interval)
+            periods_since = 0
 
-    if z is None or p is None or p == 0:
+    if demand_size is None or interval is None or interval == 0:
         forecast_value = 0.0
     else:
         # Syntetos-Boylan Approximation reduces the positive bias of plain Croston.
-        forecast_value = (z / p) * (1 - alpha / 2.0)
+        forecast_value = (demand_size / interval) * (1 - alpha / 2.0)
 
     forecast = [max(0.0, forecast_value)] * months_ahead
     result_df = _assemble_forecast(
@@ -253,8 +267,6 @@ def _build_panel(df):
 
 
 def _gradient_boosting_forecast(df, skill_name, months_ahead, cutoff_date=None):
-    from sklearn.ensemble import HistGradientBoostingRegressor
-
     work = df.copy()
     work['Date Posted'] = pd.to_datetime(work['Date Posted'])
     if cutoff_date is not None:
@@ -263,26 +275,48 @@ def _gradient_boosting_forecast(df, skill_name, months_ahead, cutoff_date=None):
     if work.empty or skill_name not in set(work['Tech Skill'].dropna()):
         raise ValueError("skill not present in training data")
 
-    panel, skills, months, skill_cols = _build_panel(work)
+    cache_key = (
+        int(work.shape[0]),
+        tuple(sorted(work['Tech Skill'].dropna().unique().tolist())),
+        str(work['Date Posted'].min()),
+        str(work['Date Posted'].max()),
+    )
+    cached = _GB_CACHE.get(cache_key)
+    if cached is None:
+        panel, skills, months, skill_cols = _build_panel(work)
+        feature_cols = (
+            ['lag_1', 'lag_2', 'lag_3', 'lag_6', 'lag_12', 'month_num', 'quarter']
+            + skill_cols
+        )
+        train = panel.dropna(subset=['lag_1', 'lag_2', 'lag_3'])
+        if len(train) < 20:
+            raise ValueError("insufficient training rows for gradient boosting")
+
+        X = train[feature_cols].fillna(0)
+        y = train['count'].values.astype(float)
+
+        if _has_lightgbm():
+            from lightgbm import LGBMRegressor
+            model = LGBMRegressor(
+                n_estimators=300, learning_rate=0.05, reg_lambda=1.0,
+                random_state=42, verbose=-1
+            )
+            engine_name = 'Gradient Boosting (LightGBM)'
+        else:
+            from sklearn.ensemble import HistGradientBoostingRegressor
+            model = HistGradientBoostingRegressor(
+                max_iter=300, learning_rate=0.05, l2_regularization=1.0, random_state=42
+            )
+            engine_name = 'Gradient Boosting (sklearn HGBR)'
+
+        model.fit(X, y)
+        cached = (model, feature_cols, panel, skills, skill_cols, months, engine_name)
+        _GB_CACHE[cache_key] = cached
+
+    model, feature_cols, panel, skills, skill_cols, months, engine_name = cached
+
     if skill_name not in skills:
         raise ValueError("skill not present in panel")
-
-    feature_cols = (
-        ['lag_1', 'lag_2', 'lag_3', 'lag_6', 'lag_12', 'month_num', 'quarter']
-        + skill_cols
-    )
-
-    train = panel.dropna(subset=['lag_1', 'lag_2', 'lag_3'])
-    if len(train) < 20:
-        raise ValueError("insufficient training rows for gradient boosting")
-
-    X = train[feature_cols].fillna(0)
-    y = train['count'].values.astype(float)
-
-    model = HistGradientBoostingRegressor(
-        max_iter=300, learning_rate=0.05, l2_regularization=1.0, random_state=42
-    )
-    model.fit(X, y)
 
     skill_panel = panel[panel['Tech Skill'] == skill_name].sort_values('month')
     series = [float(v) for v in skill_panel['count'].values]
@@ -312,19 +346,12 @@ def _gradient_boosting_forecast(df, skill_name, months_ahead, cutoff_date=None):
         series.append(pred)
 
     future_dates = pd.date_range(start=last_month, periods=months_ahead + 1, freq='MS')[1:]
-
-    monthly_skill = skill_panel[['month', 'count']].rename(
-        columns={'month': 'Date', 'count': 'Count'}
-    )
-    # Re-attach Date/Count naming expected by _assemble_forecast
-    monthly_skill = monthly_skill.rename(columns={'month': 'Date'}) if 'month' in monthly_skill.columns else monthly_skill
     monthly_skill = pd.DataFrame({
         'Date': skill_panel['month'].values,
         'Count': skill_panel['count'].values,
     })
-
     result_df = _assemble_forecast(monthly_skill, future_dates, preds)
-    result_df.attrs['engine'] = 'Gradient Boosting (sklearn HGBR)'
+    result_df.attrs['engine'] = engine_name
     return result_df
 
 
@@ -334,7 +361,6 @@ def _gradient_boosting_forecast(df, skill_name, months_ahead, cutoff_date=None):
 
 
 def backtest_engines(df, skill_name, holdout=3):
-    """Return {engine_name: mape} for a holdout of the last ``holdout`` months."""
     monthly = _monthly_series(df, skill_name)
     if len(monthly) < holdout + 3:
         return {}
@@ -345,30 +371,28 @@ def backtest_engines(df, skill_name, holdout=3):
 
     results = {}
 
-    def _record(name, forecast_fn):
+    def _record(name, forecast_fn, *args, **kwargs):
         try:
-            fc = forecast_fn(train, holdout)
-            pred = fc[fc['Forecast'].notna()]['Forecast'].values
+            fc = forecast_fn(*args, **kwargs)
+            pred = _forecast_values(fc)
             if len(pred) != len(test_counts):
                 return
             results[name] = _mape(test_counts, pred)
         except Exception:
             pass
 
-    _record('linear', _linear_forecast)
-    _record('croston', _croston_forecast)
+    _record('linear', _linear_forecast, train, holdout)
+    _record('croston', _croston_forecast, train, holdout)
 
     if _has_statsmodels() and len(train) >= 4:
-        _record('sarimax', _sarimax_forecast)
-    if _has_statsmodels() and len(train) >= 3:
-        _record('exponential_smoothing', _exponential_smoothing_forecast)
+        _record('sarimax', _sarimax_forecast, train, holdout)
     if _has_prophet():
-        _record('prophet', _prophet_forecast)
+        _record('prophet', _prophet_forecast, train, holdout)
     if _has_gradient_boosting():
         try:
             cutoff = train['Date'].iloc[-1]
             fc = _gradient_boosting_forecast(df, skill_name, holdout, cutoff_date=cutoff)
-            pred = fc[fc['Forecast'].notna()]['Forecast'].values
+            pred = _forecast_values(fc)
             if len(pred) == len(test_counts):
                 results['gradient_boosting'] = _mape(test_counts, pred)
         except Exception:
@@ -378,14 +402,13 @@ def backtest_engines(df, skill_name, holdout=3):
 
 
 def _select_engine(mape_results, available):
-    """Pick the engine with the lowest MAPE; fall back to availability order."""
     if mape_results:
-        # Only consider engines that are actually available
-        candidates = {k: v for k, v in mape_results.items() if k in available and np.isfinite(v)}
+        candidates = {k: v for k, v in mape_results.items()
+                      if k in available and np.isfinite(v)}
         if candidates:
             return min(candidates, key=candidates.get)
-    # Fallback availability order
-    for name in ('gradient_boosting', 'sarimax', 'prophet', 'croston', 'exponential_smoothing', 'linear'):
+    for name in ('gradient_boosting', 'sarimax', 'prophet', 'croston',
+                 'exponential_smoothing', 'linear'):
         if name in available:
             return name
     return 'linear'
@@ -403,7 +426,8 @@ def forecast_skill_demand(df, skill_name, months_ahead=12, model_type="auto"):
     if len(monthly_data) < 2:
         return None, "Need at least 2 months of data for forecasting"
 
-    if len(skill_data := df[df['Tech Skill'] == skill_name]) < 3:
+    skill_rows = df[df['Tech Skill'] == skill_name]
+    if len(skill_rows) < 3:
         return None, "Insufficient data for forecasting (need at least 3 data points)"
 
     available = set()
@@ -420,18 +444,18 @@ def forecast_skill_demand(df, skill_name, months_ahead=12, model_type="auto"):
     if model_type not in SUPPORTED_ENGINES:
         return None, f"Unknown forecasting engine '{model_type}'"
 
+    mape_results = {}
     if model_type == "auto":
+        available = available - {'exponential_smoothing'}
         holdout = min(3, len(monthly_data) - 2)
         if holdout >= 1:
             mape_results = backtest_engines(df, skill_name, holdout=holdout)
-        else:
-            mape_results = {}
         chosen = _select_engine(mape_results, available)
+        selected_by = 'mape' if mape_results else 'availability'
     else:
-        mape_results = {}
         chosen = model_type
+        selected_by = 'manual'
 
-    # Map requested/selected engine to implementation
     engine_impl = {
         'sarimax': 'sarimax',
         'prophet': 'prophet',
@@ -441,6 +465,10 @@ def forecast_skill_demand(df, skill_name, months_ahead=12, model_type="auto"):
         'lightgbm': 'gradient_boosting',
         'croston': 'croston',
     }.get(chosen, 'linear')
+
+    # Auto must not pick exponential_smoothing (outside the spec's engine set).
+    if model_type == "auto" and engine_impl == 'exponential_smoothing':
+        engine_impl = 'linear'
 
     failures = []
 
@@ -469,22 +497,24 @@ def forecast_skill_demand(df, skill_name, months_ahead=12, model_type="auto"):
         return _linear_forecast(monthly_data, months_ahead), None
 
     if model_type != "auto":
-        # honour explicit request with fallback
         result, err = _run(engine_impl)
         if result is not None:
             result.attrs['requested_engine'] = model_type
+            result.attrs['mape_comparison'] = mape_results
+            result.attrs['selected_by'] = selected_by
             return result, "success"
         failures.append(err or "unknown error")
 
-    # auto: try chosen, then fall through availability order
-    order = [chosen] + [n for n in ('gradient_boosting', 'sarimax', 'prophet', 'croston', 'exponential_smoothing', 'linear') if n != chosen]
+    order = [engine_impl] + [
+        n for n in ('gradient_boosting', 'sarimax', 'prophet', 'croston', 'linear')
+        if n != engine_impl
+    ]
     for name in order:
         result, err = _run(name)
         if result is not None:
-            if model_type == "auto":
-                result.attrs['mape_comparison'] = mape_results if 'mape_results' in locals() else {}
-                result.attrs['selected_by'] = 'mape' if mape_results else 'availability'
             result.attrs['requested_engine'] = model_type
+            result.attrs['mape_comparison'] = mape_results
+            result.attrs['selected_by'] = selected_by
             return result, "success"
         if err:
             failures.append(f"{name}: {err}")
@@ -494,6 +524,8 @@ def forecast_skill_demand(df, skill_name, months_ahead=12, model_type="auto"):
 
     result = _linear_forecast(monthly_data, months_ahead)
     result.attrs['requested_engine'] = model_type
+    result.attrs['mape_comparison'] = mape_results
+    result.attrs['selected_by'] = selected_by
     return result, "success"
 
 
@@ -586,5 +618,9 @@ def get_forecast_insights(forecast_df, skill_name):
             insights.append("📏 **Backtest MAPE (lower is better):** " + ", ".join(
                 f"{name}={value:.1f}%" for name, value in sorted(comparison.items())
             ))
+
+        selected_by = forecast_df.attrs.get('selected_by')
+        if selected_by:
+            insights.append(f"🎯 **Selection**: {selected_by}")
 
     return insights
