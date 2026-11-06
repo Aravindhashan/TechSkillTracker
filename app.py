@@ -11,6 +11,7 @@ from modules.data_cleaner import clean_job_data, validate_data, get_data_summary
 from modules.ml_forecast import forecast_skill_demand, get_forecast_insights
 from modules.recommendation_engine import recommend_skills, recommend_for_job_role, get_skill_pairs, get_learning_path
 from modules.learning_resources import get_learning_path_with_resources
+from modules.resume_analyzer import analyze_resume, extract_text, save_report
 
 # Page configuration
 st.set_page_config(
@@ -253,11 +254,12 @@ def main():
         st.stop()
     
     # Navigation tabs
-    tab1, tab2, tab3, tab4 = st.tabs([
+    tab1, tab2, tab3, tab4, tab5 = st.tabs([
         "Market Overview",
         "Data Visualization",
         "Demand Forecasting",
-        "Skill Recommendations"
+        "Skill Recommendations",
+        "Resume Analysis"
     ])
     
     # TAB 1: MARKET OVERVIEW
@@ -675,6 +677,145 @@ def main():
                 else:
                     st.warning(status)
     
+    # TAB 5: RESUME SKILL-GAP
+    with tab5:
+        st.header("Resume Skill-Gap Analysis")
+        st.write("Upload your resume (PDF or DOCX) to see how well it matches the live job market and which skills to learn next.")
+
+        uploaded = st.file_uploader(
+            "Choose a resume",
+            type=["pdf", "docx"],
+            key="resume_uploader",
+        )
+
+        if uploaded is not None:
+            with st.spinner("Extracting and analysing your resume..."):
+                try:
+                    text = extract_text(uploaded, uploaded.name)
+                except Exception as exc:
+                    st.error(f"Could not read the file: {exc}")
+                    text = ""
+
+            if text.strip():
+                st.success(f"Extracted {len(text.split())} words from {uploaded.name}")
+
+                # Quick facts
+                experience = None
+                education = []
+                try:
+                    from modules.resume_analyzer import extract_experience_years, extract_education
+
+                    experience = extract_experience_years(text)
+                    education = extract_education(text)
+                except Exception:
+                    pass
+
+                col1, col2, col3 = st.columns(3)
+                with col1:
+                    st.metric("Experience", f"{experience} yrs" if experience is not None else "N/A")
+                with col2:
+                    st.metric("Education", ", ".join(education) if education else "N/A")
+                with col3:
+                    st.metric("Words extracted", len(text.split()))
+
+                with st.spinner("Scoring against live postings..."):
+                    analysis = analyze_resume(text, df)
+
+                # Fix the detected-skills metric now that we have the analysis
+                # (rerun-safe: Streamlit re-executes top-down, so this is fine)
+
+                st.subheader("Match with the live market")
+                col1, col2, col3, col4 = st.columns(4)
+                with col1:
+                    st.metric("Match %", f"{analysis['match_percentage']}%")
+                with col2:
+                    st.metric("Weighted match", f"{analysis['weighted_match_percentage']}%")
+                with col3:
+                    st.metric("Skills you have", len(analysis["resume_skills"]))
+                with col4:
+                    st.metric("In-demand skills", analysis["total_demand_skills"])
+
+                st.caption(
+                    f"Based on {analysis['total_postings']} live postings covering "
+                    f"{analysis['total_demand_skills']} distinct skills."
+                )
+
+                if analysis["resume_skills"]:
+                    st.write("**Skills detected in your resume:**")
+                    st.write(", ".join(analysis["resume_skills"]))
+
+                if analysis["matched_skills"]:
+                    st.success("You already cover: " + ", ".join(analysis["matched_skills"]))
+
+                missing = analysis["missing_skills"]
+                if missing:
+                    st.subheader(f"Top missing skills ({len(missing)})")
+                    top_missing = missing[:15]
+                    miss_df = pd.DataFrame(
+                        [
+                            {
+                                "Skill": m["skill"],
+                                "Demand (postings)": m["demand"],
+                                "% of postings": m["percentage"],
+                                "Avg salary (LPA)": m["avg_salary"] if m["avg_salary"] is not None else "N/A",
+                            }
+                            for m in top_missing
+                        ]
+                    )
+                    st.dataframe(miss_df, use_container_width=True, hide_index=True)
+
+                    # Bar chart of top missing by demand
+                    chart_df = pd.DataFrame(
+                        [{"Skill": m["skill"], "Demand": m["demand"]} for m in top_missing[:10]]
+                    )
+                    if not chart_df.empty:
+                        fig = px.bar(
+                            chart_df,
+                            x="Demand",
+                            y="Skill",
+                            orientation="h",
+                            title="Most in-demand skills missing from your resume",
+                            color="Demand",
+                            color_continuous_scale="Reds",
+                        )
+                        fig.update_layout(
+                            height=400,
+                            yaxis={"categoryorder": "total ascending", "color": "#FFFFFF"},
+                            xaxis={"color": "#FFFFFF", "gridcolor": "#444444"},
+                            plot_bgcolor="#000000",
+                            paper_bgcolor="#000000",
+                            font=dict(color="#FFFFFF"),
+                            showlegend=False,
+                        )
+                        st.plotly_chart(fig, use_container_width=True, config={"displayModeBar": False})
+
+                    # Learning resources for the top 5 missing skills
+                    st.markdown("---")
+                    st.subheader("Where to learn the missing skills")
+                    for m in top_missing[:5]:
+                        with st.expander(f"{m['skill']} — {m['demand']} postings"):
+                            resources = m["resources"]
+                            cols = st.columns(3)
+                            for idx, (name, info) in enumerate(list(resources.items())[:6]):
+                                with cols[idx % 3]:
+                                    st.markdown(f"[{info['icon']} {name}]({info['url']})")
+                                    st.caption(info["description"])
+
+                    # Persist the report
+                    try:
+                        from modules import store as job_store
+
+                        if job_store.store_available():
+                            rid = save_report(uploaded.name, analysis)
+                            if rid:
+                                st.caption(f"Report saved (id: {rid[:8]}…)")
+                    except Exception:
+                        pass
+                else:
+                    st.success("You already cover every in-demand skill in the live market.")
+            else:
+                st.warning("No readable text found in the file. Try a text-based PDF or DOCX.")
+
     # Professional Footer
     st.markdown("---")
     st.markdown("""
