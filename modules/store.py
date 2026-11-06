@@ -403,11 +403,30 @@ def store_available() -> bool:
         return False
 
 
-def close_stale_postings(days: int = 7) -> int:
-    """Mark postings unseen for ``days`` as inactive (proxy for 'closed')."""
+def close_stale_postings(days: int = 14) -> int:
+    """Mark postings unseen for ``days`` as inactive (proxy for 'closed').
+
+    Safety valve: never close more than 50% of the active corpus in one run,
+    so a narrow query can't wipe the history needed for survival analysis.
+    """
     cutoff = (datetime.now(timezone.utc) - timedelta(days=days)).replace(microsecond=0)
     with get_connection() as conn:
         cur = _cursor(conn)
+        cur.execute(
+            f"SELECT COUNT(*) AS n FROM job_postings WHERE is_active = TRUE"
+        )
+        row = cur.fetchone()
+        total_active = int(row["n"] if isinstance(row, dict) else row[0])
+        cur.execute(
+            f"SELECT COUNT(*) AS n FROM job_postings WHERE is_active = TRUE AND last_seen < {_ph()}",
+            (cutoff.isoformat(),),
+        )
+        row = cur.fetchone()
+        to_close = int(row["n"] if isinstance(row, dict) else row[0])
+
+        if total_active >= 4 and to_close > total_active // 2:
+            return 0
+
         cur.execute(
             f"UPDATE job_postings SET is_active = FALSE"
             f" WHERE is_active = TRUE AND last_seen < {_ph()}",

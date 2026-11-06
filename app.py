@@ -238,12 +238,13 @@ def main():
         st.stop()
     
     # Navigation tabs
-    tab1, tab2, tab3, tab4, tab5 = st.tabs([
+    tab1, tab2, tab3, tab4, tab5, tab6 = st.tabs([
         "Market Overview",
         "Data Visualization",
         "Demand Forecasting",
         "Skill Recommendations",
-        "Resume Analysis"
+        "Resume Analysis",
+        "Demand Science"
     ])
     
     # TAB 1: MARKET OVERVIEW
@@ -748,6 +749,95 @@ def main():
                     st.success("You already cover every in-demand skill in the live market.")
             else:
                 st.warning("No readable text found in the file. Try a text-based PDF or DOCX.")
+
+    # TAB 6: DEMAND SCIENCE
+    with tab6:
+        st.header("Demand Science")
+        st.write("Survival, anomaly, association, and community analysis over the live posting corpus.")
+
+        import modules.demand_science as ds
+
+        sub1, sub2, sub3, sub4 = st.tabs([
+            "Survival (time-to-fill)",
+            "Anomalies",
+            "Skill associations",
+            "Skill communities",
+        ])
+
+        with sub1:
+            st.subheader("Kaplan-Meier: time-to-fill by skill")
+            km = ds.kaplan_meier(df)
+            if km.empty:
+                st.info("Not enough data for survival analysis.")
+            else:
+                fig = go.Figure()
+                fig.add_trace(go.Scatter(x=km["time"], y=km["survival"], mode="lines+markers", name="Overall"))
+                fig.update_layout(
+                    title="Survival curve (probability a posting is still open)",
+                    xaxis_title="Days since first seen",
+                    yaxis_title="Survival probability",
+                    height=400,
+                )
+                st.plotly_chart(fig, use_container_width=True, config={"displayModeBar": False})
+                st.dataframe(km, use_container_width=True, hide_index=True)
+
+            st.subheader("Cox regression (skill/location effects)")
+            cox = ds.cox_regression(df)
+            if "error" in cox:
+                st.info(f"Cox regression unavailable: {cox['error']}")
+            else:
+                st.dataframe(pd.DataFrame(cox["coefficients"]), use_container_width=True, hide_index=True)
+                st.caption(f"n={cox['n']}, events={cox['events']}")
+
+        with sub2:
+            st.subheader("Anomalous postings (experience outliers)")
+            anomalies = ds.anomaly_detection(df)
+            if anomalies.empty:
+                st.success("No anomalies detected.")
+            else:
+                st.dataframe(anomalies, use_container_width=True, hide_index=True)
+
+        with sub3:
+            st.subheader("Skill pairs by PMI (per-posting co-occurrence)")
+            pairs = ds.skill_pmi(df)
+            if not pairs:
+                st.info("Not enough data for association mining.")
+            else:
+                pairs_df = pd.DataFrame(pairs).head(20)
+                st.dataframe(pairs_df, use_container_width=True, hide_index=True)
+                fig = px.bar(
+                    pairs_df.head(10),
+                    x="pmi",
+                    y=pairs_df.head(10).apply(lambda r: f"{r['skill_a']} + {r['skill_b']}", axis=1),
+                    orientation="h",
+                    title="Top skill pairs by PMI",
+                )
+                fig.update_layout(height=400, yaxis={"categoryorder": "total ascending"})
+                st.plotly_chart(fig, use_container_width=True, config={"displayModeBar": False})
+
+            st.subheader("Word2Vec skill relatedness")
+            related = ds.skill_relatedness(df)
+            if not related:
+                st.info("Not enough data for embeddings (need gensim + >=5 postings with multiple skills).")
+            else:
+                skill_pick = st.selectbox("Skill", sorted(related.keys()), key="rel_skill")
+                if skill_pick:
+                    rdf = pd.DataFrame(related[skill_pick], columns=["skill", "similarity"])
+                    st.dataframe(rdf, use_container_width=True, hide_index=True)
+
+        with sub4:
+            st.subheader("Skill communities (Louvain)")
+            communities = ds.skill_communities(df)
+            if not communities:
+                st.info("Not enough data for community detection.")
+            else:
+                comm_df = pd.DataFrame(
+                    [{"Skill": s, "Community": c} for s, c in sorted(communities.items())]
+                )
+                st.dataframe(comm_df, use_container_width=True, hide_index=True)
+                # Show community sizes
+                sizes = pd.Series(list(communities.values())).value_counts().sort_index()
+                st.bar_chart(sizes)
 
     # Professional Footer
     st.markdown("---")
