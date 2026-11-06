@@ -32,7 +32,8 @@ MAX_POSTINGS_PER_RUN = 40
 
 
 def jobspy_enabled() -> bool:
-    return os.getenv("ENABLE_JOBSPY", "").strip().lower() in ("1", "true", "yes")
+    value = os.getenv("ENABLE_JOBSPY", "true").strip().lower()
+    return value not in ("", "0", "false", "no", "off")
 
 
 def _stable_id(*parts: str) -> str:

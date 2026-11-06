@@ -38,7 +38,7 @@ jobs:
           JSEARCH_COUNTRY: ${{ vars.JSEARCH_COUNTRY || 'in' }}
           JSEARCH_QUERIES: ${{ vars.JSEARCH_QUERIES || 'software developer' }}
           JSEARCH_NUM_PAGES: ${{ vars.JSEARCH_NUM_PAGES || '1' }}
-          ENABLE_JOBSPY: "false"
+          ENABLE_JOBSPY: "true"
           ENABLE_SKILL_EMBEDDINGS: "false"
         run: python -m modules.ingestion --json
 

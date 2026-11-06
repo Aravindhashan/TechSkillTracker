@@ -321,6 +321,20 @@ class JSearchClient:
 # ---------------------------------------------------------------------------
 
 
+# Cross-source deduplication key: the same posting on JSearch and Jobspy
+# collapses to one record so demand counts are not inflated.
+def _cross_source_key(record: dict) -> str:
+    import re
+
+    def _norm(value: str | None) -> str:
+        return re.sub(r"[^a-z0-9]+", " ", (value or "").lower()).strip()
+
+    return "|".join(
+        _norm(record.get(field))
+        for field in ("title", "company", "location")
+    )
+
+
 def _split_queries(value: str | Iterable[str] | None) -> list[str]:
     if value is None:
         value = os.getenv("JSEARCH_QUERIES", "software developer")
@@ -448,6 +462,20 @@ def run_ingest(
                 summary["sources"].append("jobspy")
         except Exception as exc:  # optional path must never break the run
             print(f"[ingest] Jobspy adapter skipped: {exc}", file=sys.stderr)
+
+    # Cross-source dedup: the same posting on JSearch and Jobspy must not be
+    # counted twice.  Prefer whichever record carries a salary.
+    by_key: dict[str, tuple[dict, list[dict]]] = {}
+    for record in records:
+        key = _cross_source_key(record)
+        skills = skills_by_job.get(record["job_id"], [])
+        existing = by_key.get(key)
+        if existing is None or (
+            not existing[0].get("salary_lpa") and record.get("salary_lpa")
+        ):
+            by_key[key] = (record, skills)
+    records = [value[0] for value in by_key.values()]
+    skills_by_job = {value[0]["job_id"]: value[1] for value in by_key.values()}
 
     summary["fetched"] = len(records)
 

@@ -262,10 +262,14 @@ Change `port` or `address` there, or override at launch with `--server.port`. Th
 
 The dashboard can read from a scheduled ingestion store instead of static CSVs.
 
-**Sources.** Postings come from the [JSearch](https://openwebninja.com) API (Google Jobs
-aggregation, includes LinkedIn/Indeed/Glassdoor listings through a licensed API). A
-Jobspy scraper exists as an **opt-in** fallback and is disabled by default
-(`ENABLE_JOBSPY=true` enables it; LinkedIn is never scraped unless explicitly allowed).
+**Sources.** Postings come from two free sources:
+
+- **JSearch** (Google Jobs aggregation, includes LinkedIn/Indeed/Glassdoor listings
+  through a licensed API) — the primary, reliable source.
+- **Jobspy** (Indeed + Glassdoor scraping) — a free, best-effort second source that
+  runs locally and degrades gracefully when the boards block the runner. LinkedIn is
+  never scraped. Both sources are deduplicated by a normalized title+company+location
+  key, preferring whichever record carries a salary.
 
 **Storage.** `DATABASE_URL` selects Neon/Supabase Postgres in production; without it the
 pipeline writes to the local SQLite file `data/techskill.db`. Tables:

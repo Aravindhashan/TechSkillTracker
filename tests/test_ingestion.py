@@ -112,6 +112,7 @@ def test_collect_deduplicates_job_ids():
 def test_dry_run_does_not_write(tmp_path, monkeypatch):
     monkeypatch.setenv("DATABASE_URL", "")
     monkeypatch.setenv("SQLITE_PATH", str(tmp_path / "dry.db"))
+    monkeypatch.setenv("ENABLE_JOBSPY", "false")
 
     summary = ingestion.run_ingest(
         queries=["python"],
@@ -125,7 +126,42 @@ def test_dry_run_does_not_write(tmp_path, monkeypatch):
     assert not (tmp_path / "dry.db").exists()
 
 
-def test_run_ingest_writes_then_updates(tmp_path, monkeypatch):
+def test_cross_source_dedup_prefers_salary(tmp_path, monkeypatch):
+    monkeypatch.setenv("DATABASE_URL", "")
+    monkeypatch.setenv("SQLITE_PATH", str(tmp_path / "dedup.db"))
+    monkeypatch.setenv("ENABLE_JOBSPY", "true")
+    monkeypatch.setenv("ENABLE_SKILL_EMBEDDINGS", "false")
+
+    no_salary_item = fake_item(job_id="js-1")
+    no_salary_item["job_min_salary"] = None
+    no_salary_item["job_max_salary"] = None
+    no_salary_item["job_salary_currency"] = None
+    client = FakeClient([no_salary_item])
+
+    jobspy_record = ingestion.normalize_jsearch_item(fake_item(job_id="jp-1"))
+    jobspy_record["source"] = "jobspy:indeed"
+    jobspy_record["job_id"] = "jobspy:jp-1"
+    jobspy_record["salary_lpa"] = 18.0
+    jobspy_record["salary_min"] = 1200000
+    jobspy_record["salary_max"] = 1800000
+    jobspy_record["salary_currency"] = "INR"
+    jobspy_record["salary_period"] = "YEAR"
+
+    from unittest.mock import patch
+
+    with patch(
+        "modules.jobspy_adapter.collect_jobspy",
+        return_value=([jobspy_record], {jobspy_record["job_id"]: []}),
+    ):
+        summary = ingestion.run_ingest(queries=["python"], client=client, check_quota=False)
+
+    assert summary["fetched"] == 1
+
+    from modules import store
+
+    postings = store.fetch_postings()
+    assert len(postings) == 1
+    assert postings[0]["salary_lpa"] == 18.0
     monkeypatch.setenv("DATABASE_URL", "")
     monkeypatch.setenv("SQLITE_PATH", str(tmp_path / "live.db"))
     monkeypatch.setenv("ENABLE_JOBSPY", "false")
