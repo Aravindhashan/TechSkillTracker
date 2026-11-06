@@ -18,7 +18,7 @@ Tech Skill Tracker turns a CSV of job postings into a five-tab analytics workspa
 - **Demand Forecasting** — 3–12 month forecasts per skill with confidence intervals
 - **Skill Recommendations** — complementary skills, role requirements, and a learning roadmap
 
-The bundled dataset contains 1,000 job listings covering 50 technologies, 40 companies, and 10 Indian cities, posted between January 2023 and September 2024.
+The app ingests live job postings from JSearch (and optionally Jobspy) on a 6-hour schedule and stores them in SQLite (local) or Postgres (production). There is no bundled static dataset.
 
 ---
 
@@ -29,7 +29,6 @@ The bundled dataset contains 1,000 job listings covering 50 technologies, 40 com
 | Interactive filters | Filter by date range, technology, location, and experience from the sidebar |
 | Market metrics | Total openings, unique technologies, hiring companies, average salary |
 | Trend analysis | Monthly posting volume for the top five skills |
-| Salary analysis | Box plots by skill, salary vs. experience scatter, per-skill histograms |
 | Forecasting | Selectable SARIMAX or Prophet time-series models with confidence bands and growth/decline insights |
 | Recommendations | Company-level skill co-occurrence, role-based skill analysis, personalized learning paths |
 | Learning resources | Curated links for popular skills plus YouTube, Udemy, Coursera, and freeCodeCamp searches |
@@ -54,24 +53,27 @@ The bundled dataset contains 1,000 job listings covering 50 technologies, 40 com
 
 ```
 TechSkillTrackerWithML/
-├── app.py                          # Streamlit app: layout, filters, all five tabs
+├── app.py                          # Streamlit app
 ├── main.py                         # Placeholder entry point
 ├── pyproject.toml                  # Declared Python dependencies
-├── PROJECT_DOCUMENTATION.md        # Extended design and usage documentation
-├── data/
-│   └── job_listings.csv            # 1,000 sample job postings
+├── requirements-ingest.txt         # Lightweight deps for the scheduled ingestion job
+├── .env.example                    # Template for secrets (copy to .env)
+├── .github/workflows/ingest.yml    # 6-hour ingestion cron
+├── data/                           # Local SQLite store (gitignored) + raw payloads
 ├── modules/
-│   ├── data_loader.py              # CSV ingestion and concatenation
+│   ├── data_loader.py              # Live store loader
 │   ├── data_cleaner.py             # Validation, deduplication, location normalization
-│   ├── ml_forecast.py              # SARIMAX/Prophet forecasting with fallbacks
-│   ├── salary_predictor.py         # Random Forest training and prediction
+│   ├── ml_forecast.py              # SARIMAX/Prophet/GB/Croston forecasting
+│   ├── normalizer.py               # Skill taxonomy + embedding normalization
+│   ├── ingestion.py                # JSearch + Jobspy ingestion
+│   ├── jobspy_adapter.py           # Opt-in Jobspy fallback
+│   ├── store.py                    # SQLite/Postgres persistence
+│   ├── env.py                      # .env loader
+│   ├── resume_analyzer.py          # Resume skill-gap analysis
 │   ├── recommendation_engine.py    # Co-occurrence analysis and learning paths
-│   ├── learning_resources.py       # Curated and generated learning links
-│   └── report_generator.py         # PDF report builder (not wired into the app)
-├── reports/
-│   ├── generate_report.py          # CLI PDF report from JSON input
-│   ├── generate_report_simple.py   # Dependency-light fallback version
-│   └── output_report.pdf           # Example generated report
+│   └── learning_resources.py       # Curated and generated learning links
+├── tests/                          # pytest suite
+├── reports/                        # PDF report scripts
 ├── logs/                           # Runtime logs
 └── .streamlit/
     └── config.toml                 # Server binds to 0.0.0.0:5000
@@ -150,13 +152,11 @@ Cleaning rules applied on load:
 
 - Exact duplicate rows are dropped.
 - Dates are required; rows without a valid posting date are removed.
-- Salary and experience are coerced to numeric. Missing values are kept so live
-  postings still count toward skill demand, and charts that need those fields
-  ignore them.
-- Salaries must be between 0 and 200 LPA; experience between 0 and 50 years.
+- Experience is coerced to numeric. Missing values are kept so live postings still count toward skill demand.
+- Experience must be between 0 and 50 years.
 - Text fields are trimmed, and city aliases are normalized (for example `bangalore` → `Bengaluru`, `bombay` → `Mumbai`, including `Mumbai, Maharashtra, India`).
 
-To use your own data, replace or add CSVs in `data/` and restart the app.
+To populate data, run the ingestion job: `python -m modules.ingestion` (see "Live data pipeline").
 
 ---
 
@@ -302,8 +302,7 @@ python -m modules.ingestion              # fetch and upsert
 python -m modules.ingestion --jobspy     # also run the opt-in scraper
 ```
 
-The app prefers the live store when it has rows and offers a sidebar
-**Data source** switch when both live and bundled CSV data are present.
+The app prefers the live store. If it is empty, the app shows a message with instructions to run ingestion.
 
 **What live data does and does not include.** JSearch returns titles, companies,
 locations, descriptions, and posting dates, but Indian listings frequently omit

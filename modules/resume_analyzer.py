@@ -123,31 +123,20 @@ def extract_education(text: str) -> list[str]:
     return result
 
 
-def _skill_demand(postings_df: pd.DataFrame) -> tuple[Counter, dict[str, float]]:
-    """Return (skill -> posting count, skill -> average salary) from postings."""
+def _skill_demand(postings_df: pd.DataFrame) -> Counter:
+    """Return skill -> posting count from postings."""
     if postings_df is None or postings_df.empty:
-        return Counter(), {}
+        return Counter()
 
     counts: Counter = Counter()
-    salary_sums: defaultdict[str, float] = defaultdict(float)
-    salary_counts: Counter = Counter()
 
     for _, row in postings_df.iterrows():
         skill = str(row.get("Tech Skill", "")).strip()
         if not skill or skill.lower() == "nan":
             continue
         counts[skill] += 1
-        salary = row.get("Salary (in LPA)")
-        if pd.notna(salary):
-            salary_sums[skill] += float(salary)
-            salary_counts[skill] += 1
 
-    avg_salary = {
-        skill: round(salary_sums[skill] / salary_counts[skill], 1)
-        for skill in salary_sums
-        if salary_counts[skill] > 0
-    }
-    return counts, avg_salary
+    return counts
 
 
 def analyze_resume(
@@ -174,7 +163,7 @@ def analyze_resume(
     resume_canonical = {item["skill_canonical"] for item in extracted}
     resume_raw = {item["skill_raw"]: item["skill_canonical"] for item in extracted}
 
-    counts, avg_salary = _skill_demand(postings_df)
+    counts = _skill_demand(postings_df)
     demand_skills = set(counts)
 
     matched = sorted(resume_canonical & demand_skills)
@@ -190,7 +179,6 @@ def analyze_resume(
                 "percentage": round(counts[skill] / len(postings_df) * 100, 1)
                 if postings_df is not None and not postings_df.empty
                 else 0.0,
-                "avg_salary": avg_salary.get(skill),
                 "resources": get_learning_resources(skill),
             }
         )

@@ -53,14 +53,12 @@ def recommend_skills(df, current_skill, top_n=5):
     recs = []
     for skill, score in recommendations.items():
         if score > 0:
-            # Get average salary for recommended skill
             skill_data = df[df['Tech Skill'] == skill]
-            avg_salary = skill_data['Salary (in LPA)'].mean() if len(skill_data) > 0 else 0
             
             recs.append({
                 'skill': skill,
                 'co_occurrence_score': int(score),
-                'avg_salary': avg_salary,
+                'avg_salary': None,
                 'job_count': len(skill_data)
             })
     
@@ -84,13 +82,12 @@ def recommend_for_job_role(df, job_role, top_n=10):
             return [], f"No exact match for '{job_role}'. Similar roles found: {', '.join(similar[:3])}"
         return [], f"No data found for job role '{job_role}'"
     
-    # Get skill frequency and average salary for matching jobs
+    # Get skill frequency for matching jobs
     skill_analysis = matching_jobs.groupby('Tech Skill').agg({
         'Job Title': 'count',
-        'Salary (in LPA)': 'mean'
     }).reset_index()
     
-    skill_analysis.columns = ['skill', 'frequency', 'avg_salary']
+    skill_analysis.columns = ['skill', 'frequency']
     skill_analysis = skill_analysis.sort_values('frequency', ascending=False).head(top_n)
     
     recommendations = []
@@ -98,7 +95,7 @@ def recommend_for_job_role(df, job_role, top_n=10):
         recommendations.append({
             'skill': row['skill'],
             'frequency': int(row['frequency']),
-            'avg_salary': row['avg_salary'],
+            'avg_salary': None,
             'percentage': (row['frequency'] / len(matching_jobs)) * 100
         })
     
@@ -145,12 +142,8 @@ def get_learning_path(df, current_skills, target_role):
         if skill_info['skill'].lower().strip() not in current_skills_lower:
             skills_to_learn.append(skill_info)
     
-    # Prioritize by frequency and salary
+    # Prioritize by frequency
     if skills_to_learn:
-        # Sort by combination of frequency and salary
-        for skill in skills_to_learn:
-            skill['priority_score'] = (skill['frequency'] * 0.6) + (skill['avg_salary'] * 0.4)
-        
-        skills_to_learn.sort(key=lambda x: x['priority_score'], reverse=True)
+        skills_to_learn.sort(key=lambda x: x['frequency'], reverse=True)
     
     return skills_to_learn, "success"

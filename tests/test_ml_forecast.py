@@ -6,7 +6,28 @@ from modules import ml_forecast as mf
 
 @pytest.fixture(scope="module")
 def df():
-    return pd.read_csv("data/job_listings.csv")
+    import numpy as np
+
+    rows = []
+    skills = ["Python", "React", "Docker", "AWS", "SQL"]
+    # ~24 months of postings per skill
+    for skill in skills:
+        for month in range(1, 25):
+            n = int(5 + (month % 7) + (hash(skill) % 4))
+            year = 2023 + (month - 1) // 12
+            mon = (month - 1) % 12 + 1
+            for _ in range(n):
+                rows.append(
+                    {
+                        "Tech Skill": skill,
+                        "Date Posted": f"{year}-{mon:02d}-15",
+                        "Job Title": f"{skill} Dev",
+                        "Company": "Acme",
+                        "Location": "Bengaluru",
+                        "Experience Required (in years)": 3.0,
+                    }
+                )
+    return pd.DataFrame(rows)
 
 
 def test_supported_engines_includes_new_ones():

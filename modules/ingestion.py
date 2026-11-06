@@ -185,11 +185,6 @@ def normalize_jsearch_item(item: dict) -> dict:
         "url": item.get("job_apply_link") or item.get("job_google_link"),
         "employment_type": item.get("job_employment_type"),
         "is_remote": bool(item.get("job_is_remote")),
-        "salary_min": min_amount,
-        "salary_max": max_amount,
-        "salary_currency": currency,
-        "salary_period": period,
-        "salary_lpa": salary_to_lpa(min_amount, max_amount, currency, period),
         "experience_years": parse_experience_years(description),
         "posted_at": posted_at,
         "raw": item,
@@ -464,15 +459,12 @@ def run_ingest(
             print(f"[ingest] Jobspy adapter skipped: {exc}", file=sys.stderr)
 
     # Cross-source dedup: the same posting on JSearch and Jobspy must not be
-    # counted twice.  Prefer whichever record carries a salary.
+    # counted twice.  Both sources now omit salary, so just keep the first.
     by_key: dict[str, tuple[dict, list[dict]]] = {}
     for record in records:
         key = _cross_source_key(record)
         skills = skills_by_job.get(record["job_id"], [])
-        existing = by_key.get(key)
-        if existing is None or (
-            not existing[0].get("salary_lpa") and record.get("salary_lpa")
-        ):
+        if key not in by_key:
             by_key[key] = (record, skills)
     records = [value[0] for value in by_key.values()]
     skills_by_job = {value[0]["job_id"]: value[1] for value in by_key.values()}
@@ -483,8 +475,7 @@ def run_ingest(
         for record in records[:10]:
             print(
                 f"  {record['title'] or '(no title)'} @ {record['company']} - "
-                f"{record['location']} - {record['salary_lpa'] or '-'} LPA - "
-                f"skills={len(skills_by_job.get(record['job_id'], []))}"
+                f"{record['location']} - skills={len(skills_by_job.get(record['job_id'], []))}"
             )
         print(f"[ingest] dry run: {len(records)} postings fetched, nothing written.")
         return summary

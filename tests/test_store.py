@@ -98,7 +98,6 @@ def test_load_dataframe_matches_legacy_columns(sqlite_db):
         "Tech Skill",
         "Company",
         "Location",
-        "Salary (in LPA)",
         "Experience Required (in years)",
         "Date Posted",
     ]

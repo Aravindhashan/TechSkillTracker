@@ -22,7 +22,7 @@ import random
 import time
 from typing import Iterable
 
-from modules.ingestion import parse_experience_years, salary_to_lpa
+from modules.ingestion import parse_experience_years
 from modules.normalizer import SkillNormalizer
 
 DEFAULT_SITES = ("indeed", "glassdoor")
@@ -50,15 +50,6 @@ def _row_to_record(row: dict, site: str) -> dict:
     posted_at = row.get("date_posted")
     posted_at = str(posted_at)[:10] if posted_at else None
 
-    currency = row.get("currency")
-    interval = row.get("interval")
-    min_amount = row.get("min_amount")
-    max_amount = row.get("max_amount")
-    if not isinstance(min_amount, (int, float)):
-        min_amount = None
-    if not isinstance(max_amount, (int, float)):
-        max_amount = None
-
     job_id = row.get("id") or _stable_id(site, title, company, location, posted_at or "")
 
     return {
@@ -71,11 +62,6 @@ def _row_to_record(row: dict, site: str) -> dict:
         "url": row.get("job_url") or row.get("job_url_direct"),
         "employment_type": row.get("job_type"),
         "is_remote": bool(row.get("is_remote")),
-        "salary_min": min_amount,
-        "salary_max": max_amount,
-        "salary_currency": currency,
-        "salary_period": interval,
-        "salary_lpa": salary_to_lpa(min_amount, max_amount, currency, interval),
         "experience_years": parse_experience_years(description),
         "posted_at": posted_at,
         "raw": {key: value for key, value in row.items() if key != "description"},

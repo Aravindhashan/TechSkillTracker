@@ -62,7 +62,6 @@ def clean_job_data(df):
     df["Date Posted"] = pd.to_datetime(df["Date Posted"], errors="coerce")
 
     # Convert numerics (invalid values become NaN, not crashes)
-    df["Salary (in LPA)"] = pd.to_numeric(df["Salary (in LPA)"], errors="coerce")
     df["Experience Required (in years)"] = pd.to_numeric(
         df["Experience Required (in years)"], errors="coerce"
     )
@@ -70,8 +69,7 @@ def clean_job_data(df):
     # Only the posting date is critical - everything else can be missing
     df = df.dropna(subset=["Date Posted"])
 
-    # Drop impossible values but keep missing ones
-    df = df[df["Salary (in LPA)"].isna() | ((df["Salary (in LPA)"] > 0) & (df["Salary (in LPA)"] < 200))]
+    # Drop impossible experience values but keep missing ones
     df = df[
         df["Experience Required (in years)"].isna()
         | ((df["Experience Required (in years)"] >= 0) & (df["Experience Required (in years)"] <= 50))
@@ -102,7 +100,7 @@ def validate_data(df):
     """
     required_columns = [
         "Job Title", "Tech Skill", "Company", "Location", 
-        "Salary (in LPA)", "Experience Required (in years)", "Date Posted"
+        "Experience Required (in years)", "Date Posted"
     ]
     
     missing_columns = [col for col in required_columns if col not in df.columns]
@@ -120,13 +118,7 @@ def get_data_summary(df):
     """
     Get summary statistics of the dataset
     """
-    salary = df["Salary (in LPA)"].dropna()
     experience = df["Experience Required (in years)"].dropna()
-
-    if salary.empty:
-        salary_range = "No salary data"
-    else:
-        salary_range = f"₹{salary.min():.1f}L - ₹{salary.max():.1f}L"
 
     if experience.empty:
         experience_range = "No experience data"
@@ -139,7 +131,6 @@ def get_data_summary(df):
         'Unique Companies': df['Company'].nunique(),
         'Unique Locations': df['Location'].nunique(),
         'Date Range': f"{df['Date Posted'].min().date()} to {df['Date Posted'].max().date()}",
-        'Salary Range': salary_range,
         'Experience Range': experience_range
     }
     return summary

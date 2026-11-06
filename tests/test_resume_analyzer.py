@@ -18,7 +18,6 @@ def make_postings():
                     "Tech Skill": skill,
                     "Company": "Acme",
                     "Location": "Bengaluru",
-                    "Salary (in LPA)": 12.0 if skill in ("Python", "AWS") else None,
                     "Experience Required (in years)": 3.0,
                     "Date Posted": "2026-11-01",
                 }
@@ -75,7 +74,7 @@ def test_analyze_resume_no_skills():
     assert len(analysis["missing_skills"]) == len(analysis["demand_skills"])
 
 
-def test_missing_skill_has_resources_and_salary():
+def test_missing_skill_has_resources():
     df = make_postings()
     text = "Python only"
     analysis = ra.analyze_resume(text, df)
@@ -83,8 +82,6 @@ def test_missing_skill_has_resources_and_salary():
     assert "Python" not in missing
     assert "React" in missing
     assert missing["React"]["resources"]  # non-empty
-    # Python and AWS have salary in the fixture
-    assert missing["React"]["avg_salary"] is None or isinstance(missing["React"]["avg_salary"], float)
 
 
 def test_extract_text_pdf():

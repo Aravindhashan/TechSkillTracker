@@ -6,7 +6,7 @@ import numpy as np
 from datetime import datetime
 
 # Import custom modules
-from modules.data_loader import load_job_data, get_data_source_info, available_sources
+from modules.data_loader import load_job_data, get_data_source_info
 from modules.data_cleaner import clean_job_data, validate_data, get_data_summary
 from modules.ml_forecast import forecast_skill_demand, get_forecast_insights
 from modules.recommendation_engine import recommend_skills, recommend_for_job_role, get_skill_pairs, get_learning_path
@@ -145,25 +145,13 @@ def main():
     st.markdown('<div class="main-header">Tech Skill Tracker - Business Intelligence</div>', unsafe_allow_html=True)
     st.markdown('<div class="subheader-text">Comprehensive Analytics for the Indian Tech Job Market</div>', unsafe_allow_html=True)
     
-    # Data source selector (only shown when both live and historical data exist)
-    data_source = "auto"
-    sources = available_sources()
-    if sources["live"] and sources["csv"]:
-        source_choice = st.sidebar.radio(
-            "Data source",
-            ["Live (ingested)", "Historical CSV"],
-            help="Live postings come from the scheduled JSearch ingestion. "
-                 "Historical CSV is the bundled sample with salary data.",
-        )
-        data_source = "live" if source_choice.startswith("Live") else "csv"
-
     # Load and clean data
     with st.spinner("Loading data..."):
-        df_raw, files_count = load_job_data("data", source=data_source)
+        df_raw, files_count = load_job_data("data")
         
         if df_raw.empty:
-            st.error("No data found. Please add CSV files to the data folder.")
-            st.info("Required columns: Job Title, Tech Skill, Company, Location, Salary (in LPA), Experience Required (in years), Date Posted")
+            st.error("No data found. Run the ingestion job first: `python -m modules.ingestion`")
+            st.info("The app reads from the live store (SQLite/Postgres). See README → 'Live data pipeline'.")
             st.stop()
         
         # Clean data
@@ -175,14 +163,10 @@ def main():
             st.error(f"Data validation failed: {message}")
             st.stop()
         
-        st.success(f"Data loaded successfully: {len(df)} records from {files_count} source(s)")
+        st.success(f"Data loaded successfully: {len(df)} records from live store")
 
         source_info = get_data_source_info()
-        if (
-            data_source in ("auto", "live")
-            and source_info["source"] in ("sqlite", "postgres")
-            and source_info["age_hours"] is not None
-        ):
+        if source_info["source"] in ("sqlite", "postgres") and source_info["age_hours"] is not None:
             st.caption(
                 f"Live store: {source_info['rows']:,} postings · "
                 f"last updated {source_info['age_hours']:.1f}h ago · "
@@ -267,7 +251,7 @@ def main():
         st.header("Market Overview")
         
         # Key metrics
-        col1, col2, col3, col4 = st.columns(4)
+        col1, col2, col3 = st.columns(3)
         
         with col1:
             total_openings = (
@@ -280,9 +264,6 @@ def main():
             st.metric("Unique Technologies", f"{df_filtered['Tech Skill'].nunique():,}")
         with col3:
             st.metric("Companies Hiring", f"{df_filtered['Company'].nunique():,}")
-        with col4:
-            avg_salary = df_filtered['Salary (in LPA)'].mean()
-            st.metric("Average Salary", f"₹{avg_salary:.1f}L" if pd.notna(avg_salary) else "N/A")
         
         st.markdown("---")
         
@@ -342,9 +323,8 @@ def main():
     with tab2:
         st.header("Interactive Data Visualizations")
         
-        viz_tab1, viz_tab2, viz_tab3 = st.tabs([
+        viz_tab1, viz_tab3 = st.tabs([
             "Demand Trends",
-            "Salary Distribution",
             "Skill Relationships"
         ])
         
@@ -387,58 +367,6 @@ def main():
                     legend=dict(font=dict(color='#FFFFFF'))
                 )
                 fig.update_traces(line=dict(width=3), marker=dict(size=8))
-                st.plotly_chart(fig, use_container_width=True, config={'displayModeBar': False})
-        
-        with viz_tab2:
-            st.subheader("Salary Distribution Analysis")
-            
-            col1, col2 = st.columns(2)
-            
-            with col1:
-                # Salary by skill
-                top_10_skills = df_filtered['Tech Skill'].value_counts().head(10).index
-                salary_by_skill = df_filtered[df_filtered['Tech Skill'].isin(top_10_skills)]
-                
-                fig = px.box(
-                    salary_by_skill,
-                    x='Tech Skill',
-                    y='Salary (in LPA)',
-                    title="Salary Distribution by Technology",
-                    color='Tech Skill',
-                    color_discrete_sequence=px.colors.qualitative.Set2
-                )
-                fig.update_layout(
-                    showlegend=False,
-                    height=400,
-                    plot_bgcolor='#000000',
-                    paper_bgcolor='#000000',
-                    xaxis=dict(title_font=dict(size=12, color='#FFFFFF'), color='#FFFFFF', gridcolor='#444444'),
-                    yaxis=dict(title_font=dict(size=12, color='#FFFFFF'), color='#FFFFFF', gridcolor='#444444'),
-                    font=dict(color='#FFFFFF')
-                )
-                fig.update_xaxes(tickangle=45)
-                st.plotly_chart(fig, use_container_width=True, config={'displayModeBar': False})
-            
-            with col2:
-                # Salary by experience
-                fig = px.scatter(
-                    df_filtered,
-                    x='Experience Required (in years)',
-                    y='Salary (in LPA)',
-                    color='Location',
-                    title="Salary vs Experience Correlation",
-                    opacity=0.7,
-                    size_max=8
-                )
-                fig.update_layout(
-                    height=400,
-                    plot_bgcolor='#000000',
-                    paper_bgcolor='#000000',
-                    xaxis=dict(title_font=dict(size=12, color='#FFFFFF'), color='#FFFFFF', gridcolor='#444444'),
-                    yaxis=dict(title_font=dict(size=12, color='#FFFFFF'), color='#FFFFFF', gridcolor='#444444'),
-                    font=dict(color='#FFFFFF'),
-                    legend=dict(font=dict(color='#FFFFFF'))
-                )
                 st.plotly_chart(fig, use_container_width=True, config={'displayModeBar': False})
         
         with viz_tab3:
@@ -763,7 +691,6 @@ def main():
                                 "Skill": m["skill"],
                                 "Demand (postings)": m["demand"],
                                 "% of postings": m["percentage"],
-                                "Avg salary (LPA)": m["avg_salary"] if m["avg_salary"] is not None else "N/A",
                             }
                             for m in top_missing
                         ]
