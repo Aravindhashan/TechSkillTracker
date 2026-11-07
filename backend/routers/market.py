@@ -5,7 +5,7 @@ from __future__ import annotations
 import pandas as pd
 from fastapi import APIRouter, Depends, Query
 
-from backend.dependencies import get_dataframe, get_store_count
+from backend.dependencies import get_dataframe, get_recent_dataframe
 from backend.schemas import (
     MarketOverviewResponse,
     RecentPosting,
@@ -43,7 +43,7 @@ def _apply_filters(df, skills: str | None, locations: str | None):
 def market_overview(
     skills: str | None = Query(default=None),
     locations: str | None = Query(default=None),
-    df=Depends(get_dataframe),
+    df=Depends(get_recent_dataframe),
 ) -> MarketOverviewResponse:
     if df is None or getattr(df, "empty", True):
         return MarketOverviewResponse(total_openings=0, unique_skills=0, companies=0, locations=0)
@@ -71,7 +71,7 @@ def top_skills(
     n: int = Query(default=10, ge=1, le=100),
     skills: str | None = Query(default=None),
     locations: str | None = Query(default=None),
-    df=Depends(get_dataframe),
+    df=Depends(get_recent_dataframe),
 ) -> TopSkillsResponse:
     if df is None or getattr(df, "empty", True) or "Tech Skill" not in df.columns:
         return TopSkillsResponse(skills=[])
@@ -90,7 +90,7 @@ def top_locations(
     n: int = Query(default=10, ge=1, le=100),
     skills: str | None = Query(default=None),
     locations: str | None = Query(default=None),
-    df=Depends(get_dataframe),
+    df=Depends(get_recent_dataframe),
 ) -> TopLocationsResponse:
     if df is None or getattr(df, "empty", True) or "Location" not in df.columns:
         return TopLocationsResponse(locations=[])

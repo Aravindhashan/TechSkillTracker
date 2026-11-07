@@ -36,6 +36,25 @@ def get_dataframe() -> pd.DataFrame:
         return pd.DataFrame()
 
 
+def get_recent_dataframe() -> pd.DataFrame:
+    """Return a cleaned postings dataframe limited to the last 24 hours.
+
+    Used by the headline metric cards so "Total Job Openings" etc. reflect
+    the last 24h rather than the full 365-day corpus. Filtering is by
+    ``last_seen`` (newly ingested/seen in the last day), matching the store's
+    ``days`` semantics.
+    """
+    try:
+        from modules import data_loader, data_cleaner
+
+        raw, _count = data_loader.load_job_data("data", days=1)
+        if raw is None or getattr(raw, "empty", True):
+            return pd.DataFrame()
+        return data_cleaner.clean_job_data(raw)
+    except Exception:
+        return pd.DataFrame()
+
+
 def get_search_records() -> list[dict[str, Any]]:
     """Return postings with skills attached (for semantic search)."""
     try:

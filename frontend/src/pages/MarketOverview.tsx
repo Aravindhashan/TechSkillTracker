@@ -63,10 +63,10 @@ export default function MarketOverview() {
         )}
       </div>
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        <Metric label="Total Job Openings" value={overviewData.total_openings} />
-        <Metric label="Unique Technologies" value={overviewData.unique_skills} />
-        <Metric label="Companies Hiring" value={overviewData.companies} />
-        <Metric label="Locations" value={overviewData.locations} />
+        <Metric label="Total Job Openings (last 24h)" value={overviewData.total_openings} />
+        <Metric label="Unique Technologies (last 24h)" value={overviewData.unique_skills} />
+        <Metric label="Companies Hiring (last 24h)" value={overviewData.companies} />
+        <Metric label="Locations (last 24h)" value={overviewData.locations} />
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
