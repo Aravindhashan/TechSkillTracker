@@ -142,9 +142,47 @@ def test_forecast_404_unknown(client):
     assert r.status_code == 404
 
 
+def test_recommendations_complementary(client):
+    r = client.post("/api/recommendations", json={"mode": "complementary", "skill": "Python", "top_n": 5})
+    assert r.status_code == 200
+    data = r.json()
+    assert data["mode"] == "complementary"
+    assert isinstance(data["results"], list)
+
+
+def test_recommendations_role(client):
+    r = client.post("/api/recommendations", json={"mode": "role", "role": "Backend", "top_n": 5})
+    assert r.status_code == 200
+    data = r.json()
+    assert data["mode"] == "role"
+    assert isinstance(data["results"], list)
+
+
+def test_recommendations_learning_path(client):
+    r = client.post(
+        "/api/recommendations",
+        json={"mode": "learning-path", "current_skills": ["Python"], "target_role": "Backend"},
+    )
+    assert r.status_code == 200
+    data = r.json()
+    assert data["mode"] == "learning-path"
+    assert isinstance(data["results"], list)
+
+
 def test_recommendations_empty_ok(client):
     r = client.post("/api/recommendations", json={"mode": "complementary", "skill": "Python", "top_n": 5})
     assert r.status_code == 200
+
+
+def test_recommendations_no_match_returns_200_empty(client):
+    r = client.post(
+        "/api/recommendations",
+        json={"mode": "complementary", "skill": "NonexistentSkillXYZ", "top_n": 5},
+    )
+    assert r.status_code == 200
+    data = r.json()
+    assert data["results"] == []
+    assert data["status"]
 
 
 def test_search(client):
