@@ -350,6 +350,7 @@ def run_ingest(
     num_pages: int | None = None,
     date_posted: str | None = None,
     use_jobspy: bool | None = None,
+    use_boards: bool | None = None,
     close_after_days: int = 14,
     dry_run: bool = False,
     check_quota: bool | None = None,
@@ -400,6 +401,9 @@ def run_ingest(
     if use_jobspy is None:
         use_jobspy = os.getenv("ENABLE_JOBSPY", "").lower() in ("1", "true", "yes")
 
+    if use_boards is None:
+        use_boards = os.getenv("ENABLE_BOARDS", "").lower() in ("1", "true", "yes")
+
     if use_jobspy:
         try:
             from modules.jobspy_adapter import collect_jobspy
@@ -415,6 +419,22 @@ def run_ingest(
                 summary["sources"].append("jobspy")
         except Exception as exc:  # optional path must never break the run
             print(f"[ingest] Jobspy adapter skipped: {exc}", file=sys.stderr)
+
+    if use_boards:
+        try:
+            from modules.boards_adapter import collect_boards
+
+            board_records, board_skills = collect_boards()
+            existing = {record["job_id"] for record in records}
+            for record in board_records:
+                if record["job_id"] in existing:
+                    continue
+                records.append(record)
+                skills_by_job[record["job_id"]] = board_skills.get(record["job_id"], [])
+            if board_records:
+                summary["sources"].append("boards")
+        except Exception as exc:  # optional path must never break the run
+            print(f"[ingest] Boards adapter skipped: {exc}", file=sys.stderr)
 
     # Cross-source dedup: the same posting on JSearch and Jobspy must not be
     # counted twice.  Keep the first record for each key.
@@ -499,6 +519,7 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--num-pages", type=int, default=None, help="pages per query (10 per page)")
     parser.add_argument("--date-posted", default=None, help="all | today | 3days | week | month")
     parser.add_argument("--jobspy", action="store_true", help="also run the opt-in Jobspy scraper")
+    parser.add_argument("--boards", action="store_true", help="also run the opt-in Greenhouse/Lever/Ashby boards ingest")
     parser.add_argument("--close-after-days", type=int, default=0,
                         help="mark postings unseen for N days inactive; 0 disables (default)")
     parser.add_argument("--check-quota", action="store_true", help="probe /usage first (costs a request)")
@@ -513,6 +534,7 @@ def main(argv: list[str] | None = None) -> int:
             num_pages=args.num_pages,
             date_posted=args.date_posted,
             use_jobspy=args.jobspy or None,
+            use_boards=args.boards or None,
             close_after_days=args.close_after_days,
             dry_run=args.dry_run,
             check_quota=args.check_quota or None,
