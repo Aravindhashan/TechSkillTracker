@@ -39,8 +39,6 @@ def _normalize_location(value) -> str:
     return value.strip().title()
 
 
-@st.cache_data
-@st.cache_data
 def clean_job_data(df):
     """
     Clean and standardize job data.

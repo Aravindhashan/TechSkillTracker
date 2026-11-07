@@ -1,7 +1,6 @@
 import logging
 import pandas as pd
 import numpy as np
-import streamlit as st
 import plotly.graph_objects as go
 
 
@@ -419,7 +418,6 @@ def _select_engine(mape_results, available):
 # ---------------------------------------------------------------------------
 
 
-@st.cache_resource
 def forecast_skill_demand(df, skill_name, months_ahead=12, model_type="auto"):
     monthly_data = _monthly_series(df, skill_name)
 
@@ -521,7 +519,11 @@ def forecast_skill_demand(df, skill_name, months_ahead=12, model_type="auto"):
             failures.append(f"{name}: {err}")
 
     if failures:
-        st.info("Falling back to linear regression. " + " | ".join(failures))
+        import logging
+
+        logging.getLogger(__name__).info(
+            "Falling back to linear regression. %s", " | ".join(failures)
+        )
 
     result = _linear_forecast(monthly_data, months_ahead)
     result.attrs['requested_engine'] = model_type
