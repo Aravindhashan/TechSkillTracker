@@ -142,6 +142,18 @@ def test_forecast_404_unknown(client):
     assert r.status_code == 404
 
 
+def test_forecast_422_invalid_engine(client):
+    r = client.get("/api/forecast/Python?model_type=nonexistent_engine")
+    assert r.status_code == 422
+
+
+def test_forecast_insufficient_history_404(client):
+    # Seeded corpus has one month of history; forecasting needs >=2 months
+    # so the endpoint degrades to 404 (fallback documented, not 500).
+    r = client.get("/api/forecast/Python")
+    assert r.status_code == 404
+
+
 def test_recommendations_complementary(client):
     r = client.post("/api/recommendations", json={"mode": "complementary", "skill": "Python", "top_n": 5})
     assert r.status_code == 200
