@@ -1,0 +1,62 @@
+const API_BASE = (import.meta.env.VITE_API_BASE as string | undefined) ?? 'http://localhost:8000'
+
+async function request<T>(path: string, init?: RequestInit): Promise<T> {
+  const res = await fetch(`${API_BASE}${path}`, {
+    headers: { 'Content-Type': 'application/json', ...(init?.headers ?? {}) },
+    ...init,
+  })
+  if (!res.ok) {
+    const text = await res.text()
+    throw new Error(text || `${res.status} ${res.statusText}`)
+  }
+  return res.json() as Promise<T>
+}
+
+import type {
+  HealthResponse,
+  MarketOverview,
+  TopSkill,
+  ForecastResponse,
+  RecommendationResponse,
+  SearchRequest,
+  SearchResponse,
+  RoiResponse,
+  DemandScienceResponse,
+} from '../types/api'
+
+export const api = {
+  health: () => request<HealthResponse>('/api/health'),
+  marketOverview: () => request<MarketOverview>('/api/market/overview'),
+  topSkills: (n = 10) => request<{ skills: TopSkill[] }>(`/api/market/top-skills?n=${n}`),
+  forecast: (skill: string, monthsAhead = 12, modelType = 'auto') =>
+    request<ForecastResponse>(
+      `/api/forecast/${encodeURIComponent(skill)}?months_ahead=${monthsAhead}&model_type=${modelType}`,
+    ),
+  recommendations: (body: {
+    mode: 'complementary' | 'role' | 'learning-path'
+    skill?: string
+    role?: string
+    current_skills?: string[]
+    target_role?: string
+    top_n?: number
+  }) =>
+    request<RecommendationResponse>('/api/recommendations', {
+      method: 'POST',
+      body: JSON.stringify(body),
+    }),
+  search: (body: SearchRequest) =>
+    request<SearchResponse>('/api/search', {
+      method: 'POST',
+      body: JSON.stringify(body),
+    }),
+  roi: (topN = 25) => request<RoiResponse>(`/api/roi?top_n=${topN}`),
+  demandScience: () => request<DemandScienceResponse>('/api/demand-science'),
+  fairness: () => request<Record<string, unknown>>('/api/fairness'),
+  resumeAnalyze: async (file: File) => {
+    const form = new FormData()
+    form.append('file', file)
+    const res = await fetch(`${API_BASE}/api/resume/analyze`, { method: 'POST', body: form })
+    if (!res.ok) throw new Error(await res.text())
+    return res.json()
+  },
+}
