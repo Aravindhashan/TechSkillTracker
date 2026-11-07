@@ -232,6 +232,39 @@ def test_demand_science(client):
     assert r.status_code == 200
 
 
+def test_demand_science_all_sub_results(client):
+    r = client.get("/api/demand-science")
+    assert r.status_code == 200
+    data = r.json()
+    assert isinstance(data["survival_overall"], list)
+    assert isinstance(data["survival_by_skill"], dict)
+    assert isinstance(data["cox"], dict)
+    assert isinstance(data["anomalies"], list)
+    assert isinstance(data["pmi_pairs"], list)
+    assert isinstance(data["communities"], dict)
+    assert isinstance(data["relatedness"], dict)
+
+
+def test_demand_science_empty_corpus_returns_empty_arrays(tmp_path, monkeypatch):
+    monkeypatch.setenv("DATABASE_URL", "")
+    monkeypatch.setenv("SQLITE_PATH", str(tmp_path / "empty.db"))
+    from modules import store
+
+    store.init_db()
+    from backend.main import app
+    from fastapi.testclient import TestClient
+
+    empty_client = TestClient(app)
+    r = empty_client.get("/api/demand-science")
+    assert r.status_code == 200
+    data = r.json()
+    assert data["survival_overall"] == []
+    assert data["anomalies"] == []
+    assert data["pmi_pairs"] == []
+    assert data["communities"] == {}
+    assert data["relatedness"] == {}
+
+
 def test_fairness(client):
     r = client.get("/api/fairness")
     assert r.status_code == 200
