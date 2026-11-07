@@ -56,6 +56,9 @@ export default function MarketOverview() {
         <p className="mt-3 max-w-xl text-muted-foreground">
           Headline demand, the skills everyone is hiring for, and where they are hiring from.
         </p>
+        <p className="mt-2 text-xs uppercase tracking-[0.2em] text-muted-foreground">
+          Last 6 hours
+        </p>
         {(selectedSkills.length > 0 || selectedLocations.length > 0) && (
           <p className="mt-2 text-sm text-muted-foreground">
             Filtered: {[selectedSkills.join(", "), selectedLocations.join(", ")].filter(Boolean).join(" · ")}
@@ -63,10 +66,10 @@ export default function MarketOverview() {
         )}
       </div>
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        <Metric label="Total Job Openings (last 24h)" value={overviewData.total_openings} />
-        <Metric label="Unique Technologies (last 24h)" value={overviewData.unique_skills} />
-        <Metric label="Companies Hiring (last 24h)" value={overviewData.companies} />
-        <Metric label="Locations (last 24h)" value={overviewData.locations} />
+        <Metric label="Total Job Openings" value={overviewData.total_openings} />
+        <Metric label="Unique Technologies" value={overviewData.unique_skills} />
+        <Metric label="Companies Hiring" value={overviewData.companies} />
+        <Metric label="Locations" value={overviewData.locations} />
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">

@@ -37,17 +37,17 @@ def get_dataframe() -> pd.DataFrame:
 
 
 def get_recent_dataframe() -> pd.DataFrame:
-    """Return a cleaned postings dataframe limited to the last 24 hours.
+    """Return a cleaned postings dataframe limited to the last 6 hours.
 
     Used by the headline metric cards so "Total Job Openings" etc. reflect
-    the last 24h rather than the full 365-day corpus. Filtering is by
-    ``last_seen`` (newly ingested/seen in the last day), matching the store's
-    ``days`` semantics.
+    the last 6h rather than the full 365-day corpus. Filtering is by
+    ``last_seen`` (newly ingested/seen in the last 6 hours), matching the store's
+    ``days`` semantics (0.25 days = 6 hours).
     """
     try:
         from modules import data_loader, data_cleaner
 
-        raw, _count = data_loader.load_job_data("data", days=1)
+        raw, _count = data_loader.load_job_data("data", days=0.25)
         if raw is None or getattr(raw, "empty", True):
             return pd.DataFrame()
         return data_cleaner.clean_job_data(raw)
