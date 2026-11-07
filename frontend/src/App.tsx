@@ -10,14 +10,14 @@ import SearchRoi from "@/pages/SearchRoi"
 import FairnessAudit from "@/pages/FairnessAudit"
 
 const TABS = [
-  { id: "market", label: "Market Overview", component: MarketOverview },
-  { id: "viz", label: "Data Visualization", component: DataVisualization },
-  { id: "forecast", label: "Demand Forecasting", component: Forecasting },
-  { id: "recs", label: "Skill Recommendations", component: Recommendations },
-  { id: "resume", label: "Resume Analysis", component: ResumeAnalysis },
-  { id: "science", label: "Demand Science", component: DemandScience },
+  { id: "market", label: "Overview", component: MarketOverview },
+  { id: "viz", label: "Data Viz", component: DataVisualization },
+  { id: "forecast", label: "Forecasting", component: Forecasting },
+  { id: "recs", label: "Recommendations", component: Recommendations },
+  { id: "resume", label: "Resume", component: ResumeAnalysis },
+  { id: "science", label: "Science", component: DemandScience },
   { id: "search", label: "Search & ROI", component: SearchRoi },
-  { id: "fairness", label: "Fairness Audit", component: FairnessAudit },
+  { id: "fairness", label: "Fairness", component: FairnessAudit },
 ]
 
 function Shell() {
@@ -26,42 +26,62 @@ function Shell() {
   const { selectedSkills, setSelectedSkills } = useFilters()
 
   return (
-    <div className="flex min-h-screen bg-background">
-      <aside className="w-64 bg-slate-900 text-white p-4 flex flex-col gap-4">
-        <h1 className="text-lg font-bold">Tech Skill Tracker</h1>
-        <nav className="flex flex-col gap-1">
-          {TABS.map((tab) => (
-            <button
-              key={tab.id}
-              onClick={() => setActive(tab.id)}
-              className={`text-left px-3 py-2 rounded-md text-sm transition ${
-                active === tab.id ? "bg-slate-700 font-semibold" : "hover:bg-slate-800"
-              }`}
-            >
-              {tab.label}
-            </button>
-          ))}
-        </nav>
-        <div className="mt-auto border-t border-slate-700 pt-4">
-          <label className="text-xs text-slate-400">Skill filter</label>
-          <input
-            className="mt-1 w-full px-2 py-1 rounded bg-slate-800 text-sm border border-slate-700"
-            placeholder="comma-separated skills"
-            value={selectedSkills.join(", ")}
-            onChange={(event) =>
-              setSelectedSkills(
-                event.target.value
-                  .split(",")
-                  .map((skill) => skill.trim())
-                  .filter(Boolean),
-              )
-            }
-          />
+    <div className="min-h-screen bg-background text-foreground">
+      <header className="sticky top-0 z-10 border-b border-border bg-background/90 backdrop-blur">
+        <div className="mx-auto max-w-6xl px-5">
+          <div className="flex items-baseline justify-between py-4">
+            <div className="font-display text-2xl leading-none">
+              Tech Skill Tracker
+            </div>
+            <div className="text-xs uppercase tracking-[0.2em] text-muted-foreground">
+              Live demand
+            </div>
+          </div>
+          <nav className="flex gap-1.5 overflow-x-auto pb-3">
+            {TABS.map((tab, index) => (
+              <button
+                key={tab.id}
+                onClick={() => setActive(tab.id)}
+                className={`whitespace-nowrap rounded-full px-4 py-1.5 text-sm transition ${
+                  active === tab.id
+                    ? "bg-primary text-primary-foreground"
+                    : "border border-border bg-card hover:border-foreground/40"
+                }`}
+              >
+                <span className="mr-1.5 text-xs opacity-60 font-display">
+                  {String(index + 1).padStart(2, "0")}
+                </span>
+                {tab.label}
+              </button>
+            ))}
+          </nav>
+          <div className="flex items-center gap-3 pb-4">
+            <span className="text-sm text-muted-foreground whitespace-nowrap">Skill filter</span>
+            <input
+              className="w-full max-w-md rounded-full border border-border bg-card px-4 py-1.5 text-sm placeholder:text-muted-foreground/70 focus:outline-none focus:border-foreground"
+              placeholder="comma-separated skills"
+              value={selectedSkills.join(", ")}
+              onChange={(event) =>
+                setSelectedSkills(
+                  event.target.value
+                    .split(",")
+                    .map((skill) => skill.trim())
+                    .filter(Boolean),
+                )
+              }
+            />
+          </div>
         </div>
-      </aside>
-      <main className="flex-1 overflow-auto">
+      </header>
+      <main className="mx-auto max-w-6xl px-5 py-8">
         <ActiveComponent />
       </main>
+      <footer className="border-t border-border">
+        <div className="mx-auto max-w-6xl px-5 py-6 text-xs text-muted-foreground flex justify-between">
+          <span className="font-display text-base text-foreground">Tech Skill Tracker</span>
+          <span>Demand-only — no salary data</span>
+        </div>
+      </footer>
     </div>
   )
 }

@@ -37,13 +37,18 @@ export default function Recommendations() {
   })
 
   return (
-    <div className="p-6 space-y-6">
-      <h1 className="text-2xl font-bold">Skill Recommendations</h1>
-      <div className="flex gap-2">
+    <div className="space-y-8">
+      <div>
+        <div className="text-xs uppercase tracking-[0.2em] text-muted-foreground mb-2">04 — Recommendations</div>
+        <h1 className="text-5xl leading-none">Skill Recommendations</h1>
+      </div>
+      <div className="flex flex-wrap gap-1.5">
         {(["complementary", "role", "learning-path"] as Mode[]).map((candidate) => (
           <button
             key={candidate}
-            className={`px-3 py-1 rounded border ${mode === candidate ? "bg-slate-900 text-white" : "bg-white"}`}
+            className={`rounded-full px-4 py-1.5 text-sm transition ${
+              mode === candidate ? "bg-primary text-primary-foreground" : "border border-border bg-card hover:border-foreground/40"
+            }`}
             onClick={() => {
               setMode(candidate)
               setSubmitted(false)
@@ -54,13 +59,13 @@ export default function Recommendations() {
         ))}
       </div>
 
-      <Card>
-        <CardContent className="pt-6 space-y-3">
+      <Card className="rounded-3xl">
+        <CardContent className="pt-6 space-y-4">
           {mode === "complementary" && (
             <div>
-              <label className="text-sm text-gray-500">Current skill</label>
+              <label className="text-xs uppercase tracking-[0.18em] text-muted-foreground">Current skill</label>
               <input
-                className="mt-1 w-full border rounded px-2 py-1"
+                className="mt-2 w-full rounded-full border border-border bg-card px-4 py-2 text-sm focus:outline-none focus:border-foreground"
                 value={skill}
                 onChange={(event) => setSkill(event.target.value)}
                 placeholder="e.g. Python"
@@ -69,9 +74,9 @@ export default function Recommendations() {
           )}
           {mode === "role" && (
             <div>
-              <label className="text-sm text-gray-500">Job role</label>
+              <label className="text-xs uppercase tracking-[0.18em] text-muted-foreground">Job role</label>
               <input
-                className="mt-1 w-full border rounded px-2 py-1"
+                className="mt-2 w-full rounded-full border border-border bg-card px-4 py-2 text-sm focus:outline-none focus:border-foreground"
                 value={role}
                 onChange={(event) => setRole(event.target.value)}
                 placeholder="e.g. Data Scientist"
@@ -81,18 +86,18 @@ export default function Recommendations() {
           {mode === "learning-path" && (
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
-                <label className="text-sm text-gray-500">Current skills (comma-separated)</label>
+                <label className="text-xs uppercase tracking-[0.18em] text-muted-foreground">Current skills (comma-separated)</label>
                 <input
-                  className="mt-1 w-full border rounded px-2 py-1"
+                  className="mt-2 w-full rounded-full border border-border bg-card px-4 py-2 text-sm focus:outline-none focus:border-foreground"
                   value={currentSkills}
                   onChange={(event) => setCurrentSkills(event.target.value)}
                   placeholder="Python, SQL"
                 />
               </div>
               <div>
-                <label className="text-sm text-gray-500">Target role</label>
+                <label className="text-xs uppercase tracking-[0.18em] text-muted-foreground">Target role</label>
                 <input
-                  className="mt-1 w-full border rounded px-2 py-1"
+                  className="mt-2 w-full rounded-full border border-border bg-card px-4 py-2 text-sm focus:outline-none focus:border-foreground"
                   value={targetRole}
                   onChange={(event) => setTargetRole(event.target.value)}
                   placeholder="Data Scientist"
@@ -100,20 +105,22 @@ export default function Recommendations() {
               </div>
             </div>
           )}
-          <Button onClick={() => setSubmitted(true)}>Get Recommendations</Button>
+          <Button className="rounded-full" onClick={() => setSubmitted(true)}>
+            Get Recommendations
+          </Button>
         </CardContent>
       </Card>
 
-      {recommendations.isLoading && <div>Loading…</div>}
-      {recommendations.error && <div className="text-red-600">{String(recommendations.error)}</div>}
+      {recommendations.isLoading && <div className="py-10">Loading…</div>}
+      {recommendations.error && <div className="py-10 text-red-800">{String(recommendations.error)}</div>}
       {recommendations.data && (
-        <Card>
+        <Card className="rounded-3xl">
           <CardContent className="pt-6">
-            <p className="text-sm text-gray-500 mb-3">{recommendations.data.status}</p>
+            <p className="text-sm text-muted-foreground mb-3">{recommendations.data.status}</p>
             {recommendations.data.results.length === 0 ? (
-              <p className="text-gray-500">No recommendations found.</p>
+              <p className="text-muted-foreground">No recommendations found.</p>
             ) : (
-              <ol className="list-decimal pl-5 space-y-1">
+              <ol className="list-decimal pl-5 space-y-2">
                 {recommendations.data.results.map((item, index) => {
                   const record = item as Record<string, unknown>
                   return <li key={index}>{String(record.skill ?? record.name ?? JSON.stringify(record))}</li>

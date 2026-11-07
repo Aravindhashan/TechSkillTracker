@@ -8,6 +8,9 @@ import { Card, CardContent } from "@/components/ui/card"
 
 type SubTab = "search" | "roi"
 
+const INK = "#1A1815"
+const GRID = "#E4DCC8"
+
 export default function SearchRoi() {
   const [sub, setSub] = useState<SubTab>("search")
   const [query, setQuery] = useState("")
@@ -28,17 +31,24 @@ export default function SearchRoi() {
   })
 
   return (
-    <div className="p-6 space-y-6">
-      <h1 className="text-2xl font-bold">Search & ROI</h1>
-      <div className="flex gap-2">
+    <div className="space-y-8">
+      <div>
+        <div className="text-xs uppercase tracking-[0.2em] text-muted-foreground mb-2">07 — Search & ROI</div>
+        <h1 className="text-5xl leading-none">Search & ROI</h1>
+      </div>
+      <div className="flex gap-1.5">
         <button
-          className={`px-3 py-1 rounded border ${sub === "search" ? "bg-slate-900 text-white" : "bg-white"}`}
+          className={`rounded-full px-4 py-1.5 text-sm transition ${
+            sub === "search" ? "bg-primary text-primary-foreground" : "border border-border bg-card hover:border-foreground/40"
+          }`}
           onClick={() => setSub("search")}
         >
           Semantic job search
         </button>
         <button
-          className={`px-3 py-1 rounded border ${sub === "roi" ? "bg-slate-900 text-white" : "bg-white"}`}
+          className={`rounded-full px-4 py-1.5 text-sm transition ${
+            sub === "roi" ? "bg-primary text-primary-foreground" : "border border-border bg-card hover:border-foreground/40"
+          }`}
           onClick={() => setSub("roi")}
         >
           Skill ROI
@@ -46,23 +56,23 @@ export default function SearchRoi() {
       </div>
 
       {sub === "search" && (
-        <div className="space-y-4">
-          <Card>
-            <CardContent className="pt-6 space-y-3">
+        <div className="space-y-6">
+          <Card className="rounded-3xl">
+            <CardContent className="pt-6 space-y-4">
               <input
-                className="w-full border rounded px-2 py-2"
+                className="w-full rounded-full border border-border bg-card px-4 py-2 text-sm focus:outline-none focus:border-foreground"
                 placeholder="e.g. backend engineer with python and postgres"
                 value={query}
                 onChange={(event) => setQuery(event.target.value)}
               />
               <div className="grid grid-cols-2 md:grid-cols-3 gap-4 items-end">
                 <div>
-                  <label className="text-sm text-gray-500">Results</label>
+                  <label className="text-xs uppercase tracking-[0.18em] text-muted-foreground">Results</label>
                   <input
                     type="number"
                     min={3}
                     max={25}
-                    className="mt-1 w-full border rounded px-2 py-1"
+                    className="mt-2 w-full rounded-full border border-border bg-card px-4 py-2 text-sm"
                     value={topK}
                     onChange={(event) => setTopK(Number(event.target.value))}
                   />
@@ -71,36 +81,36 @@ export default function SearchRoi() {
                   <input type="checkbox" checked={rerank} onChange={(event) => setRerank(event.target.checked)} />
                   Rerank with cross-encoder
                 </label>
-                <Button onClick={() => setSubmitted(true)} disabled={!query.trim()}>
+                <Button className="rounded-full" onClick={() => setSubmitted(true)} disabled={!query.trim()}>
                   Search
                 </Button>
               </div>
             </CardContent>
           </Card>
 
-          {search.isLoading && <div>Searching…</div>}
-          {search.error && <div className="text-red-600">{String(search.error)}</div>}
+          {search.isLoading && <div className="py-10">Searching…</div>}
+          {search.error && <div className="py-10 text-red-800">{String(search.error)}</div>}
           {search.data && (
-            <div className="space-y-3">
-              <p className="text-sm text-gray-500">Retrieved with {search.data.backend}.</p>
+            <div className="space-y-4">
+              <p className="text-sm text-muted-foreground">Retrieved with {search.data.backend}.</p>
               {search.data.results.length === 0 ? (
-                <p className="text-gray-500">No matching postings found.</p>
+                <p className="text-muted-foreground">No matching postings found.</p>
               ) : (
                 search.data.results.map((result, index) => (
-                  <Card key={result.job_id ?? `${result.title ?? "posting"}-${index}`}>
+                  <Card key={result.job_id ?? `${result.title ?? "posting"}-${index}`} className="rounded-3xl">
                     <CardContent className="pt-6">
-                      <div className="font-semibold">
-                        {result.title ?? "Untitled role"} · {result.company ?? "Unknown"} · score {result.score.toFixed(3)}
+                      <div className="font-display text-xl">
+                        {result.title ?? "Untitled role"} · {result.company ?? "Unknown"} · {result.score.toFixed(3)}
                       </div>
-                      <div className="text-sm text-gray-500">
+                      <div className="text-sm text-muted-foreground mt-1">
                         {result.location} · posted {result.posted_at ?? "n/a"}
                       </div>
                       {result.description && <p className="mt-2 text-sm">{result.description}</p>}
                       {result.skills.length > 0 && (
-                        <p className="mt-1 text-xs text-gray-500">Skills: {result.skills.join(", ")}</p>
+                        <p className="mt-2 text-xs text-muted-foreground">Skills: {result.skills.join(", ")}</p>
                       )}
                       {result.url && (
-                        <a href={result.url} target="_blank" rel="noreferrer" className="text-blue-600 underline text-sm">
+                        <a href={result.url} target="_blank" rel="noreferrer" className="inline-block mt-3 rounded-full border border-border px-4 py-1 text-sm hover:border-foreground">
                           View posting
                         </a>
                       )}
@@ -114,33 +124,33 @@ export default function SearchRoi() {
       )}
 
       {sub === "roi" && (
-        <div className="space-y-4">
-          {roi.isLoading && <div>Loading…</div>}
-          {roi.error && <div className="text-red-600">{String(roi.error)}</div>}
+        <div className="space-y-6">
+          {roi.isLoading && <div className="py-10">Loading…</div>}
+          {roi.error && <div className="py-10 text-red-800">{String(roi.error)}</div>}
           {roi.data && roi.data.rows.length === 0 && (
-            <Card>
-              <CardContent className="pt-6 text-gray-500">Not enough dated postings to estimate skill ROI.</CardContent>
+            <Card className="rounded-3xl">
+              <CardContent className="pt-6 text-muted-foreground">Not enough dated postings to estimate skill ROI.</CardContent>
             </Card>
           )}
           {roi.data && roi.data.rows.length > 0 && (
             <>
-              <Card>
+              <Card className="rounded-3xl">
                 <CardContent className="pt-6 overflow-auto">
                   <table className="min-w-full text-sm">
                     <thead>
-                      <tr className="text-left text-gray-500 border-b">
-                        <th className="py-2 pr-4">Skill</th>
-                        <th className="py-2 pr-4">Demand</th>
-                        <th className="py-2 pr-4">Share %</th>
-                        <th className="py-2 pr-4">Momentum</th>
-                        <th className="py-2 pr-4">Premium</th>
-                        <th className="py-2 pr-4">ROI score</th>
-                        <th className="py-2">Confidence</th>
+                      <tr className="text-left text-muted-foreground border-b border-border">
+                        <th className="py-2 pr-4 font-medium">Skill</th>
+                        <th className="py-2 pr-4 font-medium">Demand</th>
+                        <th className="py-2 pr-4 font-medium">Share %</th>
+                        <th className="py-2 pr-4 font-medium">Momentum</th>
+                        <th className="py-2 pr-4 font-medium">Premium</th>
+                        <th className="py-2 pr-4 font-medium">ROI score</th>
+                        <th className="py-2 font-medium">Confidence</th>
                       </tr>
                     </thead>
                     <tbody>
                       {roi.data.rows.map((row) => (
-                        <tr key={row.skill} className="border-b last:border-0">
+                        <tr key={row.skill} className="border-b border-border last:border-0">
                           <td className="py-2 pr-4 font-medium">{row.skill}</td>
                           <td className="py-2 pr-4">{row.demand}</td>
                           <td className="py-2 pr-4">{row.share_pct}</td>
@@ -154,9 +164,9 @@ export default function SearchRoi() {
                   </table>
                 </CardContent>
               </Card>
-              <Card>
+              <Card className="rounded-3xl">
                 <CardContent className="pt-6">
-                  <h2 className="font-semibold mb-2">Top skills by demand ROI score</h2>
+                  <h2 className="text-2xl mb-3">Top skills by demand ROI score</h2>
                   <Plot
                     data={[
                       {
@@ -164,9 +174,18 @@ export default function SearchRoi() {
                         orientation: "h",
                         x: roi.data.rows.slice(0, 15).map((row) => row.roi_score).reverse(),
                         y: roi.data.rows.slice(0, 15).map((row) => row.skill).reverse(),
+                        marker: { color: INK },
                       },
                     ]}
-                    layout={{ height: 450, margin: { l: 150 } }}
+                    layout={{
+                      height: 450,
+                      paper_bgcolor: "rgba(0,0,0,0)",
+                      plot_bgcolor: "rgba(0,0,0,0)",
+                      font: { family: "Inter, sans-serif", color: INK },
+                      xaxis: { gridcolor: GRID },
+                      yaxis: { gridcolor: GRID },
+                      margin: { l: 150 },
+                    }}
                     style={{ width: "100%" }}
                   />
                 </CardContent>

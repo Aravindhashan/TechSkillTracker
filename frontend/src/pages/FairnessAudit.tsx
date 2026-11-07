@@ -34,21 +34,24 @@ interface FairnessResult {
 
 export default function FairnessAudit() {
   const fairness = useQuery({ queryKey: queryKeys.fairness, queryFn: api.fairness })
-  if (fairness.isLoading) return <div className="p-6">Loading…</div>
-  if (fairness.error) return <div className="p-6 text-red-600">{String(fairness.error)}</div>
+  if (fairness.isLoading) return <div className="py-10">Loading…</div>
+  if (fairness.error) return <div className="py-10 text-red-800">{String(fairness.error)}</div>
 
   const fairnessData = fairness.data as FairnessResult
 
   return (
-    <div className="p-6 space-y-6">
-      <h1 className="text-2xl font-bold">Fairness Audit</h1>
-      <p className="text-gray-500 text-sm max-w-3xl">
-        Demand gaps across locations, remote status, and company types, after controlling for skill and experience.
-        All figures are associations in observed postings, not causal effects.
-      </p>
+    <div className="space-y-8">
+      <div>
+        <div className="text-xs uppercase tracking-[0.2em] text-muted-foreground mb-2">08 — Fairness</div>
+        <h1 className="text-5xl leading-none">Fairness Audit</h1>
+        <p className="mt-3 max-w-2xl text-muted-foreground">
+          Demand gaps across locations, remote status, and company types, after controlling for skill and experience.
+          All figures are associations in observed postings, not causal effects.
+        </p>
+      </div>
 
       {fairnessData.confidence === "low" && (
-        <div className="bg-amber-50 border border-amber-200 text-amber-800 rounded p-3 text-sm">
+        <div className="rounded-2xl border border-border bg-card p-4 text-sm">
           Low confidence — fewer than 10 postings or fewer than 3 months of history. Descriptive shares are shown;
           adjusted gaps are withheld until the corpus grows.
         </div>
@@ -71,7 +74,7 @@ export default function FairnessAudit() {
       <GroupTable title="By company type" rows={fairnessData.by_company_type ?? []} adjusted={fairnessData.gaps?.adjusted_by_company_type} />
 
       {(fairnessData.notes ?? []).map((note, index) => (
-        <p key={index} className="text-xs text-gray-400">
+        <p key={index} className="text-xs text-muted-foreground">
           {note}
         </p>
       ))}
@@ -90,33 +93,33 @@ function GroupTable({
 }) {
   if (rows.length === 0)
     return (
-      <Card>
+      <Card className="rounded-3xl">
         <CardContent className="pt-6">
-          <h2 className="font-semibold mb-2">{title}</h2>
-          <p className="text-gray-500">No postings in range.</p>
+          <h2 className="text-2xl mb-2">{title}</h2>
+          <p className="text-muted-foreground">No postings in range.</p>
         </CardContent>
       </Card>
     )
   return (
-    <Card>
+    <Card className="rounded-3xl">
       <CardContent className="pt-6">
-        <h2 className="font-semibold mb-2">{title}</h2>
+        <h2 className="text-2xl mb-3">{title}</h2>
         <div className="overflow-auto">
           <table className="min-w-full text-sm">
             <thead>
-              <tr className="text-left text-gray-500 border-b">
-                <th className="py-2 pr-4">Group</th>
-                <th className="py-2 pr-4">Postings</th>
-                <th className="py-2 pr-4">Share %</th>
-                <th className="py-2 pr-4">Mean exp</th>
-                <th className="py-2 pr-4">Distinct skills</th>
-                <th className="py-2 pr-4">Top skill</th>
-                <th className="py-2">Median ROI</th>
+              <tr className="text-left text-muted-foreground border-b border-border">
+                <th className="py-2 pr-4 font-medium">Group</th>
+                <th className="py-2 pr-4 font-medium">Postings</th>
+                <th className="py-2 pr-4 font-medium">Share %</th>
+                <th className="py-2 pr-4 font-medium">Mean exp</th>
+                <th className="py-2 pr-4 font-medium">Distinct skills</th>
+                <th className="py-2 pr-4 font-medium">Top skill</th>
+                <th className="py-2 font-medium">Median ROI</th>
               </tr>
             </thead>
             <tbody>
               {rows.map((row) => (
-                <tr key={row.group} className="border-b last:border-0">
+                <tr key={row.group} className="border-b border-border last:border-0">
                   <td className="py-2 pr-4 font-medium">{row.group}</td>
                   <td className="py-2 pr-4">{row.postings}</td>
                   <td className="py-2 pr-4">{row.share_pct}</td>
@@ -130,11 +133,11 @@ function GroupTable({
           </table>
         </div>
         {adjusted && Object.keys(adjusted).length > 0 ? (
-          <p className="mt-3 text-xs text-gray-500">
+          <p className="mt-3 text-xs text-muted-foreground">
             Adjusted gaps: {Object.entries(adjusted).map(([group, gapValue]) => `${group}: ${gapValue ?? "baseline"}`).join(", ")}
           </p>
         ) : (
-          <p className="mt-3 text-xs text-gray-400">
+          <p className="mt-3 text-xs text-muted-foreground">
             Adjusted gaps need at least three months of history; descriptive shares above are still reported.
           </p>
         )}

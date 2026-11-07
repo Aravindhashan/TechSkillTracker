@@ -17,6 +17,9 @@ const ENGINES: ForecastEngine[] = [
   "linear",
 ]
 
+const INK = "#1A1815"
+const GRID = "#E4DCC8"
+
 export default function Forecasting() {
   const [skill, setSkill] = useState("Python")
   const [months, setMonths] = useState(12)
@@ -38,14 +41,17 @@ export default function Forecasting() {
   const ciPoints = points.filter((point) => point.upper != null && point.lower != null)
 
   return (
-    <div className="p-6 space-y-6">
-      <h1 className="text-2xl font-bold">Demand Forecasting</h1>
-      <Card>
+    <div className="space-y-8">
+      <div>
+        <div className="text-xs uppercase tracking-[0.2em] text-muted-foreground mb-2">03 — Forecasting</div>
+        <h1 className="text-5xl leading-none">Demand Forecasting</h1>
+      </div>
+      <Card className="rounded-3xl">
         <CardContent className="pt-6 grid grid-cols-1 md:grid-cols-4 gap-4">
           <div>
-            <label className="text-sm text-gray-500">Skill</label>
+            <label className="text-xs uppercase tracking-[0.18em] text-muted-foreground">Skill</label>
             <select
-              className="mt-1 w-full border rounded px-2 py-1"
+              className="mt-2 w-full rounded-full border border-border bg-card px-4 py-2 text-sm focus:outline-none focus:border-foreground"
               value={skill}
               onChange={(event) => setSkill(event.target.value)}
             >
@@ -57,20 +63,20 @@ export default function Forecasting() {
             </select>
           </div>
           <div>
-            <label className="text-sm text-gray-500">Months ahead</label>
+            <label className="text-xs uppercase tracking-[0.18em] text-muted-foreground">Months ahead</label>
             <input
               type="number"
               min={1}
               max={36}
-              className="mt-1 w-full border rounded px-2 py-1"
+              className="mt-2 w-full rounded-full border border-border bg-card px-4 py-2 text-sm focus:outline-none focus:border-foreground"
               value={months}
               onChange={(event) => setMonths(Number(event.target.value))}
             />
           </div>
           <div>
-            <label className="text-sm text-gray-500">Engine</label>
+            <label className="text-xs uppercase tracking-[0.18em] text-muted-foreground">Engine</label>
             <select
-              className="mt-1 w-full border rounded px-2 py-1"
+              className="mt-2 w-full rounded-full border border-border bg-card px-4 py-2 text-sm focus:outline-none focus:border-foreground"
               value={model}
               onChange={(event) => setModel(event.target.value as ForecastEngine)}
             >
@@ -82,21 +88,21 @@ export default function Forecasting() {
             </select>
           </div>
           <div className="flex items-end">
-            <Button className="w-full" disabled={!skill} onClick={() => setSubmitted(true)}>
+            <Button className="w-full rounded-full" disabled={!skill} onClick={() => setSubmitted(true)}>
               Generate Forecast
             </Button>
           </div>
         </CardContent>
       </Card>
 
-      {forecast.isLoading && <div>Running predictive model…</div>}
-      {forecast.error && <div className="text-red-600">{String(forecast.error)}</div>}
+      {forecast.isLoading && <div className="py-10">Running predictive model…</div>}
+      {forecast.error && <div className="py-10 text-red-800">{String(forecast.error)}</div>}
       {forecast.data && (
-        <div className="space-y-4">
-          <Card>
+        <div className="space-y-6">
+          <Card className="rounded-3xl">
             <CardContent className="pt-6">
-              <h2 className="font-semibold">Demand Forecast for {forecast.data.skill}</h2>
-              <p className="text-sm text-gray-500">
+              <h2 className="text-2xl">Demand Forecast for {forecast.data.skill}</h2>
+              <p className="mt-1 text-sm text-muted-foreground">
                 Engine: {forecast.data.engine ?? "—"} · Selected by {forecast.data.selected_by ?? "—"}
               </p>
               <Plot
@@ -107,6 +113,8 @@ export default function Forecasting() {
                     name: "Historical",
                     x: historical.map((point) => point.date),
                     y: historical.map((point) => point.actual),
+                    line: { color: INK },
+                    marker: { color: INK },
                   },
                   {
                     type: "scatter",
@@ -114,6 +122,8 @@ export default function Forecasting() {
                     name: "Forecast",
                     x: forecastPoints.map((point) => point.date),
                     y: forecastPoints.map((point) => point.forecast),
+                    line: { color: INK, dash: "dash" },
+                    marker: { color: INK },
                   },
                   ...(ciPoints.length > 0
                     ? [
@@ -135,20 +145,27 @@ export default function Forecasting() {
                           y: ciPoints.map((point) => point.lower),
                           fill: "tonexty" as const,
                           line: { width: 0 },
-                          fillcolor: "rgba(255, 165, 0, 0.2)",
+                          fillcolor: "rgba(26,24,21,0.12)",
                         },
                       ]
                     : []),
                 ]}
-                layout={{ height: 450 }}
+                layout={{
+                  height: 450,
+                  paper_bgcolor: "rgba(0,0,0,0)",
+                  plot_bgcolor: "rgba(0,0,0,0)",
+                  font: { family: "Inter, sans-serif", color: INK },
+                  xaxis: { gridcolor: GRID },
+                  yaxis: { gridcolor: GRID },
+                }}
                 style={{ width: "100%" }}
               />
             </CardContent>
           </Card>
-          <Card>
+          <Card className="rounded-3xl">
             <CardContent className="pt-6">
-              <h3 className="font-semibold mb-2">Forecast Insights</h3>
-              <ul className="list-disc pl-5 space-y-1">
+              <h3 className="text-xl mb-2">Forecast Insights</h3>
+              <ul className="list-disc pl-5 space-y-1 text-sm">
                 {forecast.data.insights.map((insight, index) => (
                   <li key={index}>{insight}</li>
                 ))}
