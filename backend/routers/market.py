@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import pandas as pd
 from fastapi import APIRouter, Depends, Query
 
 from backend.dependencies import get_dataframe, get_store_count
@@ -59,3 +60,43 @@ def top_locations(
     counts = df["Location"].value_counts().head(n)
     locations = [TopLocation(location=str(loc), count=int(count)) for loc, count in counts.items()]
     return TopLocationsResponse(locations=locations)
+
+
+@router.get("/demand-trends")
+def demand_trends(
+    top_n: int = Query(default=5, ge=1, le=20),
+    df=Depends(get_dataframe),
+):
+    if df is None or getattr(df, "empty", True):
+        return []
+    if "Tech Skill" not in df.columns or "Date Posted" not in df.columns:
+        return []
+    top_skills = df["Tech Skill"].value_counts().head(top_n).index.tolist()
+    work = df[df["Tech Skill"].isin(top_skills)].copy()
+    work["_month"] = pd.to_datetime(work["Date Posted"], errors="coerce").dt.to_period("M").astype(str)
+    grouped = work.groupby(["Tech Skill", "_month"]).size().reset_index(name="count")
+    return grouped.rename(columns={"Tech Skill": "skill", "_month": "month"}).to_dict(orient="records")
+
+
+@router.get("/skill-pairs")
+def skill_pairs(
+    min_cooccurrence: int = Query(default=2, ge=1),
+    df=Depends(get_dataframe),
+):
+    from itertools import combinations
+
+    if df is None or getattr(df, "empty", True):
+        return []
+    if "Company" not in df.columns or "Tech Skill" not in df.columns:
+        return []
+    pair_counts: dict[tuple[str, str], int] = {}
+    for _company, group in df.groupby("Company"):
+        skills = sorted(set(group["Tech Skill"].dropna().astype(str).tolist()))
+        for a, b in combinations(skills, 2):
+            pair_counts[(a, b)] = pair_counts.get((a, b), 0) + 1
+    result = [
+        {"skill_a": a, "skill_b": b, "count": c}
+        for (a, b), c in sorted(pair_counts.items(), key=lambda x: x[1], reverse=True)
+        if c >= min_cooccurrence
+    ]
+    return result[:20]

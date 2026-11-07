@@ -29,6 +29,8 @@ export const api = {
   marketOverview: () => request<MarketOverview>('/api/market/overview'),
   topSkills: (n = 10) => request<{ skills: TopSkill[] }>(`/api/market/top-skills?n=${n}`),
   locations: (n = 10) => request<{ locations: { location: string; count: number }[] }>(`/api/market/locations?n=${n}`),
+  demandTrends: (topN = 5) => request<{ skill: string; month: string; count: number }[]>(`/api/market/demand-trends?top_n=${topN}`),
+  skillPairs: (minCo = 2) => request<{ skill_a: string; skill_b: string; count: number }[]>(`/api/market/skill-pairs?min_cooccurrence=${minCo}`),
   forecast: (skill: string, monthsAhead = 12, modelType = 'auto') =>
     request<ForecastResponse>(
       `/api/forecast/${encodeURIComponent(skill)}?months_ahead=${monthsAhead}&model_type=${modelType}`,
