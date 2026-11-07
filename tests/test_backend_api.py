@@ -104,6 +104,39 @@ def test_market_overview_filtered_by_skill(client):
     assert r_location.json()["total_openings"] >= 1
 
 
+def test_demand_trends(client):
+    r = client.get("/api/market/demand-trends?top_n=5")
+    assert r.status_code == 200
+    rows = r.json()
+    assert isinstance(rows, list)
+    for row in rows:
+        assert "skill" in row and "month" in row and "count" in row
+
+
+def test_demand_trends_filtered_by_skill(client):
+    r = client.get("/api/market/demand-trends?top_n=5&skills=Python")
+    assert r.status_code == 200
+    rows = r.json()
+    assert isinstance(rows, list)
+    for row in rows:
+        assert row["skill"] == "Python"
+
+
+def test_skill_pairs(client):
+    r = client.get("/api/market/skill-pairs?min_cooccurrence=1")
+    assert r.status_code == 200
+    pairs = r.json()
+    assert isinstance(pairs, list)
+    for pair in pairs:
+        assert "skill_a" in pair and "skill_b" in pair and "count" in pair
+
+
+def test_skill_pairs_filtered(client):
+    r = client.get("/api/market/skill-pairs?min_cooccurrence=1&skills=Python")
+    assert r.status_code == 200
+    assert isinstance(r.json(), list)
+
+
 def test_forecast_404_unknown(client):
     r = client.get("/api/forecast/NonexistentSkillXYZ")
     assert r.status_code == 404
