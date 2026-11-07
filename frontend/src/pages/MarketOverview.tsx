@@ -2,6 +2,7 @@ import { useQuery } from "@tanstack/react-query"
 import Plot from "react-plotly.js"
 import { api } from "@/lib/api"
 import { queryKeys } from "@/lib/queryKeys"
+import { useFilters } from "@/context/FilterContext"
 import Metric from "@/components/Metric"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
@@ -18,12 +19,25 @@ const chartLayout = {
 }
 
 export default function MarketOverview() {
-  const overview = useQuery({ queryKey: queryKeys.marketOverview, queryFn: api.marketOverview })
-  const topSkills = useQuery({ queryKey: queryKeys.topSkills(10), queryFn: () => api.topSkills(10) })
-  const locations = useQuery({ queryKey: queryKeys.locations(10), queryFn: () => api.locations(10) })
+  const { selectedSkills, selectedLocations } = useFilters()
+  const skillParam = selectedSkills.join(",")
+  const locationParam = selectedLocations.join(",")
+  const filters = { skills: selectedSkills, locations: selectedLocations }
+  const overview = useQuery({
+    queryKey: queryKeys.marketOverview(skillParam, locationParam),
+    queryFn: () => api.marketOverview(filters),
+  })
+  const topSkills = useQuery({
+    queryKey: queryKeys.topSkills(10, skillParam, locationParam),
+    queryFn: () => api.topSkills(10, filters),
+  })
+  const locations = useQuery({
+    queryKey: queryKeys.locations(10, skillParam, locationParam),
+    queryFn: () => api.locations(10, filters),
+  })
   const recentPostings = useQuery({
-    queryKey: queryKeys.recentPostings(10),
-    queryFn: () => api.recentPostings(10),
+    queryKey: queryKeys.recentPostings(10, skillParam, locationParam),
+    queryFn: () => api.recentPostings(10, filters),
   })
 
   if (overview.isLoading) return <div className="py-10">Loading…</div>
@@ -42,6 +56,11 @@ export default function MarketOverview() {
         <p className="mt-3 max-w-xl text-muted-foreground">
           Headline demand, the skills everyone is hiring for, and where they are hiring from.
         </p>
+        {(selectedSkills.length > 0 || selectedLocations.length > 0) && (
+          <p className="mt-2 text-sm text-muted-foreground">
+            Filtered: {[selectedSkills.join(", "), selectedLocations.join(", ")].filter(Boolean).join(" · ")}
+          </p>
+        )}
       </div>
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
         <Metric label="Total Job Openings" value={overviewData.total_openings} />

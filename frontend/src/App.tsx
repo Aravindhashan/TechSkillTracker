@@ -23,7 +23,7 @@ const TABS = [
 function Shell() {
   const [active, setActive] = useState("market")
   const ActiveComponent = TABS.find((tab) => tab.id === active)?.component ?? MarketOverview
-  const { selectedSkills, setSelectedSkills } = useFilters()
+  const { selectedSkills, setSelectedSkills, selectedLocations, setSelectedLocations } = useFilters()
 
   return (
     <div className="min-h-screen bg-background text-foreground">
@@ -55,10 +55,10 @@ function Shell() {
               </button>
             ))}
           </nav>
-          <div className="flex items-center gap-3 pb-4">
+          <div className="flex flex-wrap items-center gap-3 pb-4">
             <span className="text-sm text-muted-foreground whitespace-nowrap">Skill filter</span>
             <input
-              className="w-full max-w-md rounded-full border border-border bg-card px-4 py-1.5 text-sm placeholder:text-muted-foreground/70 focus:outline-none focus:border-foreground"
+              className="w-full max-w-xs rounded-full border border-border bg-card px-4 py-1.5 text-sm placeholder:text-muted-foreground/70 focus:outline-none focus:border-foreground"
               placeholder="comma-separated skills"
               value={selectedSkills.join(", ")}
               onChange={(event) =>
@@ -70,6 +70,36 @@ function Shell() {
                 )
               }
             />
+            <span className="text-sm text-muted-foreground whitespace-nowrap">Location filter</span>
+            <input
+              className="w-full max-w-xs rounded-full border border-border bg-card px-4 py-1.5 text-sm placeholder:text-muted-foreground/70 focus:outline-none focus:border-foreground"
+              placeholder="comma-separated locations"
+              value={selectedLocations.join(", ")}
+              onChange={(event) =>
+                setSelectedLocations(
+                  event.target.value
+                    .split(",")
+                    .map((location) => location.trim())
+                    .filter(Boolean),
+                )
+              }
+            />
+            {(selectedSkills.length > 0 || selectedLocations.length > 0) && (
+              <button
+                className="rounded-full border border-border bg-card px-3 py-1 text-xs hover:border-foreground"
+                onClick={() => {
+                  setSelectedSkills([])
+                  setSelectedLocations([])
+                }}
+              >
+                Clear
+              </button>
+            )}
+            {(selectedSkills.length > 0 || selectedLocations.length > 0) && (
+              <span className="text-xs text-muted-foreground">
+                Filtering: {[selectedSkills.join(", "), selectedLocations.join(", ")].filter(Boolean).join(" · ")}
+              </span>
+            )}
           </div>
         </div>
       </header>

@@ -2,6 +2,7 @@ import { useQuery } from "@tanstack/react-query"
 import Plot from "react-plotly.js"
 import { api } from "@/lib/api"
 import { queryKeys } from "@/lib/queryKeys"
+import { useFilters } from "@/context/FilterContext"
 import { Card, CardContent } from "@/components/ui/card"
 
 const INK = "#1A1815"
@@ -17,8 +18,18 @@ const chartLayout = {
 }
 
 export default function DataVisualization() {
-  const trends = useQuery({ queryKey: queryKeys.demandTrends(5), queryFn: () => api.demandTrends(5) })
-  const pairs = useQuery({ queryKey: queryKeys.skillPairs(2), queryFn: () => api.skillPairs(2) })
+  const { selectedSkills, selectedLocations } = useFilters()
+  const skillParam = selectedSkills.join(",")
+  const locationParam = selectedLocations.join(",")
+  const filters = { skills: selectedSkills, locations: selectedLocations }
+  const trends = useQuery({
+    queryKey: queryKeys.demandTrends(5, skillParam, locationParam),
+    queryFn: () => api.demandTrends(5, filters),
+  })
+  const pairs = useQuery({
+    queryKey: queryKeys.skillPairs(2, skillParam, locationParam),
+    queryFn: () => api.skillPairs(2, filters),
+  })
 
   if (trends.isLoading || pairs.isLoading) return <div className="py-10">Loading…</div>
 
@@ -41,6 +52,11 @@ export default function DataVisualization() {
       <div>
         <div className="text-xs uppercase tracking-[0.2em] text-muted-foreground mb-2">02 — Data Viz</div>
         <h1 className="text-5xl leading-none">Demand Trends</h1>
+        {(selectedSkills.length > 0 || selectedLocations.length > 0) && (
+          <p className="mt-2 text-sm text-muted-foreground">
+            Filtered: {[selectedSkills.join(", "), selectedLocations.join(", ")].filter(Boolean).join(" · ")}
+          </p>
+        )}
       </div>
       <Card className="rounded-3xl">
         <CardContent className="pt-6">

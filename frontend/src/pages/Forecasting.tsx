@@ -1,8 +1,9 @@
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { useQuery } from "@tanstack/react-query"
 import Plot from "react-plotly.js"
 import { api } from "@/lib/api"
 import { queryKeys } from "@/lib/queryKeys"
+import { useFilters } from "@/context/FilterContext"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import type { ForecastEngine } from "@/types/api"
@@ -21,12 +22,21 @@ const INK = "#1A1815"
 const GRID = "#E4DCC8"
 
 export default function Forecasting() {
-  const [skill, setSkill] = useState("Python")
+  const { selectedSkills, selectedLocations } = useFilters()
+  const locationParam = selectedLocations.join(",")
+  const [skill, setSkill] = useState(selectedSkills[0] ?? "Python")
   const [months, setMonths] = useState(12)
   const [model, setModel] = useState<ForecastEngine>("auto")
   const [submitted, setSubmitted] = useState(false)
 
-  const top = useQuery({ queryKey: queryKeys.topSkills(20), queryFn: () => api.topSkills(20) })
+  useEffect(() => {
+    if (selectedSkills[0]) setSkill(selectedSkills[0])
+  }, [selectedSkills])
+
+  const top = useQuery({
+    queryKey: queryKeys.topSkills(50, "", locationParam),
+    queryFn: () => api.topSkills(50, { locations: selectedLocations }),
+  })
   const skills = (top.data?.skills ?? []).map((entry) => entry.skill)
 
   const forecast = useQuery({
@@ -45,22 +55,28 @@ export default function Forecasting() {
       <div>
         <div className="text-xs uppercase tracking-[0.2em] text-muted-foreground mb-2">03 — Forecasting</div>
         <h1 className="text-5xl leading-none">Demand Forecasting</h1>
+        {(selectedSkills.length > 0 || selectedLocations.length > 0) && (
+          <p className="mt-2 text-sm text-muted-foreground">
+            Filtered: {[selectedSkills.join(", "), selectedLocations.join(", ")].filter(Boolean).join(" · ")}
+          </p>
+        )}
       </div>
       <Card className="rounded-3xl">
         <CardContent className="pt-6 grid grid-cols-1 md:grid-cols-4 gap-4">
           <div>
             <label className="text-xs uppercase tracking-[0.18em] text-muted-foreground">Skill</label>
-            <select
+            <input
+              list="forecast-skills"
               className="mt-2 w-full rounded-full border border-border bg-card px-4 py-2 text-sm focus:outline-none focus:border-foreground"
               value={skill}
               onChange={(event) => setSkill(event.target.value)}
-            >
+              placeholder="Type any skill, e.g. Python"
+            />
+            <datalist id="forecast-skills">
               {skills.map((name) => (
-                <option key={name} value={name}>
-                  {name}
-                </option>
+                <option key={name} value={name} />
               ))}
-            </select>
+            </datalist>
           </div>
           <div>
             <label className="text-xs uppercase tracking-[0.18em] text-muted-foreground">Months ahead</label>
