@@ -23,6 +23,17 @@ export interface TopLocation {
   count: number
 }
 
+export interface RecentPosting {
+  job_id: string
+  title: string | null
+  company: string | null
+  location: string | null
+  posted_at: string | null
+  url: string | null
+  is_remote: boolean | null
+  skills: string[]
+}
+
 export interface ForecastPoint {
   date: string
   actual: number | null

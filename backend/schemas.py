@@ -41,6 +41,21 @@ class TopLocationsResponse(BaseModel):
     locations: list[TopLocation] = Field(default_factory=list)
 
 
+class RecentPosting(BaseModel):
+    job_id: str
+    title: str | None = None
+    company: str | None = None
+    location: str | None = None
+    posted_at: str | None = None
+    url: str | None = None
+    is_remote: bool | None = None
+    skills: list[str] = Field(default_factory=list)
+
+
+class RecentPostingsResponse(BaseModel):
+    postings: list[RecentPosting] = Field(default_factory=list)
+
+
 class TopSkillsResponse(BaseModel):
     skills: list[TopSkill] = Field(default_factory=list)
     top_skills: list[TopSkill] = Field(default_factory=list)

@@ -3,6 +3,7 @@ import Plot from "react-plotly.js"
 import { api } from "@/lib/api"
 import { queryKeys } from "@/lib/queryKeys"
 import Metric from "@/components/Metric"
+import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 
 const INK = "#1A1815"
@@ -20,6 +21,10 @@ export default function MarketOverview() {
   const overview = useQuery({ queryKey: queryKeys.marketOverview, queryFn: api.marketOverview })
   const topSkills = useQuery({ queryKey: queryKeys.topSkills(10), queryFn: () => api.topSkills(10) })
   const locations = useQuery({ queryKey: queryKeys.locations(10), queryFn: () => api.locations(10) })
+  const recentPostings = useQuery({
+    queryKey: queryKeys.recentPostings(10),
+    queryFn: () => api.recentPostings(10),
+  })
 
   if (overview.isLoading) return <div className="py-10">Loading…</div>
   if (overview.error) return <div className="py-10 text-red-800">{String(overview.error)}</div>
@@ -27,6 +32,7 @@ export default function MarketOverview() {
   const overviewData = overview.data!
   const skills = topSkills.data?.skills ?? []
   const locationRows = locations.data?.locations ?? []
+  const postings = recentPostings.data?.postings ?? []
 
   return (
     <div className="space-y-8">
@@ -66,6 +72,63 @@ export default function MarketOverview() {
           </CardContent>
         </Card>
       </div>
+
+      <Card className="rounded-3xl">
+        <CardContent className="pt-6">
+          <h2 className="text-2xl mb-1">Recent Job Postings</h2>
+          <p className="text-sm text-muted-foreground mb-4">
+            The latest openings — click Apply Now to open the posting.
+          </p>
+          {recentPostings.isLoading ? (
+            <div className="py-6 text-muted-foreground">Loading postings…</div>
+          ) : recentPostings.error ? (
+            <div className="py-6 text-red-800">{String(recentPostings.error)}</div>
+          ) : postings.length === 0 ? (
+            <div className="py-6 text-muted-foreground">No recent postings found.</div>
+          ) : (
+            <div className="overflow-auto">
+              <table className="min-w-full text-sm">
+                <thead>
+                  <tr className="text-left text-muted-foreground border-b border-border">
+                    <th className="py-2 pr-4 font-medium">Title</th>
+                    <th className="py-2 pr-4 font-medium">Company</th>
+                    <th className="py-2 pr-4 font-medium">Location</th>
+                    <th className="py-2 pr-4 font-medium">Posted</th>
+                    <th className="py-2 pr-4 font-medium">Skills</th>
+                    <th className="py-2 font-medium">Action</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {postings.map((posting) => (
+                    <tr key={posting.job_id} className="border-b border-border last:border-0 align-top">
+                      <td className="py-3 pr-4 font-medium">{posting.title ?? "Untitled role"}</td>
+                      <td className="py-3 pr-4">{posting.company ?? "—"}</td>
+                      <td className="py-3 pr-4">{posting.location ?? "—"}</td>
+                      <td className="py-3 pr-4 whitespace-nowrap">{posting.posted_at ? posting.posted_at.slice(0, 10) : "—"}</td>
+                      <td className="py-3 pr-4 max-w-56">
+                        {posting.skills.length > 0 ? posting.skills.join(", ") : "—"}
+                      </td>
+                      <td className="py-3">
+                        {posting.url ? (
+                          <Button asChild className="rounded-full" size="sm">
+                            <a href={posting.url} target="_blank" rel="noreferrer">
+                              Apply Now
+                            </a>
+                          </Button>
+                        ) : (
+                          <Button className="rounded-full" size="sm" disabled>
+                            Apply Now
+                          </Button>
+                        )}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
+        </CardContent>
+      </Card>
     </div>
   )
 }

@@ -7,6 +7,7 @@ import type {
   RoiResponse,
   SearchRequest,
   SearchResponse,
+  RecentPosting,
   TopLocation,
   TopSkill,
 } from "@/types/api"
@@ -31,6 +32,7 @@ export const api = {
   marketOverview: () => request<MarketOverview>("/api/market/overview"),
   topSkills: (n = 10) => request<{ skills: TopSkill[] }>(`/api/market/top-skills?n=${n}`),
   locations: (n = 10) => request<{ locations: TopLocation[] }>(`/api/market/locations?n=${n}`),
+  recentPostings: (n = 10) => request<{ postings: RecentPosting[] }>(`/api/market/recent-postings?n=${n}`),
   demandTrends: (topN = 5) =>
     request<{ skill: string; month: string; count: number }[]>(`/api/market/demand-trends?top_n=${topN}`),
   skillPairs: (minCo = 2) =>

@@ -3,6 +3,7 @@ export const queryKeys = {
   marketOverview: ["market", "overview"] as const,
   topSkills: (n: number) => ["market", "top-skills", n] as const,
   locations: (n: number) => ["market", "locations", n] as const,
+  recentPostings: (n: number) => ["market", "recent-postings", n] as const,
   demandTrends: (topN: number) => ["market", "demand-trends", topN] as const,
   skillPairs: (minCo: number) => ["market", "skill-pairs", minCo] as const,
   forecast: (skill: string, months: number, model: string) =>
