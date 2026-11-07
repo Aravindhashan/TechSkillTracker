@@ -1,11 +1,9 @@
-import glob
 import os
+import time
 
 import pandas as pd
-import streamlit as st
 
 
-@st.cache_data(ttl=300, show_spinner=False)
 def load_job_data(data_directory="data", source="auto"):
     """Load job listings from the live store.
 
