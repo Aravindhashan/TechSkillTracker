@@ -519,8 +519,6 @@ def forecast_skill_demand(df, skill_name, months_ahead=12, model_type="auto"):
             failures.append(f"{name}: {err}")
 
     if failures:
-        import logging
-
         logging.getLogger(__name__).info(
             "Falling back to linear regression. %s", " | ".join(failures)
         )

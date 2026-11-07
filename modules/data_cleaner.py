@@ -1,3 +1,4 @@
+import logging
 import re
 
 import pandas as pd
@@ -84,8 +85,6 @@ def clean_job_data(df):
     removed_count = original_count - cleaned_count
 
     if removed_count > 0:
-        import logging
-
         logging.getLogger(__name__).info(
             "Cleaned data: Removed %d invalid/duplicate records (%.1f%%)",
             removed_count,

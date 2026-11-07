@@ -110,15 +110,16 @@ def get_skill_specific_resources(skill_name):
         if key in skill_lower or skill_lower in key:
             return specific_resources[key]
 
-    return None
+    return []
 
 
 def get_learning_path_with_resources(missing_skills):
     """
     Build a structured learning path with resources for multiple skills.
 
-    Returns a list of dicts (one per skill) instead of rendering in Streamlit.
-    Each entry: {skill, youtube_url, specific_resources, platform_resources}.
+    Returns a list of dicts (one per skill). Each entry has:
+    step, skill, youtube_url, specific_resources (list or []), platform_resources (dict),
+    timeline (str), tips (list of str).
     """
     path = []
     for idx, skill in enumerate(missing_skills, 1):
