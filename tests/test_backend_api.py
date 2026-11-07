@@ -65,6 +65,45 @@ def test_top_skills(client):
     assert isinstance(data, (list, dict))
 
 
+def test_locations_state_wise(client):
+    r = client.get("/api/market/locations?n=10")
+    assert r.status_code == 200
+    data = r.json()
+    assert isinstance(data, dict)
+    assert isinstance(data.get("locations"), list)
+
+
+def test_recent_postings_with_apply_url(client):
+    r = client.get("/api/market/recent-postings?n=5")
+    assert r.status_code == 200
+    data = r.json()
+    postings = data.get("postings", [])
+    assert len(postings) >= 1
+    first = postings[0]
+    assert first["job_id"] == "job-1"
+    assert first["title"] == "Backend Engineer"
+    assert first["url"] == "https://example.com/job"
+    assert set(first["skills"]) == {"Python", "PostgreSQL"}
+
+
+def test_market_overview_filtered_by_skill(client):
+    r_unfiltered = client.get("/api/market/overview")
+    assert r_unfiltered.status_code == 200
+    assert r_unfiltered.json()["total_openings"] >= 1
+
+    r_filtered = client.get("/api/market/overview?skills=Python")
+    assert r_filtered.status_code == 200
+    assert r_filtered.json()["total_openings"] >= 1
+
+    r_nonexistent = client.get("/api/market/overview?skills=NonexistentSkillXYZ")
+    assert r_nonexistent.status_code == 200
+    assert r_nonexistent.json()["total_openings"] == 0
+
+    r_location = client.get("/api/market/overview?locations=Bengaluru")
+    assert r_location.status_code == 200
+    assert r_location.json()["total_openings"] >= 1
+
+
 def test_forecast_404_unknown(client):
     r = client.get("/api/forecast/NonexistentSkillXYZ")
     assert r.status_code == 404
