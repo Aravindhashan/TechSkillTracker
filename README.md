@@ -1,6 +1,8 @@
 # Tech Skill Tracker
 
-A business intelligence dashboard for exploring tech skill demand in the Indian job market. Built with Streamlit, it combines interactive analytics, time-series forecasting, semantic job search, and skill recommendations in one app.
+A business intelligence dashboard for exploring tech skill demand in the Indian job market. It combines interactive analytics, time-series forecasting, semantic job search, and skill recommendations in one app.
+
+> **Current architecture (React rewrite, branch `react-migrated`):** a Vite + React + TypeScript frontend (`frontend/`) talks to a FastAPI backend (`backend/`, see `backend/main.py`). The legacy Streamlit app (`app.py`) is retained for reference on `main` and remains deployable. Set `VITE_API_BASE` (default `http://localhost:8000`) to point the frontend at the backend; run the backend with `uvicorn backend.main:app --reload`.
 
 ![Python](https://img.shields.io/badge/Python-3.11%2B-3776AB?logo=python&logoColor=white)
 ![Streamlit](https://img.shields.io/badge/Streamlit-1.50%2B-FF4B4B?logo=streamlit&logoColor=white)
@@ -46,9 +48,9 @@ The app ingests live job postings from JSearch (and optionally Jobspy) on a 6-ho
 
 | Layer | Tools |
 | --- | --- |
-| UI | Streamlit |
+| UI | React (Vite + TypeScript, `frontend/`); legacy: Streamlit (`app.py`) |
 | Data | pandas, NumPy |
-| Visualization | Plotly |
+| Visualization | Plotly (both UIs) |
 | Machine learning | scikit-learn (Random Forest), statsmodels (SARIMAX, exponential smoothing), Prophet (optional) |
 | Persistence | joblib |
 | Reporting | ReportLab (optional) |

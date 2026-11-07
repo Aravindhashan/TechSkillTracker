@@ -18,6 +18,11 @@ export interface TopSkill {
   count: number
 }
 
+export interface TopLocation {
+  location: string
+  count: number
+}
+
 export interface ForecastPoint {
   date: string
   actual: number | null
@@ -25,6 +30,15 @@ export interface ForecastPoint {
   lower: number | null
   upper: number | null
 }
+
+export type ForecastEngine =
+  | "auto"
+  | "gradient_boosting"
+  | "sarimax"
+  | "prophet"
+  | "croston"
+  | "exponential_smoothing"
+  | "linear"
 
 export interface ForecastResponse {
   skill: string
@@ -92,12 +106,41 @@ export interface RoiResponse {
   rows: RoiRow[]
 }
 
+export interface SurvivalPoint {
+  time: number
+  at_risk: number
+  events: number
+  survival: number
+}
+
+export interface AnomalyRow {
+  "Job Title": string
+  "Tech Skill": string
+  Location?: string
+  "Experience Required (in years)"?: number | null
+  reason?: string
+}
+
+export interface PmiPair {
+  skill_a: string
+  skill_b: string
+  cooccurrence: number
+  pmi: number
+}
+
+export interface CoxCoefficient {
+  covariate: string
+  coef: number
+  exp_coef: number
+  p_value: number
+}
+
 export interface DemandScienceResponse {
-  survival_overall: Record<string, unknown>[]
-  survival_by_skill: Record<string, Record<string, unknown>[]>
-  cox: Record<string, unknown>
-  anomalies: Record<string, unknown>[]
-  pmi_pairs: Record<string, unknown>[]
+  survival_overall: SurvivalPoint[]
+  survival_by_skill: Record<string, SurvivalPoint[]>
+  cox: { coefficients?: CoxCoefficient[]; n?: number; events?: number; error?: string } & Record<string, unknown>
+  anomalies: AnomalyRow[]
+  pmi_pairs: PmiPair[]
   communities: Record<string, number>
   relatedness: Record<string, [string, number][]>
 }

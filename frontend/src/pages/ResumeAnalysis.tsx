@@ -1,6 +1,9 @@
-import { useState } from 'react'
-import { useMutation } from '@tanstack/react-query'
-import { api } from '../lib/api'
+import { useState } from "react"
+import { useMutation } from "@tanstack/react-query"
+import { api } from "@/lib/api"
+import Metric from "@/components/Metric"
+import { Button } from "@/components/ui/button"
+import { Card, CardContent } from "@/components/ui/card"
 
 interface MissingSkill {
   skill: string
@@ -25,26 +28,22 @@ interface ResumeResult {
 
 export default function ResumeAnalysis() {
   const [file, setFile] = useState<File | null>(null)
-  const mutation = useMutation({ mutationFn: (f: File) => api.resumeAnalyze(f) as Promise<ResumeResult> })
+  const mutation = useMutation({
+    mutationFn: (selected: File) => api.resumeAnalyze(selected) as Promise<ResumeResult>,
+  })
 
   return (
     <div className="p-6 space-y-6">
       <h1 className="text-2xl font-bold">Resume Skill-Gap Analysis</h1>
-      <div className="bg-white rounded-lg shadow p-4 space-y-3">
-        <input
-          type="file"
-          accept=".pdf,.docx"
-          onChange={(e) => setFile(e.target.files?.[0] ?? null)}
-        />
-        <button
-          className="bg-blue-600 text-white px-4 py-2 rounded disabled:opacity-50"
-          disabled={!file || mutation.isPending}
-          onClick={() => file && mutation.mutate(file)}
-        >
-          {mutation.isPending ? 'Analyzing…' : 'Analyze Resume'}
-        </button>
-        {mutation.error && <div className="text-red-600">{String(mutation.error)}</div>}
-      </div>
+      <Card>
+        <CardContent className="pt-6 space-y-3">
+          <input type="file" accept=".pdf,.docx" onChange={(event) => setFile(event.target.files?.[0] ?? null)} />
+          <Button disabled={!file || mutation.isPending} onClick={() => file && mutation.mutate(file)}>
+            {mutation.isPending ? "Analyzing…" : "Analyze Resume"}
+          </Button>
+          {mutation.error && <div className="text-red-600">{String(mutation.error)}</div>}
+        </CardContent>
+      </Card>
 
       {mutation.data && (
         <div className="space-y-4">
@@ -56,58 +55,59 @@ export default function ResumeAnalysis() {
           </div>
 
           {mutation.data.matched_skills && mutation.data.matched_skills.length > 0 && (
-            <div className="bg-white rounded-lg shadow p-4">
-              <h2 className="font-semibold mb-2">Skills you already cover</h2>
-              <p>{mutation.data.matched_skills.join(', ')}</p>
-            </div>
+            <Card>
+              <CardContent className="pt-6">
+                <h2 className="font-semibold mb-2">Skills you already cover</h2>
+                <p>{mutation.data.matched_skills.join(", ")}</p>
+              </CardContent>
+            </Card>
           )}
 
           {mutation.data.missing_skills && mutation.data.missing_skills.length > 0 && (
-            <div className="bg-white rounded-lg shadow p-4">
-              <h2 className="font-semibold mb-2">Top missing skills</h2>
-              <div className="overflow-auto">
-                <table className="min-w-full text-sm">
-                  <thead>
-                    <tr className="text-left text-gray-500 border-b">
-                      <th className="py-2 pr-4">Skill</th>
-                      <th className="py-2 pr-4">Demand</th>
-                      <th className="py-2 pr-4">% of postings</th>
-                      <th className="py-2">Resources</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {mutation.data.missing_skills.slice(0, 15).map((m) => (
-                      <tr key={m.skill} className="border-b last:border-0">
-                        <td className="py-2 pr-4 font-medium">{m.skill}</td>
-                        <td className="py-2 pr-4">{m.demand}</td>
-                        <td className="py-2 pr-4">{m.percentage}%</td>
-                        <td className="py-2">
-                          <div className="flex flex-wrap gap-2">
-                            {Object.entries(m.resources ?? {}).slice(0, 3).map(([name, info]) => (
-                              <a key={name} href={info.url} target="_blank" rel="noreferrer" className="text-blue-600 underline">
-                                {name}
-                              </a>
-                            ))}
-                          </div>
-                        </td>
+            <Card>
+              <CardContent className="pt-6">
+                <h2 className="font-semibold mb-2">Top missing skills</h2>
+                <div className="overflow-auto">
+                  <table className="min-w-full text-sm">
+                    <thead>
+                      <tr className="text-left text-gray-500 border-b">
+                        <th className="py-2 pr-4">Skill</th>
+                        <th className="py-2 pr-4">Demand</th>
+                        <th className="py-2 pr-4">% of postings</th>
+                        <th className="py-2">Resources</th>
                       </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            </div>
+                    </thead>
+                    <tbody>
+                      {mutation.data.missing_skills.slice(0, 15).map((missing) => (
+                        <tr key={missing.skill} className="border-b last:border-0">
+                          <td className="py-2 pr-4 font-medium">{missing.skill}</td>
+                          <td className="py-2 pr-4">{missing.demand}</td>
+                          <td className="py-2 pr-4">{missing.percentage}%</td>
+                          <td className="py-2">
+                            <div className="flex flex-wrap gap-2">
+                              {Object.entries(missing.resources ?? {}).slice(0, 3).map(([name, info]) => (
+                                <a
+                                  key={name}
+                                  href={info.url}
+                                  target="_blank"
+                                  rel="noreferrer"
+                                  className="text-blue-600 underline"
+                                >
+                                  {name}
+                                </a>
+                              ))}
+                            </div>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </CardContent>
+            </Card>
           )}
         </div>
       )}
-    </div>
-  )
-}
-
-function Metric({ label, value }: { label: string; value: string | number }) {
-  return (
-    <div className="bg-white rounded-lg shadow p-4">
-      <div className="text-sm text-gray-500">{label}</div>
-      <div className="text-2xl font-bold">{value}</div>
     </div>
   )
 }
