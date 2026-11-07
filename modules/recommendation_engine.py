@@ -1,10 +1,8 @@
 import pandas as pd
 import numpy as np
 from itertools import combinations
-import streamlit as st
 
 
-@st.cache_data
 def build_cooccurrence_matrix(df):
     """
     Build skill co-occurrence matrix based on company hiring patterns
@@ -30,7 +28,6 @@ def build_cooccurrence_matrix(df):
     return cooccurrence
 
 
-@st.cache_data
 def recommend_skills(df, current_skill, top_n=5):
     """
     Recommend complementary skills based on co-occurrence analysis
@@ -64,7 +61,6 @@ def recommend_skills(df, current_skill, top_n=5):
     return recs, "success"
 
 
-@st.cache_data
 def recommend_for_job_role(df, job_role, top_n=10):
     """
     Recommend skills for a specific job role based on market data
