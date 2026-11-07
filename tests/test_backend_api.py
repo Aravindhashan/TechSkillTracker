@@ -304,3 +304,51 @@ def test_fairness_tables_and_gaps(client):
 def test_resume_unsupported(client):
     r = client.post("/api/resume/analyze", files={"file": ("x.txt", b"hello", "text/plain")})
     assert r.status_code == 415
+
+
+def test_resume_pdf_upload(client):
+    import io
+
+    from reportlab.pdfgen import canvas
+
+    buf = io.BytesIO()
+    cc = canvas.Canvas(buf)
+    cc.drawString(100, 750, "Skills: Python, Docker")
+    cc.save()
+    pdf_bytes = buf.getvalue()
+
+    r = client.post(
+        "/api/resume/analyze",
+        files={"file": ("r.pdf", pdf_bytes, "application/pdf")},
+    )
+    assert r.status_code == 200
+    data = r.json()
+    assert "resume_skills" in data
+    assert "missing_skills" in data
+    assert "match_percentage" in data
+
+
+def test_resume_docx_upload(client):
+    import io
+
+    from docx import Document
+
+    doc = Document()
+    doc.add_paragraph("Skills: Python, Docker")
+    buf = io.BytesIO()
+    doc.save(buf)
+
+    r = client.post(
+        "/api/resume/analyze",
+        files={"file": ("r.docx", buf.getvalue(), "application/vnd.openxmlformats-officedocument.wordprocessingml.document")},
+    )
+    assert r.status_code == 200
+    assert "resume_skills" in r.json()
+
+
+def test_resume_unparseable_returns_422(client):
+    r = client.post(
+        "/api/resume/analyze",
+        files={"file": ("r.pdf", b"not a real pdf", "application/pdf")},
+    )
+    assert r.status_code == 422
