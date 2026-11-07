@@ -1,7 +1,6 @@
 import re
 
 import pandas as pd
-import streamlit as st
 
 
 # Maps any city alias found inside a location string to one canonical name.
@@ -40,6 +39,7 @@ def _normalize_location(value) -> str:
     return value.strip().title()
 
 
+@st.cache_data
 @st.cache_data
 def clean_job_data(df):
     """
@@ -86,9 +86,12 @@ def clean_job_data(df):
     removed_count = original_count - cleaned_count
 
     if removed_count > 0:
-        st.info(
-            f"Cleaned data: Removed {removed_count} invalid/duplicate records "
-            f"({removed_count / original_count * 100:.1f}%)"
+        import logging
+
+        logging.getLogger(__name__).info(
+            "Cleaned data: Removed %d invalid/duplicate records (%.1f%%)",
+            removed_count,
+            removed_count / original_count * 100,
         )
 
     return df
