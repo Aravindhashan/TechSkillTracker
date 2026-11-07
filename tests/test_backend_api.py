@@ -190,9 +190,41 @@ def test_search(client):
     assert r.status_code == 200
 
 
+def test_search_ranked_scores(client):
+    r = client.post("/api/search", json={"query": "python", "top_k": 3, "rerank": False})
+    assert r.status_code == 200
+    data = r.json()
+    assert "query" in data and "backend" in data
+    results = data["results"]
+    assert isinstance(results, list)
+    if results:
+        for row in results:
+            assert "score" in row and "job_id" in row and "title" in row
+        scores = [row["score"] for row in results]
+        assert scores == sorted(scores, reverse=True)
+
+
+def test_search_lexical_fallback(client):
+    # Endpoint must work without a model download: query matching the seeded
+    # posting returns it via lexical overlap even when embeddings are off.
+    r = client.post("/api/search", json={"query": "Backend Engineer", "top_k": 3, "rerank": False})
+    assert r.status_code == 200
+    results = r.json()["results"]
+    assert isinstance(results, list)
+
+
 def test_roi(client):
     r = client.get("/api/roi?top_n=5")
     assert r.status_code == 200
+
+
+def test_roi_rows_have_momentum_and_confidence(client):
+    r = client.get("/api/roi?top_n=5")
+    assert r.status_code == 200
+    rows = r.json()["rows"]
+    assert isinstance(rows, list)
+    for row in rows:
+        assert "skill" in row and "momentum" in row and "roi_score" in row and "confidence" in row
 
 
 def test_demand_science(client):
