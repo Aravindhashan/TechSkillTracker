@@ -238,6 +238,24 @@ def test_fairness(client):
     assert "overall" in r.json()
 
 
+def test_fairness_tables_and_gaps(client):
+    r = client.get("/api/fairness")
+    assert r.status_code == 200
+    data = r.json()
+    assert "by_location" in data and "by_remote" in data and "by_company_type" in data
+    assert isinstance(data["by_location"], list)
+    assert isinstance(data["by_remote"], list)
+    assert isinstance(data["by_company_type"], list)
+    gaps = data["gaps"]
+    assert "location_share_range_pp" in gaps
+    assert "remote_share_gap_pp" in gaps
+    assert "company_type_share_range_pp" in gaps
+    assert "adjusted_by_location" in gaps
+    assert "adjusted_by_remote" in gaps
+    assert "adjusted_by_company_type" in gaps
+    assert data["confidence"] in ("low", "high")
+
+
 def test_resume_unsupported(client):
     r = client.post("/api/resume/analyze", files={"file": ("x.txt", b"hello", "text/plain")})
     assert r.status_code == 415
