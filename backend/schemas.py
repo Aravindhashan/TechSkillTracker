@@ -32,6 +32,15 @@ class TopSkill(BaseModel):
     count: int
 
 
+class TopLocation(BaseModel):
+    location: str
+    count: int
+
+
+class TopLocationsResponse(BaseModel):
+    locations: list[TopLocation] = Field(default_factory=list)
+
+
 class TopSkillsResponse(BaseModel):
     skills: list[TopSkill] = Field(default_factory=list)
     top_skills: list[TopSkill] = Field(default_factory=list)

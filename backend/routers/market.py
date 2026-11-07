@@ -5,7 +5,13 @@ from __future__ import annotations
 from fastapi import APIRouter, Depends, Query
 
 from backend.dependencies import get_dataframe, get_store_count
-from backend.schemas import MarketOverviewResponse, TopSkill, TopSkillsResponse
+from backend.schemas import (
+    MarketOverviewResponse,
+    TopLocation,
+    TopLocationsResponse,
+    TopSkill,
+    TopSkillsResponse,
+)
 
 router = APIRouter(prefix="/api/market", tags=["market"])
 
@@ -40,3 +46,16 @@ def top_skills(
     counts = df["Tech Skill"].value_counts().head(n)
     skills = [TopSkill(skill=str(skill), count=int(count)) for skill, count in counts.items()]
     return TopSkillsResponse(skills=skills, top_skills=skills, items=skills, results=skills)
+
+
+@router.get("/locations", response_model=TopLocationsResponse)
+def top_locations(
+    n: int = Query(default=10, ge=1, le=100),
+    df=Depends(get_dataframe),
+) -> TopLocationsResponse:
+    if df is None or getattr(df, "empty", True) or "Location" not in df.columns:
+        return TopLocationsResponse(locations=[])
+
+    counts = df["Location"].value_counts().head(n)
+    locations = [TopLocation(location=str(loc), count=int(count)) for loc, count in counts.items()]
+    return TopLocationsResponse(locations=locations)
