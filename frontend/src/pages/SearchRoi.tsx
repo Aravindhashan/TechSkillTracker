@@ -5,17 +5,56 @@ import { api } from "@/lib/api"
 import { queryKeys } from "@/lib/queryKeys"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
+import type { SearchResult } from "@/types/api"
 
-type SubTab = "search" | "roi"
+type SubTab = "search" | "roi" | "match"
 
 const INK = "#1A1815"
 const GRID = "#E4DCC8"
+
+function parseSkills(value: string): string[] {
+  return value
+    .split(",")
+    .map((entry) => entry.trim())
+    .filter(Boolean)
+}
+
+function MatchBadge({ result, resumeSkillsInput }: { result: SearchResult; resumeSkillsInput: string }) {
+  const resumeSkills = parseSkills(resumeSkillsInput)
+  const match = useQuery({
+    queryKey: queryKeys.match(result.job_id ?? "", resumeSkills.join(",")),
+    queryFn: () => api.match({ job_id: result.job_id ?? "", resume_skills: resumeSkills }),
+    enabled: !!result.job_id && resumeSkills.length > 0,
+  })
+
+  if (resumeSkills.length === 0) return null
+  return (
+    <div className="mt-3">
+      {match.isLoading && <span className="text-xs text-muted-foreground">Scoring match…</span>}
+      {match.error && <span className="text-xs text-red-800">{String(match.error)}</span>}
+      {match.data && (
+        <span className="inline-flex flex-wrap items-center gap-2 rounded-full border border-border bg-card px-3 py-1 text-sm">
+          <span className="font-display text-lg leading-none">{match.data.match_score}</span>
+          <span className="text-muted-foreground">match</span>
+          {match.data.missing_must_have.length > 0 && (
+            <span className="text-xs text-muted-foreground">
+              missing: {match.data.missing_must_have.join(", ")}
+            </span>
+          )}
+        </span>
+      )}
+    </div>
+  )
+}
 
 export default function SearchRoi() {
   const [sub, setSub] = useState<SubTab>("search")
   const [query, setQuery] = useState("")
   const [topK, setTopK] = useState(8)
   const [rerank, setRerank] = useState(true)
+  const [resumeSkillsInput, setResumeSkillsInput] = useState("")
+  const [matchJobId, setMatchJobId] = useState("")
+  const [matchResumeInput, setMatchResumeInput] = useState("")
 
   const search = useQuery({
     queryKey: queryKeys.search(query, topK, rerank),
@@ -29,29 +68,37 @@ export default function SearchRoi() {
     enabled: sub === "roi",
   })
 
+  const matchSkills = parseSkills(matchResumeInput)
+  const pasteMatch = useQuery({
+    queryKey: queryKeys.match(matchJobId.trim(), matchResumeInput),
+    queryFn: () => api.match({ job_id: matchJobId.trim(), resume_skills: matchSkills }),
+    enabled: sub === "match" && !!matchJobId.trim() && matchSkills.length > 0,
+  })
+
   return (
     <div className="space-y-8">
       <div>
         <div className="text-xs uppercase tracking-[0.2em] text-muted-foreground mb-2">07 — Search & ROI</div>
         <h1 className="text-5xl leading-none">Search & ROI</h1>
       </div>
-      <div className="flex gap-1.5">
-        <button
-          className={`rounded-full px-4 py-1.5 text-sm transition ${
-            sub === "search" ? "bg-primary text-primary-foreground" : "border border-border bg-card hover:border-foreground/40"
-          }`}
-          onClick={() => setSub("search")}
-        >
-          Semantic job search
-        </button>
-        <button
-          className={`rounded-full px-4 py-1.5 text-sm transition ${
-            sub === "roi" ? "bg-primary text-primary-foreground" : "border border-border bg-card hover:border-foreground/40"
-          }`}
-          onClick={() => setSub("roi")}
-        >
-          Skill ROI
-        </button>
+      <div className="flex flex-wrap gap-1.5">
+        {(
+          [
+            ["search", "Semantic job search"],
+            ["roi", "Skill ROI"],
+            ["match", "Match a JD"],
+          ] as [SubTab, string][]
+        ).map(([id, label]) => (
+          <button
+            key={id}
+            className={`rounded-full px-4 py-1.5 text-sm transition ${
+              sub === id ? "bg-primary text-primary-foreground" : "border border-border bg-card hover:border-foreground/40"
+            }`}
+            onClick={() => setSub(id)}
+          >
+            {label}
+          </button>
+        ))}
       </div>
 
       {sub === "search" && (
@@ -63,6 +110,12 @@ export default function SearchRoi() {
                 placeholder="e.g. backend engineer with python and postgres"
                 value={query}
                 onChange={(event) => setQuery(event.target.value)}
+              />
+              <input
+                className="w-full rounded-full border border-border bg-card px-4 py-2 text-sm focus:outline-none focus:border-foreground"
+                placeholder="Your skills (comma-separated, e.g. Python, SQL) — scores every result below"
+                value={resumeSkillsInput}
+                onChange={(event) => setResumeSkillsInput(event.target.value)}
               />
               <div className="grid grid-cols-2 md:grid-cols-3 gap-4 items-end">
                 <div>
@@ -108,6 +161,7 @@ export default function SearchRoi() {
                       {result.skills.length > 0 && (
                         <p className="mt-2 text-xs text-muted-foreground">Skills: {result.skills.join(", ")}</p>
                       )}
+                      <MatchBadge result={result} resumeSkillsInput={resumeSkillsInput} />
                       {result.url && (
                         <a href={result.url} target="_blank" rel="noreferrer" className="inline-block mt-3 rounded-full border border-border px-4 py-1 text-sm hover:border-foreground">
                           View posting
@@ -118,6 +172,60 @@ export default function SearchRoi() {
                 ))
               )}
             </div>
+          )}
+        </div>
+      )}
+
+      {sub === "match" && (
+        <div className="space-y-6">
+          <Card className="rounded-3xl">
+            <CardContent className="pt-6 space-y-4">
+              <p className="text-sm text-muted-foreground">
+                Score your profile against one posting. Paste a `job_id` from Recent Postings,
+                then your skills — you get a weighted score and must-haves you lack.
+              </p>
+              <input
+                className="w-full rounded-full border border-border bg-card px-4 py-2 text-sm focus:outline-none focus:border-foreground"
+                placeholder="Job ID, e.g. jobspy:… or ashby:…"
+                value={matchJobId}
+                onChange={(event) => setMatchJobId(event.target.value)}
+              />
+              <input
+                className="w-full rounded-full border border-border bg-card px-4 py-2 text-sm focus:outline-none focus:border-foreground"
+                placeholder="Your skills (comma-separated, e.g. Python, SQL, Docker)"
+                value={matchResumeInput}
+                onChange={(event) => setMatchResumeInput(event.target.value)}
+              />
+            </CardContent>
+          </Card>
+
+          {pasteMatch.isLoading && <div className="py-10">Scoring match…</div>}
+          {pasteMatch.error && <div className="py-10 text-red-800">{String(pasteMatch.error)}</div>}
+          {pasteMatch.data && (
+            <Card className="rounded-3xl">
+              <CardContent className="pt-6">
+                <h2 className="text-2xl">
+                  Match score: <span className="font-display">{pasteMatch.data.match_score}</span>
+                </h2>
+                <p className="mt-1 text-sm text-muted-foreground">
+                  Health: {pasteMatch.data.posting_health} · confidence: {pasteMatch.data.confidence}
+                </p>
+                <div className="mt-4 space-y-2 text-sm">
+                  <p>
+                    <span className="font-medium">Matched: </span>
+                    {pasteMatch.data.matched_skills.join(", ") || "—"}
+                  </p>
+                  <p>
+                    <span className="font-medium">Missing must-haves: </span>
+                    {pasteMatch.data.missing_must_have.join(", ") || "—"}
+                  </p>
+                  <p>
+                    <span className="font-medium">Missing nice-to-haves: </span>
+                    {pasteMatch.data.missing_nice_to_have.join(", ") || "—"}
+                  </p>
+                </div>
+              </CardContent>
+            </Card>
           )}
         </div>
       )}

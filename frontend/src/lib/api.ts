@@ -5,6 +5,8 @@ import type {
   MarketOverview,
   RecommendationResponse,
   RoiResponse,
+  MatchRequest,
+  MatchResponse,
   SearchRequest,
   SearchResponse,
   RecentPosting,
@@ -78,6 +80,11 @@ export const api = {
       body: JSON.stringify(body),
     }),
   roi: (topN = 25) => request<RoiResponse>(`/api/roi?top_n=${topN}`),
+  match: (body: MatchRequest) =>
+    request<MatchResponse>("/api/match", {
+      method: "POST",
+      body: JSON.stringify(body),
+    }),
   demandScience: () => request<DemandScienceResponse>("/api/demand-science"),
   fairness: () => request<Record<string, unknown>>("/api/fairness"),
   resumeAnalyze: async (file: File) => {

@@ -18,6 +18,7 @@ export const queryKeys = {
   search: (query: string, topK: number, rerank: boolean) =>
     ["search", query, topK, rerank] as const,
   roi: (topN: number) => ["roi", topN] as const,
+  match: (jobId: string, skills: string) => ["match", jobId, skills] as const,
   demandScience: ["demand-science"] as const,
   fairness: ["fairness"] as const,
 }

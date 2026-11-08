@@ -146,6 +146,25 @@ export interface CoxCoefficient {
   p_value: number
 }
 
+export interface MatchRequest {
+  job_id: string
+  resume_skills: string[]
+  resume_years?: number | null
+  resume_title?: string | null
+}
+
+export interface MatchResponse {
+  job_id: string
+  match_score: number
+  matched_skills: string[]
+  missing_must_have: string[]
+  missing_nice_to_have: string[]
+  experience_gap: number | null
+  title_similarity: number | null
+  posting_health: string
+  confidence: string
+}
+
 export interface DemandScienceResponse {
   survival_overall: SurvivalPoint[]
   survival_by_skill: Record<string, SurvivalPoint[]>
