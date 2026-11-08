@@ -72,10 +72,16 @@ export default function MarketOverview() {
         <Metric label="Locations" value={overviewData.locations} />
       </div>
 
+      <h2 className="text-3xl leading-tight">
+        Top 10 highly valuable skills in recent job postings and their location distribution
+      </h2>
+      <p className="text-sm text-muted-foreground -mt-4">
+        Full database (all postings) — headline cards above are the last 6 hours.
+      </p>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <Card className="rounded-3xl">
           <CardContent className="pt-6">
-            <h2 className="text-2xl mb-3">Top 10 In-Demand Skills</h2>
+            <h3 className="text-xl mb-3">Top 10 Highly Valuable Skills</h3>
             <Plot
               data={[{ type: "bar", x: skills.map((s) => s.count), y: skills.map((s) => s.skill), orientation: "h", marker: { color: INK } }]}
               layout={{ ...chartLayout, margin: { l: 120 } }}
@@ -85,7 +91,7 @@ export default function MarketOverview() {
         </Card>
         <Card className="rounded-3xl">
           <CardContent className="pt-6">
-            <h2 className="text-2xl mb-3">Job Distribution by Location</h2>
+            <h3 className="text-xl mb-3">Location Distribution</h3>
             <Plot
               data={[{ type: "pie", values: locationRows.map((loc) => loc.count), labels: locationRows.map((loc) => loc.location), hole: 0.45, marker: { colors: [INK, "#5C5548", "#8A8171", "#B8AE9C", "#D8CFBB", "#4A4438", "#6B645A", "#9A917F", "#CDC2A6", "#39352B"] } }]}
               layout={{ ...chartLayout, height: 400 }}

@@ -6,6 +6,7 @@ import pandas as pd
 from fastapi import APIRouter, Depends, Query
 
 from backend.dependencies import get_dataframe, get_recent_dataframe
+from fastapi import Depends as _Depends  # noqa: F401  (kept for dep overrides in tests)
 from backend.schemas import (
     MarketOverviewResponse,
     RecentPosting,
@@ -71,7 +72,7 @@ def top_skills(
     n: int = Query(default=10, ge=1, le=100),
     skills: str | None = Query(default=None),
     locations: str | None = Query(default=None),
-    df=Depends(get_recent_dataframe),
+    df=Depends(get_dataframe),
 ) -> TopSkillsResponse:
     if df is None or getattr(df, "empty", True) or "Tech Skill" not in df.columns:
         return TopSkillsResponse(skills=[])
@@ -90,7 +91,7 @@ def top_locations(
     n: int = Query(default=10, ge=1, le=100),
     skills: str | None = Query(default=None),
     locations: str | None = Query(default=None),
-    df=Depends(get_recent_dataframe),
+    df=Depends(get_dataframe),
 ) -> TopLocationsResponse:
     if df is None or getattr(df, "empty", True) or "Location" not in df.columns:
         return TopLocationsResponse(locations=[])
