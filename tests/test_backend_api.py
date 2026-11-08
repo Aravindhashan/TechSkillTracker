@@ -306,6 +306,29 @@ def test_resume_unsupported(client):
     assert r.status_code == 415
 
 
+def test_match_success(client):
+    r = client.post(
+        "/api/match",
+        json={"job_id": "job-1", "resume_skills": ["Python", "PostgreSQL"], "resume_years": 2.0},
+    )
+    assert r.status_code == 200
+    data = r.json()
+    assert data["job_id"] == "job-1"
+    assert 0 <= data["match_score"] <= 100
+    assert "matched_skills" in data and "missing_must_have" in data
+    assert "posting_health" in data and "confidence" in data
+
+
+def test_match_unknown_job_404(client):
+    r = client.post("/api/match", json={"job_id": "no-such-job", "resume_skills": ["Python"]})
+    assert r.status_code == 404
+
+
+def test_match_bad_payload_422(client):
+    r = client.post("/api/match", json={"resume_skills": ["Python"]})
+    assert r.status_code == 422
+
+
 def test_resume_pdf_upload(client):
     import io
 

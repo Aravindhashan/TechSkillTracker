@@ -180,3 +180,27 @@ class ResumeAnalysisResponse(BaseModel):
     filename: str
     analysis: dict[str, Any]
     resume_id: str | None = None
+
+
+# ---------------------------------------------------------------------------
+# Per-job match (Slice 1 — stateless)
+# ---------------------------------------------------------------------------
+
+
+class MatchRequest(BaseModel):
+    job_id: str
+    resume_skills: list[str] = Field(default_factory=list)
+    resume_years: float | None = None
+    resume_title: str | None = None
+
+
+class MatchResponse(BaseModel):
+    job_id: str
+    match_score: float
+    matched_skills: list[str] = Field(default_factory=list)
+    missing_must_have: list[str] = Field(default_factory=list)
+    missing_nice_to_have: list[str] = Field(default_factory=list)
+    experience_gap: float | None = None
+    title_similarity: float | None = None
+    posting_health: str
+    confidence: str

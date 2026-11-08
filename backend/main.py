@@ -16,7 +16,7 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from backend.dependencies import get_store_count
 from backend.schemas import HealthResponse
-from backend.routers import demand_science, fairness, forecast, market, recommendations, resume, search
+from backend.routers import demand_science, fairness, forecast, market, match, recommendations, resume, search
 
 try:
     from modules import store as job_store
@@ -77,3 +77,4 @@ app.include_router(search.router)
 app.include_router(demand_science.router)
 app.include_router(fairness.router)
 app.include_router(resume.router)
+app.include_router(match.router)
