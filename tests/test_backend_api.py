@@ -324,6 +324,19 @@ def test_match_unknown_job_404(client):
     assert r.status_code == 404
 
 
+def test_match_regression_roundtrip_full_skills_scores_100(client):
+    # Seeded job-1 requires Python + PostgreSQL; a resume with both matches fully.
+    r = client.post(
+        "/api/match",
+        json={"job_id": "job-1", "resume_skills": ["Python", "PostgreSQL"], "resume_years": 3.0},
+    )
+    assert r.status_code == 200
+    data = r.json()
+    assert data["match_score"] == 100.0
+    assert set(data["matched_skills"]) == {"Python", "PostgreSQL"}
+    assert data["missing_must_have"] == []
+
+
 def test_match_bad_payload_422(client):
     r = client.post("/api/match", json={"resume_skills": ["Python"]})
     assert r.status_code == 422

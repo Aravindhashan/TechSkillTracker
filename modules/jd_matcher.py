@@ -107,9 +107,21 @@ def match_resume_to_job(
     missing_must = sorted(set(must_have) - resume_canonical)
     missing_nice = sorted(set(nice_to_have) - resume_canonical)
 
-    must_coverage = 1.0 if not must_have else len(set(must_have) & resume_canonical) / len(must_have)
-    nice_coverage = 1.0 if not nice_to_have else len(set(nice_to_have) & resume_canonical) / len(nice_to_have)
-    weighted = MUST_WEIGHT * must_coverage + NICE_WEIGHT * nice_coverage
+    # Weights renormalize over non-empty buckets so an empty nice-to-have
+    # bucket does not hand out free points (empty resume must score 0).
+    buckets = []
+    weights = []
+    if must_have:
+        buckets.append(len(set(must_have) & resume_canonical) / len(must_have))
+        weights.append(MUST_WEIGHT)
+    if nice_to_have:
+        buckets.append(len(set(nice_to_have) & resume_canonical) / len(nice_to_have))
+        weights.append(NICE_WEIGHT)
+    weighted = (
+        sum(bucket * weight for bucket, weight in zip(buckets, weights)) / sum(weights)
+        if buckets
+        else 0.0
+    )
     match_score = round(weighted * 100, 1)
 
     required_years = posting.get("experience_years")
