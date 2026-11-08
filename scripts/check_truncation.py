@@ -18,17 +18,29 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
+SENTENCE_END = (".", "!", "?", '"', ")", "]", ";")
 
-def load_lengths() -> list[int]:
+
+def load_rows() -> list[dict]:
     from modules import store
 
-    rows = store.fetch_postings(limit=100000)
-    return [len((row.get("description") or "") or "") for row in rows]
+    return store.fetch_postings(limit=100000)
+
+
+def _ends_mid_word(description: str) -> bool:
+    """True when a long description ends mid-word (no sentence punctuation)."""
+    text = (description or "").strip()
+    if len(text) < 500:
+        return False
+    last = text[-1]
+    return last.isalnum() and last not in SENTENCE_END
 
 
 def main() -> int:
     warn_pct = float(os.getenv("TRUNCATION_WARN_PCT", "0.3"))
-    lengths = load_lengths()
+    rows = load_rows()
+    descriptions = [str(row.get("description") or "") for row in rows]
+    lengths = [len(text) for text in descriptions]
     n = len(lengths)
     if n == 0:
         print("verdict: EMPTY — no postings in store")
@@ -37,13 +49,14 @@ def main() -> int:
     sorted_lengths = sorted(lengths)
     median = sorted_lengths[n // 2]
     p90 = sorted_lengths[min(n - 1, int(n * 0.9))]
-    empty = sum(1 for length in lengths if length == 0)
-    short = sum(1 for length in lengths if 0 < length < 200)
+    empty = sum(1 for text in descriptions if not text.strip())
+    short = sum(1 for length in lengths if length < 200)  # includes empties
+    mid_word = sum(1 for text in descriptions if _ends_mid_word(text))
     common_caps = Counter(lengths).most_common(3)
 
     print(f"n={n} min={sorted_lengths[0]} max={sorted_lengths[-1]} "
           f"median={median} p90={p90}")
-    print(f"empty={empty} ({empty / n:.0%}) short<200={short} ({short / n:.0%})")
+    print(f"empty={empty} ({empty / n:.0%}) short<200={short} ({short / n:.0%}) mid_word={mid_word} ({mid_word / n:.0%})")
     print(f"most_common_lengths={common_caps}")
 
     # A fixed cap shows up as an exact length repeating across many rows.
@@ -52,7 +65,9 @@ def main() -> int:
     if cap_hits:
         verdict = f"WARN — possible cap at lengths {cap_hits}"
     if empty / n > warn_pct or short / n > warn_pct:
-        verdict += f" + WARN — {(empty + short) / n:.0%} empty/short rows"
+        verdict += f" + WARN — {short / n:.0%} empty/short rows"
+    if mid_word / n > 0.1:
+        verdict += f" + WARN — {mid_word / n:.0%} end mid-word"
 
     print(f"verdict: {verdict}")
     return 0
