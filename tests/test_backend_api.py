@@ -335,6 +335,17 @@ def test_match_regression_roundtrip_full_skills_scores_100(client):
     assert data["match_score"] == 100.0
     assert set(data["matched_skills"]) == {"Python", "PostgreSQL"}
     assert data["missing_must_have"] == []
+    assert isinstance(data["ghost_risk"], dict)
+    assert 0 <= data["ghost_risk"]["risk"] <= 1
+
+
+def test_search_results_carry_ghost_risk(client):
+    r = client.post("/api/search", json={"query": "python", "top_k": 3, "rerank": False})
+    assert r.status_code == 200
+    results = r.json()["results"]
+    assert isinstance(results, list)
+    for row in results:
+        assert "ghost_risk" in row
 
 
 def test_match_bad_payload_422(client):

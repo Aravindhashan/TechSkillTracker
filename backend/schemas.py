@@ -204,3 +204,4 @@ class MatchResponse(BaseModel):
     title_similarity: float | None = None
     posting_health: str
     confidence: str
+    ghost_risk: dict[str, Any] | None = None

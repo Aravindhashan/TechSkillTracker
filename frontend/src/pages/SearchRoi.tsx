@@ -5,6 +5,7 @@ import { api } from "@/lib/api"
 import { queryKeys } from "@/lib/queryKeys"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
+import GhostBadge from "@/components/GhostBadge"
 import type { SearchResult } from "@/types/api"
 
 type SubTab = "search" | "roi" | "match"
@@ -18,6 +19,8 @@ function parseSkills(value: string): string[] {
     .map((entry) => entry.trim())
     .filter(Boolean)
 }
+
+
 
 function MatchBadge({ result, resumeSkillsInput }: { result: SearchResult; resumeSkillsInput: string }) {
   const resumeSkills = parseSkills(resumeSkillsInput)
@@ -161,7 +164,12 @@ export default function SearchRoi() {
                       {result.skills.length > 0 && (
                         <p className="mt-2 text-xs text-muted-foreground">Skills: {result.skills.join(", ")}</p>
                       )}
-                      <MatchBadge result={result} resumeSkillsInput={resumeSkillsInput} />
+                      {(result.ghost_risk || resumeSkillsInput.trim()) && (
+                        <div className="mt-2 flex flex-wrap items-center gap-2">
+                          <GhostBadge ghost={result.ghost_risk} />
+                          <MatchBadge result={result} resumeSkillsInput={resumeSkillsInput} />
+                        </div>
+                      )}
                       {result.url && (
                         <a href={result.url} target="_blank" rel="noreferrer" className="inline-block mt-3 rounded-full border border-border px-4 py-1 text-sm hover:border-foreground">
                           View posting
@@ -210,6 +218,9 @@ export default function SearchRoi() {
                 <p className="mt-1 text-sm text-muted-foreground">
                   Health: {pasteMatch.data.posting_health} · confidence: {pasteMatch.data.confidence}
                 </p>
+                <div className="mt-2">
+                  <GhostBadge ghost={pasteMatch.data.ghost_risk} />
+                </div>
                 <div className="mt-4 space-y-2 text-sm">
                   <p>
                     <span className="font-medium">Matched: </span>

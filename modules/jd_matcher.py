@@ -144,6 +144,19 @@ def match_resume_to_job(
     posting_health = "active" if is_active else "closed"
     confidence = "low" if not description.strip() else ("high" if must_have else "medium")
 
+    try:
+        from modules import ghost_risk
+
+        risk = ghost_risk.ghost_risk_score(
+            str(posting.get("job_id")),
+            first_seen=posting.get("first_seen"),
+            last_seen=posting.get("last_seen"),
+            is_active=is_active,
+        )
+        ghost = {"risk": risk["risk"], "label": risk["label"]}
+    except Exception:
+        ghost = None
+
     return {
         "match_score": match_score,
         "matched_skills": matched,
@@ -153,4 +166,5 @@ def match_resume_to_job(
         "title_similarity": title_similarity,
         "posting_health": posting_health,
         "confidence": confidence,
+        "ghost_risk": ghost,
     }

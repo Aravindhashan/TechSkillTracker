@@ -92,6 +92,7 @@ export interface SearchResult {
   score: number
   semantic_score: number
   rerank_score: number | null
+  ghost_risk?: { risk: number; label: string } | null
 }
 
 export interface SearchResponse {
@@ -163,6 +164,7 @@ export interface MatchResponse {
   title_similarity: number | null
   posting_health: string
   confidence: string
+  ghost_risk?: { risk: number; label: string } | null
 }
 
 export interface DemandScienceResponse {

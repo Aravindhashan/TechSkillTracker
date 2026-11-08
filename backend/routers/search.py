@@ -20,6 +20,26 @@ def search(payload: SearchRequest, records=Depends(get_search_records)) -> Searc
 
     retrieval_backend = {"faiss": "FAISS", "numpy": "NumPy cosine"}.get(engine.backend, "lexical fallback")
     result_list = list(results or [])
+
+    # Annotate each result with an estimated ghost risk (Slice 3 badge).
+    try:
+        from modules import ghost_risk, store
+
+        by_id = {str(p["job_id"]): p for p in store.fetch_postings(limit=10000)}
+        for item in result_list:
+            posting = by_id.get(str(item.get("job_id")))
+            if posting is None:
+                continue
+            risk = ghost_risk.ghost_risk_score(
+                str(posting.get("job_id")),
+                first_seen=posting.get("first_seen"),
+                last_seen=posting.get("last_seen"),
+                is_active=bool(posting.get("is_active")),
+            )
+            item["ghost_risk"] = {"risk": risk["risk"], "label": risk["label"]}
+    except Exception:
+        pass
+
     return SearchResponse(
         query=payload.query,
         backend=retrieval_backend,
