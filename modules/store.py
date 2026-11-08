@@ -153,6 +153,15 @@ SCHEMA_STATEMENTS = [
         error TEXT
     )
     """,
+    """
+    CREATE TABLE IF NOT EXISTS posting_events (
+        event_id TEXT PRIMARY KEY,
+        job_id TEXT NOT NULL,
+        event_type TEXT NOT NULL,
+        occurred_at TEXT NOT NULL
+    )
+    """,
+    "CREATE INDEX IF NOT EXISTS idx_posting_events_job ON posting_events (job_id, occurred_at)",
     "CREATE INDEX IF NOT EXISTS idx_job_postings_last_seen ON job_postings (last_seen)",
     "CREATE INDEX IF NOT EXISTS idx_job_skills_canonical ON job_skills (skill_canonical)",
 ]
@@ -165,6 +174,57 @@ def init_db() -> None:
         for statement in SCHEMA_STATEMENTS:
             cur.execute(statement)
     _drop_legacy_salary_columns()
+    backfill_posting_events()
+
+
+def _log_event(cur, job_id: str, event_type: str, at: str) -> None:
+    cur.execute(
+        f"INSERT INTO posting_events (event_id, job_id, event_type, occurred_at)"
+        f" VALUES ({_ph()}, {_ph()}, {_ph()}, {_ph()})",
+        (uuid.uuid4().hex, str(job_id), event_type, at),
+    )
+
+
+def fetch_posting_events(job_id: str) -> list[dict]:
+    """Return posting lifecycle events oldest-first (seen/reposted/closed)."""
+    with get_connection() as conn:
+        cur = _cursor(conn)
+        cur.execute(
+            f"SELECT job_id, event_type, occurred_at FROM posting_events"
+            f" WHERE job_id = {_ph()} ORDER BY occurred_at",
+            (str(job_id),),
+        )
+        rows = cur.fetchall()
+    return [dict(row) for row in rows]
+
+
+def backfill_posting_events() -> int:
+    """Seed `seen` (and `closed` when inactive) events from first/last_seen.
+
+    Idempotent: only jobs with no events yet are backfilled, so the badge
+    has history from day one without duplicating on every init.
+    """
+    seeded = 0
+    try:
+        with get_connection() as conn:
+            cur = _cursor(conn)
+            cur.execute("SELECT job_id, first_seen, last_seen, is_active FROM job_postings")
+            for row in cur.fetchall():
+                job_id = str(row["job_id"])
+                cur.execute(
+                    f"SELECT 1 FROM posting_events WHERE job_id = {_ph()} LIMIT 1",
+                    (job_id,),
+                )
+                if cur.fetchone() is not None:
+                    continue
+                _log_event(cur, job_id, "seen", str(row["first_seen"]))
+                seeded += 1
+                if not bool(row["is_active"]):
+                    _log_event(cur, job_id, "closed", str(row["last_seen"]))
+                    seeded += 1
+    except Exception:
+        return 0
+    return seeded
 
 
 LEGACY_SALARY_COLUMNS = (
@@ -297,15 +357,20 @@ def upsert_postings(
             if not record.get("job_id"):
                 continue
             cur.execute(
-                f"SELECT 1 FROM job_postings WHERE job_id = {_ph()}",
+                f"SELECT is_active FROM job_postings WHERE job_id = {_ph()}",
                 (record["job_id"],),
             )
-            exists = cur.fetchone() is not None
+            prior = cur.fetchone()
+            exists = prior is not None
+            was_active = bool(prior["is_active"]) if exists else True
             cur.execute(sql, _posting_row(record, seen_at))
             if exists:
                 updated += 1
+                if not was_active:
+                    _log_event(cur, record["job_id"], "reposted", seen_at)
             else:
                 inserted += 1
+                _log_event(cur, record["job_id"], "seen", seen_at)
 
             for skill in skills_by_job.get(record["job_id"], []):
                 raw = (skill.get("skill_raw") or "").strip()
@@ -491,10 +556,18 @@ def close_stale_postings(days: int = 14) -> int:
             return 0
 
         cur.execute(
-            f"UPDATE job_postings SET is_active = FALSE"
-            f" WHERE is_active = TRUE AND last_seen < {_ph()}",
+            f"SELECT job_id FROM job_postings WHERE is_active = TRUE AND last_seen < {_ph()}",
             (cutoff.isoformat(),),
         )
+        stale_ids = [str(row["job_id"]) for row in cur.fetchall()]
+        if stale_ids:
+            cur.execute(
+                f"UPDATE job_postings SET is_active = FALSE"
+                f" WHERE is_active = TRUE AND last_seen < {_ph()}",
+                (cutoff.isoformat(),),
+            )
+            for stale_id in stale_ids:
+                _log_event(cur, stale_id, "closed", _now())
         changed = cur.rowcount or 0
     return int(changed)
 
