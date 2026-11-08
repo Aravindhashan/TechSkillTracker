@@ -19,6 +19,8 @@ export const queryKeys = {
     ["search", query, topK, rerank] as const,
   roi: (topN: number) => ["roi", topN] as const,
   match: (jobId: string, skills: readonly string[]) => ["match", jobId, [...skills]] as const,
+  matchBatch: (jobIds: readonly string[], skills: readonly string[]) =>
+    ["match-batch", [...jobIds].sort(), [...skills]] as const,
   demandScience: ["demand-science"] as const,
   fairness: ["fairness"] as const,
 }

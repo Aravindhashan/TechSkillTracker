@@ -5,6 +5,7 @@ import type {
   MarketOverview,
   RecommendationResponse,
   RoiResponse,
+  MatchBatchResponse,
   MatchRequest,
   MatchResponse,
   SearchRequest,
@@ -82,6 +83,11 @@ export const api = {
   roi: (topN = 25) => request<RoiResponse>(`/api/roi?top_n=${topN}`),
   match: (body: MatchRequest) =>
     request<MatchResponse>("/api/match", {
+      method: "POST",
+      body: JSON.stringify(body),
+    }),
+  matchBatch: (body: { job_ids: string[]; resume_skills: string[] }) =>
+    request<MatchBatchResponse>("/api/match/batch", {
       method: "POST",
       body: JSON.stringify(body),
     }),

@@ -194,6 +194,17 @@ class MatchRequest(BaseModel):
     resume_title: str | None = None
 
 
+class MatchBatchRequest(BaseModel):
+    job_ids: list[str] = Field(default_factory=list)
+    resume_skills: list[str] = Field(default_factory=list)
+    resume_years: float | None = None
+    resume_title: str | None = None
+
+
+class MatchBatchResponse(BaseModel):
+    results: list["MatchResponse"] = Field(default_factory=list)
+
+
 class MatchResponse(BaseModel):
     job_id: str
     match_score: float

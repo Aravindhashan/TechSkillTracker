@@ -324,6 +324,18 @@ def test_match_unknown_job_404(client):
     assert r.status_code == 404
 
 
+def test_match_batch_scores_many_jobs(client):
+    r = client.post(
+        "/api/match/batch",
+        json={"job_ids": ["job-1", "no-such-job"], "resume_skills": ["Python", "PostgreSQL"]},
+    )
+    assert r.status_code == 200
+    data = r.json()
+    assert len(data["results"]) == 1  # unknown ids are skipped
+    assert data["results"][0]["job_id"] == "job-1"
+    assert data["results"][0]["match_score"] == 100.0
+
+
 def test_match_regression_roundtrip_full_skills_scores_100(client):
     # Seeded job-1 requires Python + PostgreSQL; a resume with both matches fully.
     r = client.post(

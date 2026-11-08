@@ -7,7 +7,7 @@ from collections import deque
 
 from fastapi import APIRouter, HTTPException, Request
 
-from backend.schemas import MatchRequest, MatchResponse
+from backend.schemas import MatchBatchRequest, MatchBatchResponse, MatchRequest, MatchResponse
 
 router = APIRouter(prefix="/api/match", tags=["match"])
 
@@ -49,3 +49,30 @@ def match(request: Request, payload: MatchRequest) -> MatchResponse:
         raise HTTPException(status_code=404, detail=f"job_id not found: {payload.job_id}")
 
     return MatchResponse(job_id=payload.job_id, **result)
+
+
+@router.post("/batch", response_model=MatchBatchResponse)
+def match_batch(request: Request, payload: MatchBatchRequest) -> MatchBatchResponse:
+    """Score many postings in one request (fixes per-card N+1 fan-out).
+
+    One batch counts as one rate-limit hit regardless of size.
+    """
+    client_ip = request.client.host if request.client else "unknown"
+    if _rate_limited(client_ip):
+        raise HTTPException(status_code=429, detail="Rate limit exceeded. Slow down.")
+
+    from modules import jd_matcher
+
+    results: list[MatchResponse] = []
+    for job_id in dict.fromkeys(str(jid) for jid in (payload.job_ids or [])):
+        try:
+            result = jd_matcher.match_resume_to_job(
+                list(payload.resume_skills or []),
+                job_id,
+                resume_years=payload.resume_years,
+                resume_title=payload.resume_title,
+            )
+        except KeyError:
+            continue  # unknown ids are skipped; callers key results by job_id
+        results.append(MatchResponse(job_id=job_id, **result))
+    return MatchBatchResponse(results=results)

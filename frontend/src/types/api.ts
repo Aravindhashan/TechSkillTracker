@@ -167,6 +167,10 @@ export interface MatchResponse {
   ghost_risk?: { risk: number; label: string } | null
 }
 
+export interface MatchBatchResponse {
+  results: MatchResponse[]
+}
+
 export interface DemandScienceResponse {
   survival_overall: SurvivalPoint[]
   survival_by_skill: Record<string, SurvivalPoint[]>

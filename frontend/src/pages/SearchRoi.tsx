@@ -1,4 +1,4 @@
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { useQuery } from "@tanstack/react-query"
 import Plot from "react-plotly.js"
 import { api } from "@/lib/api"
@@ -6,7 +6,6 @@ import { queryKeys } from "@/lib/queryKeys"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import GhostBadge from "@/components/GhostBadge"
-import type { SearchResult } from "@/types/api"
 
 type SubTab = "search" | "roi" | "match"
 
@@ -22,33 +21,18 @@ function parseSkills(value: string): string[] {
 
 
 
-function MatchBadge({ result, resumeSkillsInput }: { result: SearchResult; resumeSkillsInput: string }) {
-  const resumeSkills = parseSkills(resumeSkillsInput)
-  const match = useQuery({
-    queryKey: queryKeys.match(result.job_id ?? "", resumeSkills),
-    queryFn: () => api.match({ job_id: result.job_id ?? "", resume_skills: resumeSkills }),
-    enabled: !!result.job_id && resumeSkills.length > 0,
-    staleTime: 300_000,
-    retry: false,
-  })
-
-  if (resumeSkills.length === 0) return null
+function MatchBadge({ match }: { match?: { match_score: number; missing_must_have: string[] } | null }) {
+  if (!match) return null
   return (
-    <div className="mt-3">
-      {match.isLoading && <span className="text-xs text-muted-foreground">Scoring match…</span>}
-      {match.error && <span className="text-xs text-red-800">{String(match.error)}</span>}
-      {match.data && (
-        <span className="inline-flex flex-wrap items-center gap-2 rounded-full border border-border bg-card px-3 py-1 text-sm">
-          <span className="font-display text-lg leading-none">{match.data.match_score}</span>
-          <span className="text-muted-foreground">match</span>
-          {match.data.missing_must_have.length > 0 && (
-            <span className="text-xs text-muted-foreground">
-              missing: {match.data.missing_must_have.join(", ")}
-            </span>
-          )}
+    <span className="inline-flex flex-wrap items-center gap-2 rounded-full border border-border bg-card px-3 py-1 text-sm">
+      <span className="font-display text-lg leading-none">{match.match_score}</span>
+      <span className="text-muted-foreground">match</span>
+      {match.missing_must_have.length > 0 && (
+        <span className="text-xs text-muted-foreground">
+          missing: {match.missing_must_have.join(", ")}
         </span>
       )}
-    </div>
+    </span>
   )
 }
 
@@ -72,6 +56,24 @@ export default function SearchRoi() {
     queryFn: () => api.roi(25),
     enabled: sub === "roi",
   })
+
+  const [debouncedSkillsInput, setDebouncedSkillsInput] = useState(resumeSkillsInput)
+  useEffect(() => {
+    const timer = setTimeout(() => setDebouncedSkillsInput(resumeSkillsInput), 300)
+    return () => clearTimeout(timer)
+  }, [resumeSkillsInput])
+  const resumeSkills = parseSkills(debouncedSkillsInput)
+  const resultJobIds = (search.data?.results ?? [])
+    .map((result) => result.job_id)
+    .filter((id): id is string => !!id)
+  const matchBatch = useQuery({
+    queryKey: queryKeys.matchBatch(resultJobIds, resumeSkills),
+    queryFn: () => api.matchBatch({ job_ids: resultJobIds, resume_skills: resumeSkills }),
+    enabled: sub === "search" && !!query.trim() && resumeSkills.length > 0 && resultJobIds.length > 0,
+    staleTime: 300_000,
+    retry: false,
+  })
+  const scoreById = new Map((matchBatch.data?.results ?? []).map((item) => [item.job_id, item]))
 
   const matchSkills = parseSkills(matchResumeInput)
   const pasteMatch = useQuery({
@@ -166,10 +168,10 @@ export default function SearchRoi() {
                       {result.skills.length > 0 && (
                         <p className="mt-2 text-xs text-muted-foreground">Skills: {result.skills.join(", ")}</p>
                       )}
-                      {(result.ghost_risk || resumeSkillsInput.trim()) && (
+                      {(result.ghost_risk || resumeSkills.length > 0) && (
                         <div className="mt-2 flex flex-wrap items-center gap-2">
                           <GhostBadge ghost={result.ghost_risk} />
-                          <MatchBadge result={result} resumeSkillsInput={resumeSkillsInput} />
+                          <MatchBadge match={result.job_id ? scoreById.get(result.job_id) : undefined} />
                         </div>
                       )}
                       {result.url && (
