@@ -21,6 +21,8 @@ def _rate_limited(client_ip: str) -> bool:
     window = _hits.setdefault(client_ip, deque())
     while window and now - window[0] > WINDOW_SECONDS:
         window.popleft()
+    if not window and client_ip in _hits:
+        del _hits[client_ip]  # evict stale IPs so _hits cannot grow unbounded
     if len(window) >= RATE_LIMIT:
         return True
     window.append(now)

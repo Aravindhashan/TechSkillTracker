@@ -16,50 +16,21 @@ split is still required before treating scores as ground truth.
 from __future__ import annotations
 
 import json
-import re
 import sys
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
-MUST_CUE_RE = re.compile(
-    r"(required|must have|essential|minimum qualifications|requirements?\s*:)",
-    re.IGNORECASE,
-)
-NICE_CUE_RE = re.compile(
-    r"(preferred|nice to have|bonus|plus|good to have|advantageous)",
-    re.IGNORECASE,
-)
-
-
-def _boundary_index(lower: str, skill: str) -> int:
-    """First boundary-delimited occurrence ("Java" never hits "JavaScript")."""
-    pattern = re.compile(
-        rf"(?<![A-Za-z0-9+#/]){re.escape(skill.lower())}(?![A-Za-z0-9+#/&])",
-        re.IGNORECASE,
-    )
-    match = pattern.search(lower)
-    return match.start() if match else -1
-
 
 def split_must_nice(description: str, skills: list[str]) -> tuple[list[str], list[str]]:
-    """Split skills by section cues; default unknowns to must_have."""
-    if not description:
-        return list(skills), []
-    must, nice = [], []
-    lower = description.lower()
-    for skill in skills:
-        # Find first mention of the skill and look at surrounding context.
-        idx = _boundary_index(lower, skill)
-        window = lower[max(0, idx - 200): idx + 200] if idx >= 0 else ""
-        if NICE_CUE_RE.search(window):
-            nice.append(skill)
-        elif MUST_CUE_RE.search(window):
-            must.append(skill)
-        else:
-            # No cue near the mention: unverified -> must-have bucket.
-            must.append(skill)
-    return sorted(set(must)), sorted(set(nice))
+    """Split vs section cues via the canonical implementation in jd_matcher.
+
+    Single source of truth — the matcher and the label builder must not
+    diverge (duplication was a code-review finding).
+    """
+    from modules.jd_matcher import split_must_nice as _matcher_split
+
+    return _matcher_split(description, skills)
 
 
 def main() -> int:

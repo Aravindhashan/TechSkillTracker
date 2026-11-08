@@ -456,6 +456,31 @@ def fetch_postings_with_skills(
     return postings
 
 
+def fetch_posting(job_id: str) -> dict | None:
+    """Return a single posting with its canonical skills."""
+    with get_connection() as conn:
+        cur = _cursor(conn)
+        cur.execute(
+            f"SELECT * FROM job_postings WHERE job_id = {_ph()}",
+            (str(job_id),),
+        )
+        row = cur.fetchone()
+        if row is None:
+            return None
+        posting = dict(row)
+        cur.execute(
+            f"SELECT skill_canonical FROM job_skills WHERE job_id = {_ph()}",
+            (str(job_id),),
+        )
+        skills = set()
+        for item in cur.fetchall():
+            canonical = dict(item).get("skill_canonical")
+            if canonical:
+                skills.add(str(canonical))
+        posting["skills"] = sorted(skills)
+    return posting
+
+
 def _posting_where(days: int | None, active_only: bool, alias: str = "") -> tuple[str, list]:
     """Shared WHERE builder for posting queries (SQLite and Postgres)."""
     prefix = f"{alias}." if alias else ""

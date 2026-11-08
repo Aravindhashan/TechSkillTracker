@@ -202,6 +202,6 @@ class MatchResponse(BaseModel):
     missing_nice_to_have: list[str] = Field(default_factory=list)
     experience_gap: float | None = None
     title_similarity: float | None = None
-    posting_health: str
-    confidence: str
+    posting_health: Literal["active", "closed"]
+    confidence: Literal["low", "medium", "high"]
     ghost_risk: dict[str, Any] | None = None

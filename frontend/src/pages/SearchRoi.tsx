@@ -25,9 +25,11 @@ function parseSkills(value: string): string[] {
 function MatchBadge({ result, resumeSkillsInput }: { result: SearchResult; resumeSkillsInput: string }) {
   const resumeSkills = parseSkills(resumeSkillsInput)
   const match = useQuery({
-    queryKey: queryKeys.match(result.job_id ?? "", resumeSkills.join(",")),
+    queryKey: queryKeys.match(result.job_id ?? "", resumeSkills),
     queryFn: () => api.match({ job_id: result.job_id ?? "", resume_skills: resumeSkills }),
     enabled: !!result.job_id && resumeSkills.length > 0,
+    staleTime: 300_000,
+    retry: false,
   })
 
   if (resumeSkills.length === 0) return null
@@ -73,7 +75,7 @@ export default function SearchRoi() {
 
   const matchSkills = parseSkills(matchResumeInput)
   const pasteMatch = useQuery({
-    queryKey: queryKeys.match(matchJobId.trim(), matchResumeInput),
+    queryKey: queryKeys.match(matchJobId.trim(), matchSkills),
     queryFn: () => api.match({ job_id: matchJobId.trim(), resume_skills: matchSkills }),
     enabled: sub === "match" && !!matchJobId.trim() && matchSkills.length > 0,
   })

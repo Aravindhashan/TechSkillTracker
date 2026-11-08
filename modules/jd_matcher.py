@@ -6,9 +6,9 @@ persistence. Empty descriptions degrade to title/skills-only matching with a
 low-confidence flag (see FINAL_IMPLEMENTATION_PLAN.md Phase 0 gate).
 
 Score = weighted coverage (must-haves heaviest):
-    0.7 * must_coverage + 0.3 * nice_coverage
-(normalized to 0–100). When the posting has no must-haves, the must term
-counts as fully covered; same for nice-to-haves.
+    0.7 * must_coverage + 0.3 * nice_coverage  (normalized to 0–100).
+Weights renormalize over non-empty buckets, so an empty nice-to-have bucket
+gives no free points (an empty resume always scores 0).
 """
 
 from __future__ import annotations
@@ -88,13 +88,10 @@ def split_must_nice(
 
 
 def _posting_by_id(job_id: str) -> dict | None:
+    """Single-row lookup (was a full-table scan per match request)."""
     from modules import store
 
-    postings = store.fetch_postings_with_skills()
-    for posting in postings:
-        if str(posting.get("job_id")) == str(job_id):
-            return posting
-    return None
+    return store.fetch_posting(str(job_id))
 
 
 def match_resume_to_job(
@@ -125,20 +122,20 @@ def match_resume_to_job(
 
     # Weights renormalize over non-empty buckets so an empty nice-to-have
     # bucket does not hand out free points (empty resume must score 0).
-    buckets = []
+    coverages = []
     weights = []
     if must_have:
-        buckets.append(len(set(must_have) & resume_canonical) / len(must_have))
+        coverages.append(len(set(must_have) & resume_canonical) / len(must_have))
         weights.append(MUST_WEIGHT)
     if nice_to_have:
-        buckets.append(len(set(nice_to_have) & resume_canonical) / len(nice_to_have))
+        coverages.append(len(set(nice_to_have) & resume_canonical) / len(nice_to_have))
         weights.append(NICE_WEIGHT)
-    weighted = (
-        sum(bucket * weight for bucket, weight in zip(buckets, weights)) / sum(weights)
-        if buckets
+    weighted_coverage = (
+        sum(coverage * weight for coverage, weight in zip(coverages, weights)) / sum(weights)
+        if coverages
         else 0.0
     )
-    match_score = round(weighted * 100, 1)
+    match_score = round(weighted_coverage * 100, 1)
 
     required_years = posting.get("experience_years")
     if required_years is None:
