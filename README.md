@@ -318,13 +318,6 @@ skill-demand counts stay complete.
 
 ---
 
-## Team
-
-- Om Aravindhashan S (23MID0222)
-- Raghul (23MID0322)
-
----
-
 ## Acknowledgements
 
 Built with Streamlit, pandas, NumPy, scikit-learn, statsmodels, Plotly, joblib, and ReportLab.
