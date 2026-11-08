@@ -48,6 +48,22 @@ def _cue_sections(description: str) -> list[tuple[int, str]]:
     return hits
 
 
+def _skill_index(lower: str, skill: str) -> int:
+    """First boundary-delimited occurrence of `skill` (never inside a longer word).
+
+    Mirrors the normalizer's boundary rule so "Java" never matches inside
+    "JavaScript".
+    """
+    import re
+
+    pattern = re.compile(
+        rf"(?<![A-Za-z0-9+#/]){re.escape(skill.lower())}(?![A-Za-z0-9+#/&])",
+        re.IGNORECASE,
+    )
+    match = pattern.search(lower)
+    return match.start() if match else -1
+
+
 def split_must_nice(
     description: str, job_skills: list[str]
 ) -> tuple[list[str], list[str]]:
@@ -61,7 +77,7 @@ def split_must_nice(
     lower = (description or "").lower()
     sections = _cue_sections(description)
     for skill in sorted(set(job_skills)):
-        index = lower.find(skill.lower())
+        index = _skill_index(lower, skill)
         kind = "must"  # unverified default
         if index >= 0:
             preceding = [hit for hit in sections if hit[0] <= index and index - hit[0] <= 300]

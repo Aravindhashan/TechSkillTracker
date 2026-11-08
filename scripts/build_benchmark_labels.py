@@ -32,6 +32,16 @@ NICE_CUE_RE = re.compile(
 )
 
 
+def _boundary_index(lower: str, skill: str) -> int:
+    """First boundary-delimited occurrence ("Java" never hits "JavaScript")."""
+    pattern = re.compile(
+        rf"(?<![A-Za-z0-9+#/]){re.escape(skill.lower())}(?![A-Za-z0-9+#/&])",
+        re.IGNORECASE,
+    )
+    match = pattern.search(lower)
+    return match.start() if match else -1
+
+
 def split_must_nice(description: str, skills: list[str]) -> tuple[list[str], list[str]]:
     """Split skills by section cues; default unknowns to must_have."""
     if not description:
@@ -39,9 +49,8 @@ def split_must_nice(description: str, skills: list[str]) -> tuple[list[str], lis
     must, nice = [], []
     lower = description.lower()
     for skill in skills:
-        skill_lower = skill.lower()
         # Find first mention of the skill and look at surrounding context.
-        idx = lower.find(skill_lower)
+        idx = _boundary_index(lower, skill)
         window = lower[max(0, idx - 200): idx + 200] if idx >= 0 else ""
         if NICE_CUE_RE.search(window):
             nice.append(skill)
