@@ -27,7 +27,6 @@ export default function Forecasting() {
   const [skill, setSkill] = useState(selectedSkills[0] ?? "Python")
   const [months, setMonths] = useState(12)
   const [model, setModel] = useState<ForecastEngine>("auto")
-  const [submitted, setSubmitted] = useState(false)
 
   useEffect(() => {
     if (selectedSkills[0]) setSkill(selectedSkills[0])
@@ -42,7 +41,7 @@ export default function Forecasting() {
   const forecast = useQuery({
     queryKey: queryKeys.forecast(skill, months, model),
     queryFn: () => api.forecast(skill, months, model),
-    enabled: submitted && !!skill,
+    enabled: !!skill.trim(),
   })
 
   const points = forecast.data?.forecast ?? []
@@ -104,7 +103,7 @@ export default function Forecasting() {
             </select>
           </div>
           <div className="flex items-end">
-            <Button className="w-full rounded-full" disabled={!skill} onClick={() => setSubmitted(true)}>
+            <Button className="w-full rounded-full" disabled={!skill.trim()}>
               Generate Forecast
             </Button>
           </div>

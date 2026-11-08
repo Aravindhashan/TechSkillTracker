@@ -16,12 +16,11 @@ export default function SearchRoi() {
   const [query, setQuery] = useState("")
   const [topK, setTopK] = useState(8)
   const [rerank, setRerank] = useState(true)
-  const [submitted, setSubmitted] = useState(false)
 
   const search = useQuery({
     queryKey: queryKeys.search(query, topK, rerank),
     queryFn: () => api.search({ query, top_k: topK, rerank }),
-    enabled: submitted && sub === "search" && !!query.trim(),
+    enabled: sub === "search" && !!query.trim(),
   })
 
   const roi = useQuery({
@@ -81,7 +80,7 @@ export default function SearchRoi() {
                   <input type="checkbox" checked={rerank} onChange={(event) => setRerank(event.target.checked)} />
                   Rerank with cross-encoder
                 </label>
-                <Button className="rounded-full" onClick={() => setSubmitted(true)} disabled={!query.trim()}>
+                <Button className="rounded-full" disabled={!query.trim()}>
                   Search
                 </Button>
               </div>

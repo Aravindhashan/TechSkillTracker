@@ -19,9 +19,12 @@ export default function Recommendations() {
   const [role, setRole] = useState("")
   const [currentSkills, setCurrentSkills] = useState("")
   const [targetRole, setTargetRole] = useState("")
-  const [submitted, setSubmitted] = useState(false)
 
   const queryKey = `${skill}|${role}|${currentSkills}|${targetRole}`
+  const canFetch =
+    (mode === "complementary" && !!skill.trim()) ||
+    (mode === "role" && !!role.trim()) ||
+    (mode === "learning-path" && !!targetRole.trim())
   const recommendations = useQuery({
     queryKey: queryKeys.recommendations(mode, queryKey),
     queryFn: () => {
@@ -33,7 +36,7 @@ export default function Recommendations() {
         target_role: targetRole,
       })
     },
-    enabled: submitted,
+    enabled: canFetch,
   })
 
   return (
@@ -51,7 +54,6 @@ export default function Recommendations() {
             }`}
             onClick={() => {
               setMode(candidate)
-              setSubmitted(false)
             }}
           >
             {MODE_LABELS[candidate]}
@@ -105,7 +107,7 @@ export default function Recommendations() {
               </div>
             </div>
           )}
-          <Button className="rounded-full" onClick={() => setSubmitted(true)}>
+          <Button className="rounded-full" disabled={!canFetch}>
             Get Recommendations
           </Button>
         </CardContent>
